@@ -114,6 +114,24 @@ void AppController::setLogFontSize(int pixelSize) {
 
 QStringList AppController::availableFontFamilies() const { return QFontDatabase::families(); }
 
+void AppController::restoreDefaultSettings() {
+    settings_.resetDisplayPreferences();
+
+    // language() now re-derives the system-locale default since
+    // resetDisplayPreferences() cleared the stored override. Re-applying it
+    // through LanguageManager (rather than just settings_.setLanguage())
+    // keeps translations in sync even when the default happens to equal
+    // whatever was already active. currentLanguageChanged/currentModelChanged
+    // are emitted unconditionally for the same reason -- LanguageManager's
+    // own signal only fires on an actual change, but the dialog's combo box
+    // still needs telling to re-sync its displayed index.
+    LanguageManager::instance().setLanguage(settings_.language());
+    emit currentLanguageChanged();
+    emit currentModelChanged();
+
+    emit logFontChanged();
+}
+
 QVariantList AppController::availableLanguages() const {
     QVariantList result;
     for (const LanguageInfo &l : LanguageManager::availableLanguages()) {

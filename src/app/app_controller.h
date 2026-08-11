@@ -86,6 +86,10 @@ public:
     // Installed font families, for the data-monitor font picker in
     // SettingsAboutDialog.qml.
     Q_INVOKABLE QStringList availableFontFamilies() const;
+    // "Restore defaults" on SettingsAboutDialog.qml -- resets every setting
+    // exposed on that dialog (language, data monitor font) back to its
+    // built-in default.
+    Q_INVOKABLE void restoreDefaultSettings();
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);

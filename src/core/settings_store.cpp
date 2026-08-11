@@ -126,3 +126,10 @@ int SettingsStore::logFontSize() const {
 void SettingsStore::setLogFontSize(int pixelSize) {
     QSettings().setValue(kLogFontSize, pixelSize);
 }
+
+void SettingsStore::resetDisplayPreferences() {
+    QSettings s;
+    s.remove(kLanguage);
+    s.remove(kLogFontFamily);
+    s.remove(kLogFontSize);
+}

@@ -15,6 +15,26 @@ Dialog {
     width: 460
     standardButtons: Dialog.Close
 
+    // Keeps languageCombo/fontFamilyCombo in sync when the underlying
+    // AppController properties change from outside a user pick on those
+    // combos themselves -- namely restoreDefaults() below. Both combos only
+    // set their currentIndex imperatively (Component.onCompleted/onActivated)
+    // rather than via a live binding, since an editable ComboBox's
+    // currentIndex is otherwise clobbered by the user's own typing; that
+    // means a change originating on the C++ side needs an explicit nudge to
+    // show up here. fontSizeSpin needs no equivalent handler -- its `value`
+    // is a genuine declarative binding to AppController.logFontSize, so it
+    // already re-reads on change.
+    Connections {
+        target: AppController
+        function onCurrentLanguageChanged() {
+            languageCombo.currentIndex = languageCombo.indexOfValue(AppController.currentLanguage)
+        }
+        function onLogFontChanged() {
+            fontFamilyCombo.currentIndex = fontFamilyCombo.find(AppController.logFontFamily)
+        }
+    }
+
     contentItem: ColumnLayout {
         spacing: 14
 
@@ -99,6 +119,17 @@ Dialog {
             Label { text: qsTr("Devices"); font.pixelSize: 11; color: Theme.textMuted }
             Label { text: "support@ubibot.com" }
             Label { text: qsTr("%1 models · %2 commands").arg(AppController.modelCount).arg(AppController.commandCount) }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+
+            Button {
+                text: qsTr("Restore defaults")
+                onClicked: AppController.restoreDefaultSettings()
+            }
+            Item { Layout.fillWidth: true }
         }
     }
 

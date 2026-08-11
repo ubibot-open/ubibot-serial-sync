@@ -45,4 +45,12 @@ public:
     void setLogFontFamily(const QString &family);
     int logFontSize() const;
     void setLogFontSize(int pixelSize);
+
+    // Clears the persisted language/font overrides above (the "Settings &
+    // About" dialog's own settings) so the next read of each falls back to
+    // its built-in default -- system-locale detection for language(),
+    // "Consolas"/12 for the font. Leaves everything else (serial config,
+    // favorites, window geometry, log preferences) untouched, since those
+    // aren't surfaced on that dialog.
+    void resetDisplayPreferences();
 };
