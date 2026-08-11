@@ -30,17 +30,54 @@ Item {
     property bool paused: false
     property bool wrapLines: true
 
-    // Copies the active selection if there is one, otherwise the entire
-    // scrollback -- what the context menu's "Copy" is for either way.
+    // Strips each line's leading "HH:mm:ss  TAG  " prefix (see
+    // LogListModel::lineHtml) from a chunk of selected plain text --
+    // dragging a selection across several lines otherwise pulls each
+    // line's timestamp and TX/RX/SYS/ERR tag along with it, which is noise
+    // when what you actually want is just the payload. QQuickTextEdit has
+    // no notion of an unselectable region (the whole document is one
+    // uniform text area) and no rectangular/column-selection mode either,
+    // so the drag highlight itself will still visually cover the prefix --
+    // only what actually lands on the clipboard gets cleaned up here.
+    //
+    // Both gaps in the prefix, and any padding inside the tag itself
+    // ("TX " -> "TX" + 1 pad char), render as U+00A0 rather than a plain
+    // space: lineHtml() has to use &nbsp; there since a rich-text renderer
+    // collapses consecutive literal HTML spaces, which would otherwise
+    // throw off the fixed-width column alignment.
+    //
+    // The timestamp half is optional so this still matches correctly with
+    // "Show timestamp" off. Only lines that actually START with this
+    // pattern get stripped -- one that begins mid-line (the selection
+    // started past the prefix already) is left untouched rather than
+    // risking eating real content that happens to look similar.
+    function stripLineColumns(text) {
+        const prefix = /^(?:\d{2}:\d{2}:\d{2}  )?(?:(?:TX|RX)   |(?:SYS|ERR)  )/gm
+        return text.replace(prefix, "")
+    }
+
+    // Copies the active selection (with its timestamp/tag columns
+    // stripped) if there is one, otherwise the entire scrollback verbatim
+    // -- a full-log copy keeps that context since it reads as an export,
+    // not a value someone's about to paste elsewhere.
     function copyLog() {
         if (contentEdit.selectedText.length > 0) {
-            contentEdit.copy()
+            clipboardHelper.text = root.stripLineColumns(contentEdit.selectedText)
+            clipboardHelper.selectAll()
+            clipboardHelper.copy()
             return
         }
         contentEdit.selectAll()
         contentEdit.copy()
         contentEdit.deselect()
     }
+
+    // Off-screen helper: QML has no clipboard API of its own, but a hidden
+    // TextEdit's copy() does the job without any C++ (same trick
+    // RemoteAssistPanel.qml uses for "Copy code"). Needed only for the
+    // stripped-selection path above -- contentEdit.copy() already talks to
+    // the clipboard directly when copying it verbatim.
+    TextEdit { id: clipboardHelper; visible: false }
 
     Menu {
         id: contextMenu
