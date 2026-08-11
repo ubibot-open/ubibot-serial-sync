@@ -1,5 +1,6 @@
 #include "core/settings_store.h"
 
+#include <QLocale>
 #include <QSettings>
 
 namespace {
@@ -17,15 +18,22 @@ constexpr auto kLastLogDir = "log/lastDirectory";
 constexpr auto kContinuousLogging = "log/continuousEnabled";
 }  // namespace
 
-AppLanguage SettingsStore::language() const {
-    const int v = QSettings().value(kLanguage, int(AppLanguage::Bilingual)).toInt();
-    if (v == int(AppLanguage::Chinese)) return AppLanguage::Chinese;
-    if (v == int(AppLanguage::English)) return AppLanguage::English;
-    return AppLanguage::Bilingual;
+QString SettingsStore::language() const {
+    QSettings s;
+    if (s.contains(kLanguage)) return s.value(kLanguage).toString();
+
+    // First run: match the system locale's language against what we ship
+    // ("zh_TW" and "zh_CN" both fall back to the "zh_CN" entry, say), else
+    // fall back to English.
+    const QString sysLanguage = QLocale::system().name().section(QLatin1Char('_'), 0, 0);
+    for (const LanguageInfo &lang : LanguageManager::availableLanguages()) {
+        if (lang.code.section(QLatin1Char('_'), 0, 0) == sysLanguage) return lang.code;
+    }
+    return QStringLiteral("en");
 }
 
-void SettingsStore::setLanguage(AppLanguage lang) {
-    QSettings().setValue(kLanguage, int(lang));
+void SettingsStore::setLanguage(const QString &code) {
+    QSettings().setValue(kLanguage, code);
 }
 
 SerialConfig SettingsStore::lastSerialConfig() const {

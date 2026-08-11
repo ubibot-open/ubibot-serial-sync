@@ -273,7 +273,7 @@ void MainWindow::wireSignals() {
     connect(clearInputButton_, &QPushButton::clicked, inputEdit_, &QTextEdit::clear);
 
     connect(&LanguageManager::instance(), &LanguageManager::languageChanged, this,
-            [this](AppLanguage lang) { settings_.setLanguage(lang); });
+            [this](const QString &code) { settings_.setLanguage(code); });
 }
 
 QByteArray MainWindow::composeAsciiPayload(const QString &text) const {

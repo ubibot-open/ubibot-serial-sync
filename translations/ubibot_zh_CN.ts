@@ -412,18 +412,6 @@
         <translation>界面语言</translation>
     </message>
     <message>
-        <source>Bilingual (Chinese + English)</source>
-        <translation>中英双语</translation>
-    </message>
-    <message>
-        <source>简体中文</source>
-        <translation>简体中文</translation>
-    </message>
-    <message>
-        <source>English</source>
-        <translation>English</translation>
-    </message>
-    <message>
         <source>Up to date</source>
         <translation>已是最新</translation>
     </message>

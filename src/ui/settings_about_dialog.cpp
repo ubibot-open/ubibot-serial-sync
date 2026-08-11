@@ -1,6 +1,7 @@
 #include "ui/settings_about_dialog.h"
 #include "core/language_manager.h"
 
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QGridLayout>
@@ -9,7 +10,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRadioButton>
 #include <QVBoxLayout>
 
 namespace {
@@ -29,26 +29,16 @@ void SettingsAboutDialog::buildUi() {
 
     languageGroup_ = new QGroupBox;
     auto *langLayout = new QHBoxLayout(languageGroup_);
-    bilingualRadio_ = new QRadioButton;
-    chineseRadio_ = new QRadioButton;
-    englishRadio_ = new QRadioButton;
-    switch (LanguageManager::instance().language()) {
-    case AppLanguage::Chinese: chineseRadio_->setChecked(true); break;
-    case AppLanguage::English: englishRadio_->setChecked(true); break;
-    case AppLanguage::Bilingual: default: bilingualRadio_->setChecked(true); break;
-    }
-    connect(bilingualRadio_, &QRadioButton::toggled, this, [](bool on) {
-        if (on) LanguageManager::instance().setLanguage(AppLanguage::Bilingual);
+    languageCombo_ = new QComboBox;
+    for (const LanguageInfo &lang : LanguageManager::availableLanguages())
+        languageCombo_->addItem(lang.nativeName, lang.code);
+    const int currentIdx = languageCombo_->findData(LanguageManager::instance().language());
+    languageCombo_->setCurrentIndex(currentIdx >= 0 ? currentIdx : 0);
+    connect(languageCombo_, &QComboBox::currentIndexChanged, this, [this](int index) {
+        LanguageManager::instance().setLanguage(languageCombo_->itemData(index).toString());
     });
-    connect(chineseRadio_, &QRadioButton::toggled, this, [](bool on) {
-        if (on) LanguageManager::instance().setLanguage(AppLanguage::Chinese);
-    });
-    connect(englishRadio_, &QRadioButton::toggled, this, [](bool on) {
-        if (on) LanguageManager::instance().setLanguage(AppLanguage::English);
-    });
-    langLayout->addWidget(bilingualRadio_);
-    langLayout->addWidget(chineseRadio_);
-    langLayout->addWidget(englishRadio_);
+    langLayout->addWidget(languageCombo_);
+    langLayout->addStretch();
 
     libraryGroup_ = new QGroupBox;
     auto *libLayout = new QHBoxLayout(libraryGroup_);
@@ -106,9 +96,6 @@ void SettingsAboutDialog::checkForUpdate() {
 void SettingsAboutDialog::retranslateUi() {
     setWindowTitle(tr("Settings & About"));
     languageGroup_->setTitle(tr("Interface language"));
-    bilingualRadio_->setText(tr("Bilingual (Chinese + English)"));
-    chineseRadio_->setText(tr("简体中文"));
-    englishRadio_->setText(tr("English"));
 
     libraryGroup_->setTitle(tr("Command library"));
     libraryVersionLabel_->setText(library_->version());

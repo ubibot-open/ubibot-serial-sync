@@ -12,8 +12,11 @@
 // key-string typos in one file instead of scattered across the UI.
 class SettingsStore {
 public:
-    AppLanguage language() const;
-    void setLanguage(AppLanguage lang);
+    // Returns the stored language code, or -- on first run -- whichever
+    // shipped language best matches the system locale (falling back to
+    // "en").
+    QString language() const;
+    void setLanguage(const QString &code);
 
     SerialConfig lastSerialConfig() const;
     void setLastSerialConfig(const SerialConfig &cfg);

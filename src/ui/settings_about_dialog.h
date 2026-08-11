@@ -4,13 +4,13 @@
 
 #include <QDialog>
 
-class QRadioButton;
+class QComboBox;
 class QLabel;
 class QPushButton;
 
 // "Settings & About" dialog: interface language switch plus static
-// version/library/support info. This is where AppLanguage actually gets
-// changed at runtime (see LanguageManager::setLanguage()).
+// version/library/support info. This is where the app language actually
+// gets changed at runtime (see LanguageManager::setLanguage()).
 class SettingsAboutDialog : public QDialog {
     Q_OBJECT
 public:
@@ -27,9 +27,11 @@ private:
     const DeviceLibrary *library_;
 
     class QGroupBox *languageGroup_;
-    QRadioButton *bilingualRadio_;
-    QRadioButton *chineseRadio_;
-    QRadioButton *englishRadio_;
+    // A dropdown rather than radio buttons: this list is meant to grow past
+    // a dozen languages, which a row (or even a column) of radio buttons
+    // can't hold. Each item's display text is that language's own native
+    // name (see LanguageInfo), so it doesn't need retranslating.
+    QComboBox *languageCombo_;
 
     class QGroupBox *libraryGroup_;
     QLabel *libraryVersionLabel_;

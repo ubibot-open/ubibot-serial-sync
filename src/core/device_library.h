@@ -4,9 +4,10 @@
 #include <QString>
 #include <QVector>
 
-// One bilingual (zh/en) piece of text coming from devices.json. Use
-// LanguageManager::pick() (or the text() convenience below) to render it in
-// whatever interface language is currently active.
+// One piece of text from devices.json, stored as a zh/en pair (that's all
+// the device data is localized into today). text() below resolves it to
+// whichever single language is currently active -- Chinese for any zh_*
+// interface language, English otherwise -- via LanguageManager::pick().
 struct LocalizedText {
     QString zh;
     QString en;

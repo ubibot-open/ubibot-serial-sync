@@ -1,9 +1,10 @@
 # UbiBot Serial Assistant / UbiBot 串口助手
 
 A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS,
-SP1, …), built with Qt 6.11 / C++17 / CMake. Ships with a bilingual
-(Simplified Chinese + English) interface, and is structured so adding more
-languages later is a matter of dropping in one more `.ts` file.
+SP1, …), built with Qt 6.11 / C++17 / CMake. Ships with English and
+Simplified Chinese today, picked from a dropdown in Settings & About (built
+to scale past a dozen languages), and is structured so adding more later is
+a matter of dropping in one more `.ts` file.
 
 This project was scaffolded from a design mockup; see
 [Project notes](#project-notes) below for what's real vs. placeholder.
@@ -21,8 +22,8 @@ This project was scaffolded from a design mockup; see
   optional continuous, daily-rotating file logging.
 - **Connection wizard** — pick a detected port, pick a device model, connect
   at 115200 8-N-1.
-- **Settings & About** — switch the interface language at runtime
-  (Bilingual / 简体中文 / English), see the bundled command-library version.
+- **Settings & About** — switch the interface language at runtime from a
+  dropdown, see the bundled command-library version.
 - **Remote support panel** — UI only for now; see
   [Project notes](#project-notes).
 
@@ -104,23 +105,25 @@ src/
 
 Every UI string in the C++ code is written in English and wrapped in
 `tr(...)`. Simplified Chinese is a plain Qt translation catalog
-(`translations/ubibot_zh_CN.ts`); "Bilingual" mode is *not* a separate
-catalog — `LanguageManager` installs a custom `QTranslator` that looks up the
-Chinese translation and appends the English source text (see
-`core/language_manager.cpp`), which is how the interface can show e.g.
-"发送 Send" without maintaining a third copy of every string.
+(`translations/ubibot_zh_CN.ts`). Only one language is ever active at a time
+— no mixed/bilingual display — chosen from a dropdown in Settings & About
+that's populated at runtime from `LanguageManager::availableLanguages()`
+(`core/language_manager.cpp`); a dropdown rather than radio buttons because
+this list is meant to grow past a dozen entries. Each entry's display text
+is that language's own native name (e.g. "简体中文", "English"), so the
+list itself never needs retranslating.
 
 Switching languages at runtime (Settings & About dialog) works by
-installing/removing the translator on `QApplication`, which makes Qt post a
+installing/removing a `QTranslator` on `QApplication`, which makes Qt post a
 `QEvent::LanguageChange` to every top-level widget; each custom widget/dialog
 in this project overrides `changeEvent()` and re-runs its `retranslateUi()`
 in response, so the whole UI updates live with no restart.
 
-**Adding a language:** add `translations/ubibot_<locale>.ts` to the
-`qt_add_translations()` call in `CMakeLists.txt`, extend the `AppLanguage`
-enum and `LanguageManager::setLanguage()` in `core/language_manager.*`, and
-add a radio button for it in `SettingsAboutDialog`. Everything else — every
-`tr()` call already in the code — needs no changes.
+**Adding a language:** add one more `TS_FILES` entry to the
+`qt_add_translations()` call in `CMakeLists.txt`, add a matching
+`{code, nativeName}` to `kLanguages` in `core/language_manager.cpp`, and fill
+in the `.ts` once `lupdate` has generated its `<message>` entries. The
+Settings & About dropdown picks it up automatically — nothing else changes.
 
 **Editing translations:** after adding/changing `tr()` calls, regenerate the
 `.ts` file's `<message>` entries with Qt's `lupdate` (the CMake target this
@@ -133,7 +136,7 @@ the embedded `.qm`.
 labels) lives in `resources/devices.json` as `{ "zh": "…", "en": "…" }`
 pairs rather than going through `tr()`, since it's data, not source code —
 see `LocalizedText` in `core/device_library.h`. `LanguageManager::pick()`
-renders the right one (or both, in Bilingual mode) for the current language.
+resolves it to whichever single language is currently active.
 
 ## Project notes
 

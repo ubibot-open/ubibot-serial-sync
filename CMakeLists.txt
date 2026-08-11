@@ -77,11 +77,15 @@ target_link_libraries(UbiBotSerialAssistant PRIVATE
 )
 
 # --- Translations -----------------------------------------------------
-# Source strings (tr()) are written in English. ubibot_zh_CN.ts supplies the
-# Simplified Chinese catalog; "Bilingual" mode is synthesized at runtime by
-# combining the Chinese translation with the English source text (see
-# core/language_manager.*), so it needs no separate .ts file. Add more
-# ubibot_<locale>.ts files here as new languages are supported.
+# Source strings (tr()) are written in English, which needs no .ts file of
+# its own. ubibot_zh_CN.ts supplies the Simplified Chinese catalog. The
+# language picker (Settings & About dialog) only ever shows one active
+# language at a time -- no more mixed/bilingual display -- and is populated
+# from LanguageManager::availableLanguages() (core/language_manager.cpp).
+#
+# To add another language: list it in one more TS_FILES entry below, add a
+# matching {code, nativeName} to kLanguages in core/language_manager.cpp,
+# and fill in the .ts once lupdate has generated its <message> entries.
 qt_add_translations(UbiBotSerialAssistant
     TS_FILES translations/ubibot_zh_CN.ts
     RESOURCE_PREFIX "/i18n"
