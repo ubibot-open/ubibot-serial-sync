@@ -413,6 +413,14 @@
         <translation>界面语言</translation>
     </message>
     <message>
+        <source>Data monitor font</source>
+        <translation>数据监视字体</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>字号</translation>
+    </message>
+    <message>
         <source>Command library</source>
         <translation>指令库</translation>
     </message>
@@ -443,6 +451,10 @@
     <message>
         <source>%1 models · %2 commands</source>
         <translation>%1 个型号 · %2 条指令</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>恢复默认值</translation>
     </message>
 </context>
 </TS>
