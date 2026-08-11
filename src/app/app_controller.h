@@ -4,15 +4,18 @@
 #include "core/log_manager.h"
 #include "core/serial_manager.h"
 #include "core/settings_store.h"
+#include "models/command_list_model.h"
+#include "models/log_list_model.h"
+#include "models/port_list_model.h"
 
 #include <QObject>
 #include <QQmlEngine>
 #include <QVariantList>
 #include <QVariantMap>
 
-class LogListModel;
-class CommandListModel;
-class PortListModel;
+// Q_PROPERTY pointer types must be complete (not just forward-declared) --
+// Qt6's stricter QMetaType requires a fully-defined type behind LogModel*/
+// etc., so these are #included above rather than forward-declared.
 class QTimer;
 
 // The single C++ facade the QML UI talks to. Owns every backend piece

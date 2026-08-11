@@ -24,7 +24,19 @@ qt_add_executable(UbiBotSerialAssistant
     src/main.cpp
 )
 
-target_include_directories(UbiBotSerialAssistant PRIVATE src)
+# qmltyperegistrar's generated *_qmltyperegistrations.cpp #includes each
+# QML_ELEMENT/QML_SINGLETON type's header by its bare file name (e.g.
+# "app_controller.h"), not the "app/app_controller.h"-style relative path
+# used elsewhere in this project's own #includes -- so every subdirectory
+# that declares such a type needs to be on the include path too, or that
+# generated file fails to compile with "'AppController' was not declared in
+# this scope" (and likewise for every other registered type).
+target_include_directories(UbiBotSerialAssistant PRIVATE
+    src
+    src/core
+    src/models
+    src/app
+)
 
 target_link_libraries(UbiBotSerialAssistant PRIVATE
     Qt6::Quick
