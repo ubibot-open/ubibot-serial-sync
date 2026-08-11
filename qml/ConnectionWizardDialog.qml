@@ -57,6 +57,11 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
             interactive: false
+            // SwipeView does not clip its pages by default -- without this,
+            // the not-yet-current page (e.g. the model list) lays out right
+            // next to the current one inside the internal ListView and
+            // bleeds out past the dialog's edge instead of staying hidden.
+            clip: true
 
             // --- Page 1: port ---------------------------------------------
             ListView {
