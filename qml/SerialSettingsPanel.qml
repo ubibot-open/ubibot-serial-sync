@@ -9,7 +9,7 @@ import UbiBot
 Flickable {
     id: root
     contentWidth: width
-    contentHeight: column.implicitHeight + 20
+    contentHeight: column.y + column.implicitHeight + 14
     clip: true
 
     readonly property string selectedPort: portCombo.currentIndex >= 0
@@ -51,139 +51,138 @@ Flickable {
     }
     Component.onCompleted: rebuildOptions()
 
+    // Design lays these three groups out as flat sections -- a small-caps
+    // heading directly above its rows, no surrounding border/box -- rather
+    // than GroupBox's bordered frame, so the heading style is hand-rolled
+    // to match instead of relying on GroupBox.title.
+    component SectionHeading: Label {
+        Layout.fillWidth: true
+        Layout.topMargin: 6
+        font.pixelSize: 11
+        font.letterSpacing: 1
+        color: Theme.textMuted
+    }
+
     ColumnLayout {
         id: column
-        width: root.width
-        spacing: 16
+        x: 14
+        y: 14
+        width: root.width - 28
+        spacing: 18
 
-        GroupBox {
-            title: qsTr("Port")
+        SectionHeading { text: qsTr("Port · PORT") }
+
+        GridLayout {
             Layout.fillWidth: true
             enabled: !AppController.portOpen
+            columns: 2
+            columnSpacing: 10
+            rowSpacing: 8
 
-            GridLayout {
-                anchors.fill: parent
-                columns: 2
-                columnSpacing: 10
-                rowSpacing: 8
-
-                Label { text: qsTr("Port") }
-                RowLayout {
-                    Layout.fillWidth: true
-                    ComboBox {
-                        id: portCombo
-                        Layout.fillWidth: true
-                        textRole: "displayLabel"
-                        model: AppController.portListModel
-                    }
-                    ToolButton {
-                        icon.source: "qrc:/icons/refresh.svg"
-                        onClicked: AppController.portListModel.refresh()
-                    }
-                }
-
-                Label { text: qsTr("Baud rate") }
+            Label { Layout.preferredWidth: 70; text: qsTr("Port") }
+            RowLayout {
+                Layout.fillWidth: true
                 ComboBox {
-                    id: baudCombo
+                    id: portCombo
                     Layout.fillWidth: true
-                    editable: true
-                    model: SerialOptions.baudRateOptions()
-                    currentIndex: 3 // 115200
-                    validator: IntValidator { bottom: 50; top: 4000000 }
+                    textRole: "displayLabel"
+                    model: AppController.portListModel
                 }
+                ToolButton {
+                    icon.source: "qrc:/icons/refresh.svg"
+                    onClicked: AppController.portListModel.refresh()
+                }
+            }
 
-                Label { text: qsTr("Data bits") }
-                ComboBox {
-                    id: dataBitsCombo
-                    Layout.fillWidth: true
-                    textRole: "label"
-                    valueRole: "value"
-                    // Initial selection (and re-selection after a language
-                    // change) is handled by rebuildOptions().
-                }
+            Label { Layout.preferredWidth: 70; text: qsTr("Baud rate") }
+            ComboBox {
+                id: baudCombo
+                Layout.fillWidth: true
+                editable: true
+                model: SerialOptions.baudRateOptions()
+                currentIndex: 3 // 115200
+                validator: IntValidator { bottom: 50; top: 4000000 }
+            }
 
-                Label { text: qsTr("Parity") }
-                ComboBox {
-                    id: parityCombo
-                    Layout.fillWidth: true
-                    textRole: "label"
-                    valueRole: "value"
-                }
+            Label { Layout.preferredWidth: 70; text: qsTr("Data bits") }
+            ComboBox {
+                id: dataBitsCombo
+                Layout.fillWidth: true
+                textRole: "label"
+                valueRole: "value"
+                // Initial selection (and re-selection after a language
+                // change) is handled by rebuildOptions().
+            }
 
-                Label { text: qsTr("Stop bits") }
-                ComboBox {
-                    id: stopBitsCombo
-                    Layout.fillWidth: true
-                    textRole: "label"
-                    valueRole: "value"
-                }
+            Label { Layout.preferredWidth: 70; text: qsTr("Parity") }
+            ComboBox {
+                id: parityCombo
+                Layout.fillWidth: true
+                textRole: "label"
+                valueRole: "value"
+            }
 
-                Label { text: qsTr("Flow control") }
-                ComboBox {
-                    id: flowCombo
-                    Layout.fillWidth: true
-                    textRole: "label"
-                    valueRole: "value"
-                }
+            Label { Layout.preferredWidth: 70; text: qsTr("Stop bits") }
+            ComboBox {
+                id: stopBitsCombo
+                Layout.fillWidth: true
+                textRole: "label"
+                valueRole: "value"
+            }
+
+            Label { Layout.preferredWidth: 70; text: qsTr("Flow control") }
+            ComboBox {
+                id: flowCombo
+                Layout.fillWidth: true
+                textRole: "label"
+                valueRole: "value"
             }
         }
 
-        GroupBox {
-            title: qsTr("Receive")
-            Layout.fillWidth: true
+        SectionHeading { text: qsTr("Receive · RECEIVE") }
 
-            ColumnLayout {
-                anchors.fill: parent
-                RowLayout {
-                    RadioButton { text: "ASCII"; checked: !AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = false }
-                    RadioButton { text: "HEX"; checked: AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = true }
-                }
-                CheckBox {
-                    text: qsTr("Show timestamp")
-                    checked: AppController.logModel.showTimestamp
-                    onToggled: AppController.logModel.showTimestamp = checked
-                }
-                CheckBox {
-                    text: qsTr("Wrap lines")
-                    checked: root.wrapLines
-                    onToggled: root.wrapLines = checked
-                }
-                CheckBox {
-                    id: echoCheck
-                    text: qsTr("Echo sent data")
-                    checked: AppController.echoTx
-                    onToggled: AppController.echoTx = checked
-                }
-            }
+        RowLayout {
+            RadioButton { text: "ASCII"; checked: !AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = false }
+            RadioButton { text: "HEX"; checked: AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = true }
+        }
+        CheckBox {
+            text: qsTr("Show timestamp")
+            checked: AppController.logModel.showTimestamp
+            onToggled: AppController.logModel.showTimestamp = checked
+        }
+        CheckBox {
+            text: qsTr("Wrap lines")
+            checked: root.wrapLines
+            onToggled: root.wrapLines = checked
+        }
+        CheckBox {
+            id: echoCheck
+            text: qsTr("Echo sent data")
+            checked: AppController.echoTx
+            onToggled: AppController.echoTx = checked
         }
 
-        GroupBox {
-            title: qsTr("Transmit")
-            Layout.fillWidth: true
+        SectionHeading { text: qsTr("Transmit · TRANSMIT") }
 
-            ColumnLayout {
-                anchors.fill: parent
-                RowLayout {
-                    RadioButton { text: "ASCII"; checked: !AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = false }
-                    RadioButton { text: "HEX"; checked: AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = true }
-                }
-                RowLayout {
-                    CheckBox {
-                        text: qsTr("Repeat send")
-                        checked: AppController.repeatSendEnabled
-                        onToggled: AppController.repeatSendEnabled = checked
-                    }
-                    SpinBox {
-                        from: 50
-                        to: 3600000
-                        stepSize: 50
-                        value: AppController.repeatIntervalMs
-                        enabled: AppController.repeatSendEnabled
-                        onValueModified: AppController.repeatIntervalMs = value
-                    }
-                    Label { text: qsTr("ms") }
-                }
+        RowLayout {
+            RadioButton { text: "ASCII"; checked: !AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = false }
+            RadioButton { text: "HEX"; checked: AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = true }
+        }
+        RowLayout {
+            CheckBox {
+                text: qsTr("Repeat send")
+                checked: AppController.repeatSendEnabled
+                onToggled: AppController.repeatSendEnabled = checked
             }
+            SpinBox {
+                from: 50
+                to: 3600000
+                stepSize: 50
+                value: AppController.repeatIntervalMs
+                enabled: AppController.repeatSendEnabled
+                onValueModified: AppController.repeatIntervalMs = value
+            }
+            Label { text: qsTr("ms") }
         }
     }
 }

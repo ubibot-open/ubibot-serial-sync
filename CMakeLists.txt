@@ -44,6 +44,17 @@ target_link_libraries(UbiBotSerialAssistant PRIVATE
     Qt6::SerialPort
 )
 
+# qt_add_qml_module() does NOT scan .qml file contents for "pragma
+# Singleton" -- it only honors the QT_QML_SINGLETON_TYPE source property,
+# which nothing sets by default. Without this, Theme.qml's pragma is
+# silently ignored: the generated qmldir lists "Theme 1.0 Theme.qml" as a
+# plain, instantiable component instead of "singleton Theme 1.0 Theme.qml",
+# so every Theme.xxx reference across the app resolves to undefined with no
+# warning printed (this is a WIN32_EXECUTABLE GUI app, so qWarning goes to
+# OutputDebugString, not a visible console) -- the whole UI silently loses
+# its color palette.
+set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE true)
+
 # --- QML module --------------------------------------------------------
 # Everything but main.cpp -- the backend (core/), the QML-facing adapter
 # layer (models/, app/), and the .qml files themselves -- is registered as

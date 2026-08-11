@@ -20,7 +20,7 @@ Item {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 30
+            Layout.preferredHeight: 34
             color: "transparent"
             border.width: 0
             Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Theme.divider }
@@ -58,53 +58,66 @@ Item {
             }
         }
 
-        ListView {
-            id: listView
+        // The log area gets its own (very slightly darker) background so it
+        // reads as a distinct panel from the surrounding chrome, rather than
+        // blending into the window background -- matching the original
+        // design's tinted data-monitor pane.
+        Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
-            model: AppController.logModel
-            spacing: 2
-            boundsBehavior: Flickable.StopAtBounds
+            color: Theme.surface
 
-            // Auto-scroll to the newest line unless the user paused or has
-            // manually scrolled away from the bottom.
-            property bool stickToBottom: true
-            onCountChanged: if (!root.paused && stickToBottom) positionViewAtEnd()
-            onContentYChanged: {
-                stickToBottom = (contentY + height >= contentHeight - 4)
-            }
+            ListView {
+                id: listView
+                anchors.fill: parent
+                leftMargin: 14
+                rightMargin: 14
+                topMargin: 10
+                bottomMargin: 10
+                clip: true
+                model: AppController.logModel
+                spacing: 2
+                boundsBehavior: Flickable.StopAtBounds
 
-            delegate: RowLayout {
-                width: listView.width
-                spacing: 10
-
-                required property string time
-                required property string dir
-                required property string text
-                required property string color
-
-                Label {
-                    text: parent.time
-                    color: Theme.textMuted
-                    font.family: Theme.monoFont
-                    font.pixelSize: 12
-                    visible: text.length > 0
+                // Auto-scroll to the newest line unless the user paused or
+                // has manually scrolled away from the bottom.
+                property bool stickToBottom: true
+                onCountChanged: if (!root.paused && stickToBottom) positionViewAtEnd()
+                onContentYChanged: {
+                    stickToBottom = (contentY + height >= contentHeight - 4)
                 }
-                Label {
-                    text: parent.dir
-                    color: parent.color
-                    font.family: Theme.monoFont
-                    font.pixelSize: 12
-                    Layout.preferredWidth: 30
-                }
-                Label {
-                    text: parent.text
-                    color: parent.color
-                    font.family: Theme.monoFont
-                    font.pixelSize: 12
-                    wrapMode: root.wrapLines ? Text.Wrap : Text.NoWrap
-                    Layout.fillWidth: true
+
+                delegate: RowLayout {
+                    width: listView.width - listView.leftMargin - listView.rightMargin
+                    spacing: 10
+
+                    required property string time
+                    required property string dir
+                    required property string text
+                    required property string color
+
+                    Label {
+                        text: parent.time
+                        color: Theme.textMuted
+                        font.family: Theme.monoFont
+                        font.pixelSize: 12
+                        visible: text.length > 0
+                    }
+                    Label {
+                        text: parent.dir
+                        color: parent.color
+                        font.family: Theme.monoFont
+                        font.pixelSize: 12
+                        Layout.preferredWidth: 30
+                    }
+                    Label {
+                        text: parent.text
+                        color: parent.color
+                        font.family: Theme.monoFont
+                        font.pixelSize: 12
+                        wrapMode: root.wrapLines ? Text.Wrap : Text.NoWrap
+                        Layout.fillWidth: true
+                    }
                 }
             }
         }

@@ -11,11 +11,40 @@ ApplicationWindow {
     title: qsTr("UbiBot Serial Assistant")
     color: Theme.background
 
+    // Fusion (set in main.cpp) is one of the few built-in styles that
+    // actually honors palette roles, so this is a cheap way to pull the
+    // whole app's default control coloring toward the design's light/blue
+    // theme without hand-skinning every control type.
+    palette {
+        window: Theme.background
+        windowText: Theme.text
+        base: Theme.surface
+        text: Theme.text
+        button: Theme.surface
+        buttonText: Theme.text
+        highlight: Theme.accent
+        highlightedText: Theme.background
+    }
+
     Connections {
         target: AppController
         function onWizardFinished() { modeBar.currentIndex = 0 }
         function onPortOpenFailed(error) { portErrorDialog.text = error; portErrorDialog.open() }
         function onStatusMessage(text) { statusToast.show(text) }
+    }
+
+    // Fusion's default ToolButton padding is generous (meant for
+    // text+icon buttons); the design's toolbar is a tight row of plain
+    // 32x32 icon squares, so the toolbar below uses this instead of relying
+    // on the style default. Inline components must live at the document's
+    // top level, hence declaring it here rather than inside `header:`.
+    component CompactToolButton: ToolButton {
+        display: AbstractButton.IconOnly
+        implicitWidth: 32
+        implicitHeight: 32
+        padding: 4
+        ToolTip.visible: hovered
+        ToolTip.delay: 400
     }
 
     menuBar: MenuBar {
@@ -49,28 +78,88 @@ ApplicationWindow {
         }
     }
 
+    // Icon-only toolbar (matches the original design's compact 32x32 icon
+    // buttons) with the current-device badge and the open/close-port button
+    // at the trailing end, all in the one row the design puts them in.
     header: ToolBar {
+        // Design's toolbar row is a fixed 52px band (32px icon buttons plus
+        // 10px of breathing room top and bottom) -- pin it explicitly since
+        // Fusion's default ToolBar padding varies by platform.
+        implicitHeight: 52
+
         RowLayout {
             anchors.fill: parent
             anchors.leftMargin: 6
-            anchors.rightMargin: 6
-            spacing: 2
+            anchors.rightMargin: 10
+            spacing: 0
 
-            ToolButton { icon.source: "qrc:/icons/wizard.svg"; text: qsTr("Connection wizard"); onClicked: wizardDialog.open() }
-            ToolButton { icon.source: "qrc:/icons/save.svg"; text: qsTr("Save log"); onClicked: saveLogDialog.open() }
-            ToolSeparator {}
-            ToolButton { icon.source: "qrc:/icons/send.svg"; text: qsTr("Send"); onClicked: AppController.sendManualText() }
-            ToolButton {
+            CompactToolButton {
+                icon.source: "qrc:/icons/wizard.svg"
+                ToolTip.text: qsTr("Connection wizard")
+                onClicked: wizardDialog.open()
+            }
+            CompactToolButton {
+                icon.source: "qrc:/icons/save.svg"
+                ToolTip.text: qsTr("Save log")
+                onClicked: saveLogDialog.open()
+            }
+            ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
+            CompactToolButton {
+                icon.source: "qrc:/icons/send.svg"
+                ToolTip.text: qsTr("Send")
+                onClicked: AppController.sendManualText()
+            }
+            CompactToolButton {
                 icon.source: "qrc:/icons/pause.svg"
-                text: qsTr("Pause scrolling")
                 checkable: true
                 checked: monitor.paused
+                ToolTip.text: qsTr("Pause scrolling")
                 onToggled: monitor.paused = checked
             }
-            ToolButton { icon.source: "qrc:/icons/clear.svg"; text: qsTr("Clear"); onClicked: AppController.logModel.clear() }
-            ToolSeparator {}
-            ToolButton { icon.source: "qrc:/icons/settings.svg"; text: qsTr("Settings"); onClicked: settingsDialog.open() }
+            CompactToolButton {
+                icon.source: "qrc:/icons/clear.svg"
+                ToolTip.text: qsTr("Clear")
+                onClicked: AppController.logModel.clear()
+            }
+            ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
+            CompactToolButton {
+                icon.source: "qrc:/icons/settings.svg"
+                ToolTip.text: qsTr("Settings")
+                onClicked: settingsDialog.open()
+            }
+
             Item { Layout.fillWidth: true }
+
+            ColumnLayout {
+                spacing: 0
+                Label {
+                    text: AppController.currentModelId
+                    font.family: Theme.monoFont
+                    Layout.alignment: Qt.AlignRight
+                }
+                Label {
+                    text: qsTr("Current device")
+                    font.pixelSize: 10
+                    color: Theme.textMuted
+                    Layout.alignment: Qt.AlignRight
+                }
+            }
+
+            Button {
+                text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
+                highlighted: true
+                Layout.preferredWidth: 112
+                Layout.leftMargin: 10
+                onClicked: {
+                    if (AppController.portOpen) {
+                        AppController.closePort()
+                    } else {
+                        AppController.openPort(serialPanel.selectedPort, serialPanel.selectedBaud,
+                                                serialPanel.selectedDataBits, serialPanel.selectedParity,
+                                                serialPanel.selectedStopBits, serialPanel.selectedFlowControl)
+                    }
+                }
+            }
         }
     }
 
@@ -78,80 +167,84 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        // --- mode selector + device badge + port toggle ----------------------
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 52
-            color: "transparent"
-            Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Theme.divider }
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 8
-                spacing: 10
-
-                TabBar {
-                    id: modeBar
-                    TabButton { text: qsTr("Device commands") }
-                    TabButton { text: qsTr("Serial") }
-                    TabButton { text: qsTr("Remote support") }
-                }
-
-                Item { Layout.fillWidth: true }
-
-                ColumnLayout {
-                    spacing: 0
-                    Label {
-                        text: AppController.currentModelId
-                        font.family: Theme.monoFont
-                        Layout.alignment: Qt.AlignRight
-                    }
-                    Label {
-                        text: qsTr("Current device")
-                        font.pixelSize: 10
-                        color: Theme.textMuted
-                        Layout.alignment: Qt.AlignRight
-                    }
-                }
-
-                Button {
-                    text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
-                    highlighted: true
-                    Layout.preferredWidth: 120
-                    onClicked: {
-                        if (AppController.portOpen) {
-                            AppController.closePort()
-                        } else {
-                            AppController.openPort(serialPanel.selectedPort, serialPanel.selectedBaud,
-                                                    serialPanel.selectedDataBits, serialPanel.selectedParity,
-                                                    serialPanel.selectedStopBits, serialPanel.selectedFlowControl)
-                        }
-                    }
-                }
-            }
-        }
-
         // --- body: left mode-specific panel + right data monitor -------------
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 0
 
-            Rectangle {
-                Layout.preferredWidth: 330
+            ColumnLayout {
+                Layout.preferredWidth: 130
                 Layout.fillHeight: true
-                color: "transparent"
-                Rectangle { anchors.right: parent.right; width: 1; height: parent.height; color: Theme.divider }
+                spacing: 0
 
-                StackLayout {
-                    anchors.fill: parent
-                    currentIndex: modeBar.currentIndex
+                // The three-way mode switch lives inside the sidebar itself
+                // (full-width, equal thirds), not in the top toolbar --
+                // matching the original design's segmented control rather
+                // than competing for space with the toolbar's icons and
+                // device badge. Hand-rolled with Row + Repeater instead of
+                // TabBar/TabButton: TabBar's internal item positioner
+                // doesn't reliably honor per-tab width overrides, which is
+                // exactly what caused the earlier label-truncation bug.
+                // Design insets the segmented control 14px from the sidebar's
+                // edges inside a 61px-tall band, rather than butting it up
+                // against the sidebar's own edges.
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 61
 
-                    CommandLibraryPanel {
-                        onOpenParams: (row) => paramsPanel.openForRow(row)
+                    Row {
+                        id: modeBar
+                        anchors.centerIn: parent
+                        width: parent.width - 28
+                        property int currentIndex: 0
+                        readonly property var labels: [qsTr("Device commands"), qsTr("Serial"), qsTr("Remote support")]
+
+                        Repeater {
+                            model: modeBar.labels
+                            delegate: Rectangle {
+                                id: segment
+                                required property string modelData
+                                required property int index
+                                width: Math.floor(modeBar.width / 3)
+                                height: 36
+                                color: modeBar.currentIndex === index ? Theme.accent : "transparent"
+                                border.color: Theme.divider
+                                border.width: 1
+
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: segment.modelData
+                                    font.pixelSize: 13
+                                    color: modeBar.currentIndex === index ? Theme.background : Theme.text
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: modeBar.currentIndex = segment.index
+                                }
+                            }
+                        }
                     }
-                    SerialSettingsPanel { id: serialPanel }
-                    RemoteAssistPanel { }
+                }
+
+                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.divider }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: "transparent"
+                    Rectangle { anchors.right: parent.right; width: 1; height: parent.height; color: Theme.divider }
+
+                    StackLayout {
+                        anchors.fill: parent
+                        currentIndex: modeBar.currentIndex
+
+                        CommandLibraryPanel {
+                            onOpenParams: (row) => paramsPanel.openForRow(row)
+                        }
+                        SerialSettingsPanel { id: serialPanel }
+                        RemoteAssistPanel { }
+                    }
                 }
             }
 
@@ -190,7 +283,7 @@ ApplicationWindow {
                         background: Rectangle { border.color: Theme.divider; border.width: 1 }
                     }
                     ColumnLayout {
-                        Layout.preferredWidth: 100
+                        Layout.preferredWidth: 116
                         Button { text: qsTr("Send"); highlighted: true; Layout.fillWidth: true; onClicked: AppController.sendManualText() }
                         Button { text: qsTr("Clear"); Layout.fillWidth: true; onClicked: AppController.clearDraft() }
                     }
@@ -198,7 +291,7 @@ ApplicationWindow {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 28
+                    Layout.preferredHeight: 30
                     color: "transparent"
                     Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: Theme.divider }
 

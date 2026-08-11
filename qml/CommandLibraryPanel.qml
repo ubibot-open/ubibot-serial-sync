@@ -14,10 +14,10 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: 14
         spacing: 10
 
-        Label { text: qsTr("Device model") }
+        Label { text: qsTr("Device model · Model") }
 
         ComboBox {
             id: modelCombo
@@ -43,18 +43,37 @@ Item {
             onTextChanged: AppController.commandModel.searchText = text
         }
 
+        // Design renders these as flat, square-cornered chips (24px tall,
+        // bold 12px label) rather than standard buttons -- hand-rolled
+        // rather than Button since checkable Button pulls in the style's
+        // full pill-shaped chrome and padding.
         Flow {
             Layout.fillWidth: true
             spacing: 6
 
             Repeater {
                 model: AppController.commandModel.filterChips
-                delegate: Button {
+                delegate: Rectangle {
+                    id: chip
                     required property var modelData
-                    text: modelData.label
-                    checkable: true
-                    checked: modelData.checked
-                    onClicked: AppController.commandModel.filterKey = modelData.key
+                    height: 24
+                    width: chipLabel.implicitWidth + 18
+                    color: modelData.checked ? Theme.accent : "transparent"
+                    border.color: modelData.checked ? Theme.accent : Theme.divider
+                    border.width: 1
+
+                    Label {
+                        id: chipLabel
+                        anchors.centerIn: parent
+                        text: chip.modelData.label
+                        font.pixelSize: 12
+                        font.bold: true
+                        color: chip.modelData.checked ? Theme.background : Theme.text
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: AppController.commandModel.filterKey = chip.modelData.key
+                    }
                 }
             }
         }
@@ -70,7 +89,7 @@ Item {
             section.criteria: ViewSection.FullString
             section.delegate: Rectangle {
                 width: listView.width
-                height: 24
+                height: 29
                 color: Qt.rgba(0, 0, 0, 0.04)
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
@@ -92,7 +111,7 @@ Item {
                 required property bool favorite
 
                 width: listView.width
-                height: 48
+                height: 56
                 color: rowMouse.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent"
 
                 // Declared before the row content below, so it paints
@@ -112,7 +131,10 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 6
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
+                    anchors.topMargin: 8
+                    anchors.bottomMargin: 8
                     spacing: 9
 
                     Label {
