@@ -87,17 +87,72 @@ Item {
     // the clipboard directly when copying it verbatim.
     TextEdit { id: clipboardHelper; visible: false }
 
+    // main.cpp forces the Fusion style app-wide, whose default Menu chrome
+    // is a plain, boxy, light popup -- fine for the rest of the (light)
+    // app, but it clashes badly sitting on top of this panel's dark
+    // terminal. Menu's own `delegate` property only applies to model-
+    // driven items, not ones declared directly as children the way the
+    // three below are, so each gets its own look via these instead: a
+    // flat, borderless, rounded-highlight row (closer to a modern browser's
+    // right-click menu) rather than Fusion's raised/bordered one. Inline
+    // components have to live at the document's top level (same reason
+    // Main.qml's CompactToolButton does), hence declaring them here rather
+    // than nested inside the Menu itself.
+    component DarkMenuItem: MenuItem {
+        id: darkItem
+        implicitWidth: 200
+        implicitHeight: 32
+        contentItem: Label {
+            text: darkItem.text
+            font.pixelSize: 13
+            color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: 14
+            rightPadding: 14
+        }
+        background: Rectangle {
+            anchors.fill: parent
+            anchors.margins: 4
+            radius: 5
+            color: darkItem.highlighted ? Theme.accent : "transparent"
+        }
+    }
+
+    component DarkMenuSeparator: MenuSeparator {
+        implicitHeight: 3
+        contentItem: Rectangle {
+            implicitHeight: 3
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            color: Theme.consoleBorder
+        }
+    }
+
     Menu {
         id: contextMenu
-        MenuItem {
+        topPadding: 6
+        bottomPadding: 6
+        background: Rectangle {
+            implicitWidth: 200
+            color: Theme.consoleBackground
+            border.color: Theme.consoleBorder
+            border.width: 1
+            radius: 8
+        }
+
+        DarkMenuItem {
             text: qsTr("Copy")
             onTriggered: root.copyLog()
         }
-        MenuItem {
+        DarkMenuSeparator {}
+        DarkMenuItem {
             text: qsTr("Clear log")
             onTriggered: AppController.logModel.clear()
         }
-        MenuItem {
+        DarkMenuItem {
             text: qsTr("Save log…")
             onTriggered: root.saveLogRequested()
         }
