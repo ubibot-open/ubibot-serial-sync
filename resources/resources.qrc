@@ -8,6 +8,7 @@
         <file alias="send.svg">icons/send.svg</file>
         <file alias="pause.svg">icons/pause.svg</file>
         <file alias="clear.svg">icons/clear.svg</file>
+        <file alias="copy.svg">icons/copy.svg</file>
         <file alias="settings.svg">icons/settings.svg</file>
         <file alias="app.svg">icons/app.svg</file>
         <file alias="connect.svg">icons/connect.svg</file>

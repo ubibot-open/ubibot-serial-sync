@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.impl
 import QtQuick.Layouts
 import UbiBot
 
@@ -102,13 +103,33 @@ Item {
         id: darkItem
         implicitWidth: 200
         implicitHeight: 32
-        contentItem: Label {
-            text: darkItem.text
-            font.pixelSize: 13
-            color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
-            verticalAlignment: Text.AlignVCenter
-            leftPadding: 14
-            rightPadding: 14
+        // MenuItem already has an `icon` grouped property (source/color/
+        // width/height) inherited from AbstractButton; IconImage is what
+        // Qt's own built-in item delegates use internally to actually
+        // recolor an icon via that `color` -- a plain Image bound to
+        // icon.source wouldn't do that on its own, and every icon here is
+        // a dark-stroked SVG drawn for the (light) toolbar elsewhere in
+        // the app, not this dark menu.
+        icon.width: 15
+        icon.height: 15
+        icon.color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
+        contentItem: RowLayout {
+            spacing: 10
+            IconImage {
+                source: darkItem.icon.source
+                color: darkItem.icon.color
+                Layout.preferredWidth: darkItem.icon.width
+                Layout.preferredHeight: darkItem.icon.height
+                Layout.leftMargin: 14
+            }
+            Label {
+                text: darkItem.text
+                font.pixelSize: 13
+                color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
+                verticalAlignment: Text.AlignVCenter
+                Layout.rightMargin: 14
+                Layout.fillWidth: true
+            }
         }
         background: Rectangle {
             anchors.fill: parent
@@ -145,15 +166,18 @@ Item {
 
         DarkMenuItem {
             text: qsTr("Copy")
+            icon.source: "qrc:/icons/copy.svg"
             onTriggered: root.copyLog()
         }
         DarkMenuSeparator {}
         DarkMenuItem {
             text: qsTr("Clear log")
+            icon.source: "qrc:/icons/clear.svg"
             onTriggered: AppController.logModel.clear()
         }
         DarkMenuItem {
             text: qsTr("Save log…")
+            icon.source: "qrc:/icons/save.svg"
             onTriggered: root.saveLogRequested()
         }
     }
