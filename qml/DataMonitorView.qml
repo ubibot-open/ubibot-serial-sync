@@ -253,8 +253,8 @@ Item {
                     id: contentEdit
                     width: root.wrapLines ? flick.width : implicitWidth
                     textFormat: TextEdit.RichText
-                    font.family: Theme.monoFont
-                    font.pixelSize: 12
+                    font.family: AppController.logFontFamily
+                    font.pixelSize: AppController.logFontSize
                     color: Theme.consoleText
                     wrapMode: root.wrapLines ? TextEdit.Wrap : TextEdit.NoWrap
 

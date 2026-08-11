@@ -34,6 +34,36 @@ Dialog {
         }
 
         GroupBox {
+            title: qsTr("Data monitor font")
+            Layout.fillWidth: true
+
+            RowLayout {
+                anchors.fill: parent
+                spacing: 10
+
+                ComboBox {
+                    id: fontFamilyCombo
+                    Layout.fillWidth: true
+                    editable: true
+                    model: AppController.availableFontFamilies()
+                    Component.onCompleted: currentIndex = find(AppController.logFontFamily)
+                    onActivated: AppController.logFontFamily = currentText
+                    onAccepted: AppController.logFontFamily = editText
+                }
+
+                Label { text: qsTr("Size") }
+
+                SpinBox {
+                    id: fontSizeSpin
+                    from: 8
+                    to: 32
+                    value: AppController.logFontSize
+                    onValueModified: AppController.logFontSize = value
+                }
+            }
+        }
+
+        GroupBox {
             title: qsTr("Command library")
             Layout.fillWidth: true
 

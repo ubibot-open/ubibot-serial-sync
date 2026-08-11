@@ -37,4 +37,12 @@ public:
 
     bool continuousLoggingEnabled() const;
     void setContinuousLoggingEnabled(bool enabled);
+
+    // Data monitor (right-hand log pane) font -- defaults match the
+    // hardcoded values DataMonitorView.qml used before this was
+    // configurable ("Consolas", 12px).
+    QString logFontFamily() const;
+    void setLogFontFamily(const QString &family);
+    int logFontSize() const;
+    void setLogFontSize(int pixelSize);
 };

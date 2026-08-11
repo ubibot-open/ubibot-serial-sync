@@ -16,6 +16,8 @@ constexpr auto kFavoritesGroup = "favorites";
 constexpr auto kWindowGeometry = "window/geometry";
 constexpr auto kLastLogDir = "log/lastDirectory";
 constexpr auto kContinuousLogging = "log/continuousEnabled";
+constexpr auto kLogFontFamily = "log/fontFamily";
+constexpr auto kLogFontSize = "log/fontSize";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -107,4 +109,20 @@ bool SettingsStore::continuousLoggingEnabled() const {
 
 void SettingsStore::setContinuousLoggingEnabled(bool enabled) {
     QSettings().setValue(kContinuousLogging, enabled);
+}
+
+QString SettingsStore::logFontFamily() const {
+    return QSettings().value(kLogFontFamily, QStringLiteral("Consolas")).toString();
+}
+
+void SettingsStore::setLogFontFamily(const QString &family) {
+    QSettings().setValue(kLogFontFamily, family);
+}
+
+int SettingsStore::logFontSize() const {
+    return QSettings().value(kLogFontSize, 12).toInt();
+}
+
+void SettingsStore::setLogFontSize(int pixelSize) {
+    QSettings().setValue(kLogFontSize, pixelSize);
 }

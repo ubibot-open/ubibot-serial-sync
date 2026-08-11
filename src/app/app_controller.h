@@ -42,6 +42,11 @@ class AppController : public QObject {
 
     Q_PROPERTY(QString currentLanguage READ currentLanguage WRITE setCurrentLanguage NOTIFY currentLanguageChanged)
 
+    // Data monitor (right-hand log pane) font, configurable from
+    // SettingsAboutDialog.qml and persisted via SettingsStore.
+    Q_PROPERTY(QString logFontFamily READ logFontFamily WRITE setLogFontFamily NOTIFY logFontChanged)
+    Q_PROPERTY(int logFontSize READ logFontSize WRITE setLogFontSize NOTIFY logFontChanged)
+
     Q_PROPERTY(QString draftText READ draftText WRITE setDraftText NOTIFY draftTextChanged)
     Q_PROPERTY(bool echoTx READ echoTx WRITE setEchoTx NOTIFY echoTxChanged)
     Q_PROPERTY(bool sendAsHex READ sendAsHex WRITE setSendAsHex NOTIFY sendAsHexChanged)
@@ -73,6 +78,14 @@ public:
 
     QString currentLanguage() const;
     void setCurrentLanguage(const QString &code);
+
+    QString logFontFamily() const;
+    void setLogFontFamily(const QString &family);
+    int logFontSize() const;
+    void setLogFontSize(int pixelSize);
+    // Installed font families, for the data-monitor font picker in
+    // SettingsAboutDialog.qml.
+    Q_INVOKABLE QStringList availableFontFamilies() const;
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);
@@ -131,6 +144,7 @@ signals:
     void connectionChanged();
     void currentModelChanged();
     void currentLanguageChanged();
+    void logFontChanged();
     void draftTextChanged();
     void echoTxChanged();
     void sendAsHexChanged();

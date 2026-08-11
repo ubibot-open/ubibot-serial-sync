@@ -7,6 +7,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QFontDatabase>
 #include <QStandardPaths>
 #include <QTimer>
 
@@ -94,6 +95,24 @@ int AppController::commandCount() const { return library_.commandCount(); }
 QString AppController::currentLanguage() const { return LanguageManager::instance().language(); }
 
 void AppController::setCurrentLanguage(const QString &code) { LanguageManager::instance().setLanguage(code); }
+
+QString AppController::logFontFamily() const { return settings_.logFontFamily(); }
+
+void AppController::setLogFontFamily(const QString &family) {
+    if (settings_.logFontFamily() == family) return;
+    settings_.setLogFontFamily(family);
+    emit logFontChanged();
+}
+
+int AppController::logFontSize() const { return settings_.logFontSize(); }
+
+void AppController::setLogFontSize(int pixelSize) {
+    if (settings_.logFontSize() == pixelSize) return;
+    settings_.setLogFontSize(pixelSize);
+    emit logFontChanged();
+}
+
+QStringList AppController::availableFontFamilies() const { return QFontDatabase::families(); }
 
 QVariantList AppController::availableLanguages() const {
     QVariantList result;
