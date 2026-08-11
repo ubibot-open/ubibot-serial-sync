@@ -1,0 +1,105 @@
+{
+  "version": "lib-2026.07.31",
+  "models": [
+    {
+      "id": "WS1 Pro",
+      "description": {
+        "zh": "轻松连 WS1 Pro · 温湿度 + 光照 + WiFi 网关",
+        "en": "Easylink WS1 Pro · Temp/Humidity + Light + WiFi gateway"
+      },
+      "commands": [
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "cmd": "AT+DEVINFO?" },
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取固件版本", "en": "Read firmware version" }, "cmd": "AT+VER?" },
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取信号强度", "en": "Read signal strength" }, "cmd": "AT+RSSI?" },
+        { "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "cmd": "AT+DATA?" },
+        {
+          "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取历史数据", "en": "Read history" }, "cmd": "AT+HISTORY=<n>",
+          "params": [ { "key": "n", "label": { "zh": "条数", "en": "Count" }, "hint": "50", "default": "50" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "cmd": "AT+INTERVAL=<sec>",
+          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "300", "default": "300" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "cmd": "AT+WIFI=<ssid>,<pwd>",
+          "params": [
+            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
+            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
+          ]
+        },
+        { "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "cmd": "AT+REBOOT" },
+        { "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "恢复出厂设置", "en": "Factory reset" }, "cmd": "AT+FACTORY" }
+      ]
+    },
+    {
+      "id": "WS1",
+      "description": {
+        "zh": "轻松连 WS1 · 基础环境监测节点",
+        "en": "Easylink WS1 · Basic environmental node"
+      },
+      "commands": [
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "cmd": "AT+DEVINFO?" },
+        { "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "cmd": "AT+DATA?" },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "cmd": "AT+INTERVAL=<sec>",
+          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "600", "default": "600" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "cmd": "AT+WIFI=<ssid>,<pwd>",
+          "params": [
+            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
+            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
+          ]
+        },
+        { "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "cmd": "AT+REBOOT" }
+      ]
+    },
+    {
+      "id": "GS1-AL4G1RS",
+      "description": {
+        "zh": "轻松连 GS1 · 4G 工业网关，支持 RS485 探头",
+        "en": "Easylink GS1 · 4G industrial gateway with RS485 probe support"
+      },
+      "commands": [
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "cmd": "AT+DEVINFO?" },
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取 SIM 状态", "en": "Read SIM status" }, "cmd": "AT+SIM?" },
+        { "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "cmd": "AT+DATA?" },
+        {
+          "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取 RS485 探头", "en": "Read RS485 probe" }, "cmd": "AT+RS485=<addr>",
+          "params": [ { "key": "addr", "label": { "zh": "从机地址", "en": "Slave address" }, "hint": "01", "default": "01" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "cmd": "AT+INTERVAL=<sec>",
+          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "900", "default": "900" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 APN", "en": "Set APN" }, "cmd": "AT+APN=<apn>",
+          "params": [ { "key": "apn", "label": { "zh": "APN", "en": "APN" }, "hint": "cmnet", "default": "cmnet" } ]
+        },
+        { "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "cmd": "AT+REBOOT" }
+      ]
+    },
+    {
+      "id": "SP1",
+      "description": {
+        "zh": "轻松连 SP1 · 智能插座，支持功率计量",
+        "en": "Easylink SP1 · Smart plug with power metering"
+      },
+      "commands": [
+        { "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "cmd": "AT+DEVINFO?" },
+        { "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "cmd": "AT+DATA?" },
+        {
+          "group": { "zh": "控制", "en": "Control" }, "name": { "zh": "开关继电器", "en": "Toggle relay" }, "cmd": "AT+RELAY=<on>",
+          "params": [ { "key": "on", "label": { "zh": "状态 (0/1)", "en": "State (0/1)" }, "hint": "1", "default": "1" } ]
+        },
+        {
+          "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "cmd": "AT+WIFI=<ssid>,<pwd>",
+          "params": [
+            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
+            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
+          ]
+        }
+      ]
+    }
+  ]
+}

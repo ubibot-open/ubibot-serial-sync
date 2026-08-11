@@ -1,0 +1,9 @@
+build/
+build-*/
+*.user
+*.user.*
+CMakeLists.txt.user
+.qtc_clangd/
+.vs/
+out/
+*.qm
