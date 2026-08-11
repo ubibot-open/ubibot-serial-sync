@@ -172,82 +172,86 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 0
-
-            ColumnLayout {
-                Layout.preferredWidth: 130
+            Rectangle {
+                Layout.preferredWidth: 330
+                Layout.fillWidth: false
                 Layout.fillHeight: true
-                spacing: 0
+                color: "transparent"
+                border.color: Theme.divider
+                border.width: 1
+                ColumnLayout {
+                    anchors.fill: parent
+                    // The three-way mode switch lives inside the sidebar itself
+                    // (full-width, equal thirds), not in the top toolbar --
+                    // matching the original design's segmented control rather
+                    // than competing for space with the toolbar's icons and
+                    // device badge. Hand-rolled with Row + Repeater instead of
+                    // TabBar/TabButton: TabBar's internal item positioner
+                    // doesn't reliably honor per-tab width overrides, which is
+                    // exactly what caused the earlier label-truncation bug.
+                    // Design insets the segmented control 14px from the sidebar's
+                    // edges inside a 61px-tall band, rather than butting it up
+                    // against the sidebar's own edges.
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 61
 
-                // The three-way mode switch lives inside the sidebar itself
-                // (full-width, equal thirds), not in the top toolbar --
-                // matching the original design's segmented control rather
-                // than competing for space with the toolbar's icons and
-                // device badge. Hand-rolled with Row + Repeater instead of
-                // TabBar/TabButton: TabBar's internal item positioner
-                // doesn't reliably honor per-tab width overrides, which is
-                // exactly what caused the earlier label-truncation bug.
-                // Design insets the segmented control 14px from the sidebar's
-                // edges inside a 61px-tall band, rather than butting it up
-                // against the sidebar's own edges.
-                Item {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 61
+                        Row {
+                            id: modeBar
+                            anchors.centerIn: parent
+                            width: parent.width - 28
+                            property int currentIndex: 0
+                            readonly property var labels: [qsTr("Device commands"), qsTr("Serial")]
 
-                    Row {
-                        id: modeBar
-                        anchors.centerIn: parent
-                        width: parent.width - 28
-                        property int currentIndex: 0
-                        readonly property var labels: [qsTr("Device commands"), qsTr("Serial"), qsTr("Remote support")]
+                            Repeater {
+                                model: modeBar.labels
+                                delegate: Rectangle {
+                                    id: segment
+                                    required property string modelData
+                                    required property int index
+                                    width: Math.floor(modeBar.width / 2)
+                                    height: 36
+                                    color: modeBar.currentIndex === index ? Theme.accent : "transparent"
+                                    border.color: Theme.divider
+                                    border.width: 1
 
-                        Repeater {
-                            model: modeBar.labels
-                            delegate: Rectangle {
-                                id: segment
-                                required property string modelData
-                                required property int index
-                                width: Math.floor(modeBar.width / 3)
-                                height: 36
-                                color: modeBar.currentIndex === index ? Theme.accent : "transparent"
-                                border.color: Theme.divider
-                                border.width: 1
-
-                                Label {
-                                    anchors.centerIn: parent
-                                    text: segment.modelData
-                                    font.pixelSize: 13
-                                    color: modeBar.currentIndex === index ? Theme.background : Theme.text
-                                }
-                                MouseArea {
-                                    anchors.fill: parent
-                                    onClicked: modeBar.currentIndex = segment.index
+                                    Label {
+                                        anchors.centerIn: parent
+                                        text: segment.modelData
+                                        font.pixelSize: 13
+                                        color: modeBar.currentIndex === index ? Theme.background : Theme.text
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: modeBar.currentIndex = segment.index
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.divider }
+                    Rectangle { Layout.fillWidth: true; height: 1; color: Theme.divider }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    color: "transparent"
-                    Rectangle { anchors.right: parent.right; width: 1; height: parent.height; color: Theme.divider }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: "transparent"
+                        Rectangle { anchors.right: parent.right; width: 1; height: parent.height; color: Theme.divider }
 
-                    StackLayout {
-                        anchors.fill: parent
-                        currentIndex: modeBar.currentIndex
+                        StackLayout {
+                            anchors.fill: parent
+                            currentIndex: modeBar.currentIndex
 
-                        CommandLibraryPanel {
-                            onOpenParams: (row) => paramsPanel.openForRow(row)
+                            CommandLibraryPanel {
+                                onOpenParams: (row) => paramsPanel.openForRow(row)
+                            }
+                            SerialSettingsPanel { id: serialPanel }
+                            RemoteAssistPanel { }
                         }
-                        SerialSettingsPanel { id: serialPanel }
-                        RemoteAssistPanel { }
                     }
                 }
-            }
 
+            }
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -284,6 +288,7 @@ ApplicationWindow {
                     }
                     ColumnLayout {
                         Layout.preferredWidth: 116
+                        Layout.fillWidth: false
                         Button { text: qsTr("Send"); highlighted: true; Layout.fillWidth: true; onClicked: AppController.sendManualText() }
                         Button { text: qsTr("Clear"); Layout.fillWidth: true; onClicked: AppController.clearDraft() }
                     }

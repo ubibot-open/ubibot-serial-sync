@@ -88,7 +88,7 @@ Item {
                 }
 
                 delegate: RowLayout {
-                    width: listView.width - listView.leftMargin - listView.rightMargin
+                    width: parent
                     spacing: 10
 
                     required property string time
