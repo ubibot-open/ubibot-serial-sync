@@ -21,8 +21,12 @@ void LogManager::append(LogKind kind, const QByteArray &data) {
     e.kind = kind;
     e.data = data;
 
+    if (entries_.size() >= capacity_) {
+        emit rowAboutToBeRemoved();
+        entries_.erase(entries_.begin());
+        emit rowRemoved();
+    }
     entries_.push_back(e);
-    if (entries_.size() > capacity_) entries_.erase(entries_.begin());
 
     if (kind == LogKind::Rx) rxBytes_ += data.size();
     else if (kind == LogKind::Tx) txBytes_ += data.size();

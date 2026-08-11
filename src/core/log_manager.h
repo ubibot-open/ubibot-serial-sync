@@ -42,6 +42,14 @@ signals:
     void cleared();
     void countersChanged(qint64 rxBytes, qint64 txBytes);
 
+    // Bracket the removal of entries_[0] when append() trims the scrollback
+    // to capacity_, so a QAbstractListModel view (LogListModel) can call
+    // beginRemoveRows()/endRemoveRows() around the actual mutation instead
+    // of guessing. Always row 0; always followed by entryAdded() for the
+    // newly-appended row.
+    void rowAboutToBeRemoved();
+    void rowRemoved();
+
 private:
     void writeContinuous(const LogEntry &entry);
     void rotateContinuousFile(const QDate &date);
