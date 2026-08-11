@@ -2,6 +2,8 @@
 
 #include "core/ansi_text.h"
 
+#include <QStringList>
+
 namespace {
 // Base/"reset" color for each line kind, tuned for the data monitor's dark
 // terminal background (see DataMonitorView.qml) rather than the light
@@ -15,6 +17,16 @@ QString colorForKind(LogKind k) {
     case LogKind::Err: return QStringLiteral("#f07178");
     }
     return QStringLiteral("#d8dce0");
+}
+
+QString dirTag(LogKind k) {
+    switch (k) {
+    case LogKind::Tx: return QStringLiteral("TX");
+    case LogKind::Rx: return QStringLiteral("RX");
+    case LogKind::Sys: return QStringLiteral("SYS");
+    case LogKind::Err: return QStringLiteral("ERR");
+    }
+    return QString();
 }
 }  // namespace
 
@@ -46,14 +58,7 @@ QVariant LogListModel::data(const QModelIndex &index, int role) const {
     const LogEntry &e = manager_->entries().at(index.row());
     switch (role) {
     case TimeRole: return showTimestamp_ ? e.time.toString(QStringLiteral("HH:mm:ss")) : QString();
-    case DirRole:
-        switch (e.kind) {
-        case LogKind::Tx: return QStringLiteral("TX");
-        case LogKind::Rx: return QStringLiteral("RX");
-        case LogKind::Sys: return QStringLiteral("SYS");
-        case LogKind::Err: return QStringLiteral("ERR");
-        }
-        return QString();
+    case DirRole: return dirTag(e.kind);
     case TextRole: return (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
     case ColorRole: return colorForKind(e.kind);
     case HtmlRole: {
@@ -95,3 +100,15 @@ qint64 LogListModel::rxBytes() const { return manager_->rxBytes(); }
 qint64 LogListModel::txBytes() const { return manager_->txBytes(); }
 
 void LogListModel::clear() { manager_->clear(); }
+
+QString LogListModel::plainTextDump() const {
+    QStringList lines;
+    lines.reserve(manager_->entries().size());
+    for (const LogEntry &e : manager_->entries()) {
+        const QString text = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
+        lines << (showTimestamp_
+                      ? QStringLiteral("%1  %2  %3").arg(e.time.toString(QStringLiteral("HH:mm:ss")), dirTag(e.kind), text)
+                      : QStringLiteral("%1  %2").arg(dirTag(e.kind), text));
+    }
+    return lines.join(QLatin1Char('\n'));
+}

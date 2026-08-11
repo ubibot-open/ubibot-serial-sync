@@ -29,13 +29,17 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     repeatTimer_ = new QTimer(this);
     connect(repeatTimer_, &QTimer::timeout, this, &AppController::sendManualText);
 
-    connect(&serial_, &SerialManager::dataReceived, this,
-            [this](const QByteArray &data) { logManager_.append(LogKind::Rx, data); });
+    rxFlushTimer_ = new QTimer(this);
+    rxFlushTimer_->setSingleShot(true);
+    connect(rxFlushTimer_, &QTimer::timeout, this, &AppController::flushRxLineBuffer);
+
+    connect(&serial_, &SerialManager::dataReceived, this, &AppController::handleIncomingData);
     connect(&serial_, &SerialManager::errorOccurred, this,
             [this](const QString &msg) { logManager_.append(LogKind::Err, msg.toUtf8()); });
     connect(&serial_, &SerialManager::opened, this, [this](const SerialConfig &) { emit connectionChanged(); });
     connect(&serial_, &SerialManager::closed, this, [this] {
         repeatTimer_->stop();
+        flushRxLineBuffer();
         emit connectionChanged();
     });
 
@@ -152,6 +156,42 @@ QByteArray AppController::composeHexPayload(const QString &text) const {
     cleaned.remove(QLatin1Char('\r'));
     cleaned.remove(QLatin1Char('\t'));
     return QByteArray::fromHex(cleaned.toUtf8());
+}
+
+void AppController::handleIncomingData(const QByteArray &data) {
+    // Longest line this will buffer before flushing it unterminated -- well
+    // past any real device log line, so it only ever kicks in for a
+    // no-newlines-at-all binary stream.
+    static constexpr int kMaxBufferedLine = 8192;
+
+    rxLineBuffer_ += data;
+
+    int start = 0;
+    while (true) {
+        const int newlineAt = rxLineBuffer_.indexOf('\n', start);
+        if (newlineAt < 0) break;
+        QByteArray line = rxLineBuffer_.mid(start, newlineAt - start);
+        if (line.endsWith('\r')) line.chop(1);
+        logManager_.append(LogKind::Rx, line);
+        start = newlineAt + 1;
+    }
+    rxLineBuffer_ = rxLineBuffer_.mid(start);
+
+    if (rxLineBuffer_.size() >= kMaxBufferedLine) {
+        flushRxLineBuffer();
+    } else if (!rxLineBuffer_.isEmpty()) {
+        rxFlushTimer_->start(80);
+    } else {
+        rxFlushTimer_->stop();
+    }
+}
+
+void AppController::flushRxLineBuffer() {
+    if (rxLineBuffer_.isEmpty()) return;
+    QByteArray line = rxLineBuffer_;
+    if (line.endsWith('\r')) line.chop(1);
+    logManager_.append(LogKind::Rx, line);
+    rxLineBuffer_.clear();
 }
 
 void AppController::sendLiteral(const QString &text) {

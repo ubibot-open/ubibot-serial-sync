@@ -144,6 +144,26 @@ private:
     QByteArray composeHexPayload(const QString &text) const;
     void sendLiteral(const QString &text);
 
+    // Raw serial reads land in arbitrary, driver-chosen chunk sizes -- a
+    // single logical line from the device routinely arrives as several
+    // readyRead signals (each becoming its own log entry if appended
+    // as-is), which is what fragmented one line of device output across
+    // several rows, each with its own timestamp, in the data monitor.
+    // Buffering here and only appending on a line boundary is what a real
+    // terminal does. Two escape hatches keep this from ever *hiding* data
+    // a plain per-chunk append wouldn't have: rxFlushTimer_ flushes
+    // whatever's buffered after a short quiet spell (so a bare prompt with
+    // no trailing '\n', e.g. an interactive shell waiting on input, still
+    // shows up promptly instead of sitting invisible until more bytes
+    // arrive) and handleIncomingData() flushes outright once the buffer
+    // grows past kMaxBufferedLine (so a binary/non-line-oriented stream
+    // with no '\n' at all can't buffer forever). flushRxLineBuffer() also
+    // runs on port close, so a stray final partial line isn't dropped.
+    void handleIncomingData(const QByteArray &data);
+    void flushRxLineBuffer();
+    QByteArray rxLineBuffer_;
+    QTimer *rxFlushTimer_;
+
     DeviceLibrary library_;
     SettingsStore settings_;
     SerialManager serial_;

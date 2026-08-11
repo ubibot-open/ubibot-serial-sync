@@ -42,6 +42,12 @@ public:
 
     Q_INVOKABLE void clear();
 
+    // Plain "HH:mm:ss  DIR  text" dump of every entry currently in scope,
+    // joined with '\n' -- what DataMonitorView's context-menu "Copy" falls
+    // back to when nothing is selected. Respects the same hexMode/
+    // showTimestamp toggles as the live view, so it matches what's on screen.
+    Q_INVOKABLE QString plainTextDump() const;
+
 signals:
     void hexModeChanged();
     void showTimestampChanged();
