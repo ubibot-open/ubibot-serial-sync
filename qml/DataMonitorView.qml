@@ -30,6 +30,14 @@ Item {
     property bool paused: false
     property bool wrapLines: true
 
+    // The context menu's "Save log" just opens Main.qml's existing
+    // SaveLogDialog (same file-picker + AppController.saveLog() backend
+    // as the toolbar/File-menu "Save log" action) rather than this view
+    // building its own -- SaveLogDialog lives at the window level since
+    // dialogs need Overlay.overlay to center on, not something this
+    // panel has.
+    signal saveLogRequested()
+
     // Strips each line's leading "HH:mm:ss  TAG  " prefix (see
     // LogListModel::lineHtml) from a chunk of selected plain text --
     // dragging a selection across several lines otherwise pulls each
@@ -88,6 +96,10 @@ Item {
         MenuItem {
             text: qsTr("Clear log")
             onTriggered: AppController.logModel.clear()
+        }
+        MenuItem {
+            text: qsTr("Save log…")
+            onTriggered: root.saveLogRequested()
         }
     }
 

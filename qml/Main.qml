@@ -262,6 +262,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     wrapLines: serialPanel.wrapLines
+                    onSaveLogRequested: saveLogDialog.open()
                 }
 
                 CommandParamsPanel {
