@@ -14,5 +14,17 @@
 // direction color (TX/RX/SYS/ERR) here so a line with no escape codes at
 // all still renders in that color, unchanged from before this existed.
 namespace AnsiText {
-QString toRichText(const QString &raw, const QString &baseColor);
-}
+
+struct Result {
+    QString html;
+    // How many characters `html` renders as once a rich-text engine has
+    // parsed it -- NOT html.length(), which also counts invisible markup
+    // (span tags, &nbsp; source text, the dropped escape-code bytes...).
+    // Callers that need to remove exactly this text from a document later
+    // (LogListModel::lineDocLength) need this, not the markup length.
+    int length = 0;
+};
+
+Result toRichText(const QString &raw, const QString &baseColor);
+
+}  // namespace AnsiText

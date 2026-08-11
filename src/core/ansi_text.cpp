@@ -30,30 +30,40 @@ QString ansiColor(int code) {
     }
 }
 
-// Appends one plain (non-escape-sequence) character to `out`, HTML-escaped.
+// Appends one plain (non-escape-sequence) character to `out`, HTML-escaped,
+// and returns how many characters it renders as (0 for a dropped control
+// byte, 4 for a tab, 1 otherwise) -- the caller accumulates this into
+// Result::length, which is NOT html.length() (that also counts markup:
+// span tags, "&nbsp;"/"&amp;" source text, the escape-code bytes this
+// drops entirely...).
+//
 // Control bytes other than \n/\r/\t are dropped rather than passed through:
 // a noisy line or a mid-frame baud mismatch can drop stray NUL/BEL/etc.
 // bytes into the stream, and Qt's rich-text renderer draws those as visible
 // tofu glyphs instead of silently ignoring them the way a real terminal would.
-void appendEscaped(QString &out, QChar c) {
+int appendEscaped(QString &out, QChar c) {
     switch (c.unicode()) {
-    case '&': out += QStringLiteral("&amp;"); break;
-    case '<': out += QStringLiteral("&lt;"); break;
-    case '>': out += QStringLiteral("&gt;"); break;
-    case '\n': out += QStringLiteral("<br/>"); break;
-    case '\r': break;  // paired \r\n handled by the \n above; bare \r dropped
-    case '\t': out += QStringLiteral("    "); break;
+    case '&': out += QStringLiteral("&amp;"); return 1;
+    case '<': out += QStringLiteral("&lt;"); return 1;
+    case '>': out += QStringLiteral("&gt;"); return 1;
+    case '\n': out += QStringLiteral("<br/>"); return 1;
+    case '\r': return 0;  // paired \r\n handled by the \n above; bare \r dropped
+    case '\t': out += QStringLiteral("    "); return 4;
     default:
-        if (c.unicode() >= 0x20) out += c;
-        // else: other C0 control byte -- drop.
+        if (c.unicode() >= 0x20) {
+            out += c;
+            return 1;
+        }
+        return 0;  // other C0 control byte -- drop.
     }
 }
 
 }  // namespace
 
-QString AnsiText::toRichText(const QString &raw, const QString &baseColor) {
+AnsiText::Result AnsiText::toRichText(const QString &raw, const QString &baseColor) {
     QString html;
     html.reserve(raw.size() + 32);
+    int length = 0;
 
     QString color = baseColor;
     bool bold = false;
@@ -138,9 +148,9 @@ QString AnsiText::toRichText(const QString &raw, const QString &baseColor) {
             i = j + 1;
             continue;
         }
-        appendEscaped(html, ch);
+        length += appendEscaped(html, ch);
         ++i;
     }
     closeSpan();
-    return html;
+    return {html, length};
 }
