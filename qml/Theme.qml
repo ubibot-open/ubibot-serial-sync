@@ -16,6 +16,16 @@ QtObject {
     readonly property color divider: "#c9c9ca"
     readonly property color error: "#aa3333"
 
+    // Data monitor only: a real terminal reads better dark, and colored
+    // device log output (see ansi_text.h) needs a dark backdrop to show up
+    // against at all -- these deliberately don't match the light palette
+    // above. colorForKind() in log_list_model.cpp mirrors dividerMuted/
+    // sent/sys/err so the TX/RX/SYS/ERR tag matches the line's base color.
+    readonly property color consoleBackground: "#1b1f27"
+    readonly property color consoleText: "#d8dce0"
+    readonly property color consoleMuted: "#6b7280"
+    readonly property color consoleBorder: "#33383f"
+
     readonly property string monoFont: "Consolas"
 
     readonly property int spacingSmall: 6

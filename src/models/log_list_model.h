@@ -6,9 +6,12 @@
 #include <QQmlEngine>
 
 // QML-facing view over LogManager's scrollback. One row per LogEntry; the
-// `time`/`text` roles reformat live when hexMode/showTimestamp change
+// `time`/`text`/`html` roles reformat live when hexMode/showTimestamp change
 // (mirrors the old DataMonitorView's ascii/hex + timestamp toggles) without
-// touching LogManager itself.
+// touching LogManager itself. `html` is `text` with any ANSI SGR color
+// codes the device sent turned into <span> runs (see ansi_text.h) -- what
+// DataMonitorView actually displays; `text` remains available verbatim for
+// anything that wants the plain string.
 class LogListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT
@@ -21,7 +24,7 @@ class LogListModel : public QAbstractListModel {
     Q_PROPERTY(qint64 txBytes READ txBytes NOTIFY countersChanged)
 
 public:
-    enum Roles { TimeRole = Qt::UserRole + 1, DirRole, TextRole, ColorRole };
+    enum Roles { TimeRole = Qt::UserRole + 1, DirRole, TextRole, ColorRole, HtmlRole };
 
     explicit LogListModel(LogManager *manager, QObject *parent = nullptr);
 

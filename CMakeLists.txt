@@ -80,6 +80,8 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/core/language_manager.cpp
         src/core/device_library.h
         src/core/device_library.cpp
+        src/core/ansi_text.h
+        src/core/ansi_text.cpp
         src/core/log_entry.h
         src/core/log_manager.h
         src/core/log_manager.cpp

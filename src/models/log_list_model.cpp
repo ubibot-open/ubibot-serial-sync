@@ -1,14 +1,20 @@
 #include "models/log_list_model.h"
 
+#include "core/ansi_text.h"
+
 namespace {
+// Base/"reset" color for each line kind, tuned for the data monitor's dark
+// terminal background (see DataMonitorView.qml) rather than the light
+// window chrome around it. Also doubles as the color ANSI reset codes
+// (SGR 0/39) return to when a device's colored log output resets mid-line.
 QString colorForKind(LogKind k) {
     switch (k) {
-    case LogKind::Tx: return QStringLiteral("#2c455d");
-    case LogKind::Rx: return QStringLiteral("#1d1f20");
-    case LogKind::Sys: return QStringLiteral("#808080");
-    case LogKind::Err: return QStringLiteral("#aa3333");
+    case LogKind::Tx: return QStringLiteral("#e0a458");
+    case LogKind::Rx: return QStringLiteral("#d8dce0");
+    case LogKind::Sys: return QStringLiteral("#7fa8c9");
+    case LogKind::Err: return QStringLiteral("#f07178");
     }
-    return QStringLiteral("#1d1f20");
+    return QStringLiteral("#d8dce0");
 }
 }  // namespace
 
@@ -50,6 +56,10 @@ QVariant LogListModel::data(const QModelIndex &index, int role) const {
         return QString();
     case TextRole: return (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
     case ColorRole: return colorForKind(e.kind);
+    case HtmlRole: {
+        const QString plain = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
+        return AnsiText::toRichText(plain, colorForKind(e.kind));
+    }
     }
     return {};
 }
@@ -60,6 +70,7 @@ QHash<int, QByteArray> LogListModel::roleNames() const {
         {DirRole, "dir"},
         {TextRole, "text"},
         {ColorRole, "color"},
+        {HtmlRole, "html"},
     };
 }
 
@@ -68,7 +79,7 @@ void LogListModel::setHexMode(bool hex) {
     hexMode_ = hex;
     emit hexModeChanged();
     if (!manager_->entries().isEmpty())
-        emit dataChanged(index(0), index(manager_->entries().size() - 1), {TextRole});
+        emit dataChanged(index(0), index(manager_->entries().size() - 1), {TextRole, HtmlRole});
 }
 
 void LogListModel::setShowTimestamp(bool show) {

@@ -8,6 +8,12 @@ import UbiBot
 // counters. Pauses purely at the view level -- AppController.logModel keeps
 // recording regardless, so unpausing shows everything that happened while
 // paused.
+//
+// Styled as a dark terminal rather than a tinted panel on the app's light
+// background: real hardware logs (RT-Thread/msh boot output and similar)
+// arrive full of ANSI color escape codes, which LogListModel's `html` role
+// turns into <span> runs (see ansi_text.h) -- those colors only read
+// correctly against a dark backdrop, the same as any other terminal emulator.
 Item {
     id: root
 
@@ -21,9 +27,9 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 34
-            color: "transparent"
+            color: Theme.consoleBackground
             border.width: 0
-            Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Theme.divider }
+            Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Theme.consoleBorder }
 
             RowLayout {
                 anchors.fill: parent
@@ -34,38 +40,34 @@ Item {
                     text: qsTr("Data monitor")
                     font.pixelSize: 11
                     font.letterSpacing: 1
-                    color: Theme.textMuted
+                    color: Theme.consoleMuted
                 }
                 Item { Layout.fillWidth: true }
                 Label {
                     text: qsTr("%1 lines").arg(AppController.logModel.lineCount)
                     font.family: Theme.monoFont
                     font.pixelSize: 11
-                    color: Theme.textMuted
+                    color: Theme.consoleMuted
                 }
                 Label {
                     text: qsTr("Rx %1 B").arg(AppController.logModel.rxBytes)
                     font.family: Theme.monoFont
                     font.pixelSize: 11
-                    color: Theme.textMuted
+                    color: Theme.consoleMuted
                 }
                 Label {
                     text: qsTr("Tx %1 B").arg(AppController.logModel.txBytes)
                     font.family: Theme.monoFont
                     font.pixelSize: 11
-                    color: Theme.textMuted
+                    color: Theme.consoleMuted
                 }
             }
         }
 
-        // The log area gets its own (very slightly darker) background so it
-        // reads as a distinct panel from the surrounding chrome, rather than
-        // blending into the window background -- matching the original
-        // design's tinted data-monitor pane.
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: Theme.surface
+            color: Theme.consoleBackground
 
             ListView {
                 id: listView
@@ -76,7 +78,7 @@ Item {
                 bottomMargin: 10
                 clip: true
                 model: AppController.logModel
-                spacing: 2
+                spacing: 3
                 boundsBehavior: Flickable.StopAtBounds
 
                 // Auto-scroll to the newest line unless the user paused or
@@ -88,17 +90,17 @@ Item {
                 }
 
                 delegate: RowLayout {
-                    width: parent
+                    width: listView.width - listView.leftMargin - listView.rightMargin
                     spacing: 10
 
                     required property string time
                     required property string dir
-                    required property string text
+                    required property string html
                     required property string color
 
                     Label {
                         text: parent.time
-                        color: Theme.textMuted
+                        color: Theme.consoleMuted
                         font.family: Theme.monoFont
                         font.pixelSize: 12
                         visible: text.length > 0
@@ -111,7 +113,8 @@ Item {
                         Layout.preferredWidth: 30
                     }
                     Label {
-                        text: parent.text
+                        text: parent.html
+                        textFormat: Text.RichText
                         color: parent.color
                         font.family: Theme.monoFont
                         font.pixelSize: 12
