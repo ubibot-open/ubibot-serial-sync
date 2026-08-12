@@ -19,6 +19,7 @@ constexpr auto kCommandHistory = "send/history";
 constexpr auto kContinuousLogging = "log/continuousEnabled";
 constexpr auto kLogFontFamily = "log/fontFamily";
 constexpr auto kLogFontSize = "log/fontSize";
+constexpr auto kThemeMode = "app/themeMode";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -136,9 +137,19 @@ void SettingsStore::setLogFontSize(int pixelSize) {
     QSettings().setValue(kLogFontSize, pixelSize);
 }
 
+QString SettingsStore::themeMode() const {
+    const QString mode = QSettings().value(kThemeMode, QStringLiteral("light")).toString();
+    return mode == QStringLiteral("dark") ? mode : QStringLiteral("light");
+}
+
+void SettingsStore::setThemeMode(const QString &mode) {
+    QSettings().setValue(kThemeMode, mode == QStringLiteral("dark") ? QStringLiteral("dark") : QStringLiteral("light"));
+}
+
 void SettingsStore::resetDisplayPreferences() {
     QSettings s;
     s.remove(kLanguage);
     s.remove(kLogFontFamily);
     s.remove(kLogFontSize);
+    s.remove(kThemeMode);
 }

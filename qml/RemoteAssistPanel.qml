@@ -126,10 +126,20 @@ Flickable {
         modal: true
         anchors.centerIn: Overlay.overlay
         standardButtons: Dialog.Ok
+        palette: Theme.palette
+        background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+        header: Label {
+            text: notImplementedDialog.title
+            font.bold: true
+            padding: 12
+            color: Theme.text
+            background: Rectangle { color: Theme.background }
+        }
         Label {
             width: 320
             wrapMode: Text.WordWrap
             text: qsTr("Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.")
+            color: Theme.text
         }
     }
 }

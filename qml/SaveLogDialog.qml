@@ -13,6 +13,22 @@ Dialog {
     modal: true
     anchors.centerIn: Overlay.overlay
     width: 460
+    // Dialogs don't reliably inherit ApplicationWindow's own palette --
+    // see Theme.qml. `palette` alone re-themes the controls inside but
+    // Fusion's default Dialog background apparently doesn't rebind to
+    // `palette.window` live, so the canvas itself needs an explicit
+    // override too.
+    palette: Theme.palette
+    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+    // Same rebind gap as `background` above, but for the title strip --
+    // Fusion's default Dialog header is its own separately-drawn piece.
+    header: Label {
+        text: root.title
+        font.bold: true
+        padding: 12
+        color: Theme.text
+        background: Rectangle { color: Theme.background }
+    }
 
     property string errorText: ""
 
@@ -71,6 +87,9 @@ Dialog {
     }
 
     footer: DialogButtonBox {
+        // Same rebind gap as `background`/`header` above -- an explicit
+        // `footer:` gets its own separately-drawn Fusion background too.
+        background: Rectangle { color: Theme.background }
         Button { text: qsTr("Cancel"); DialogButtonBox.buttonRole: DialogButtonBox.RejectRole }
         Button {
             text: qsTr("Save")

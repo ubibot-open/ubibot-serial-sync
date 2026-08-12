@@ -93,7 +93,7 @@ Item {
                         anchors.centerIn: parent
                         text: chip.modelData.label
                         font.pixelSize: 12
-                        color: chip.modelData.checked ? Theme.background : Theme.text
+                        color: chip.modelData.checked ? Theme.accentForeground : Theme.text
                     }
                     MouseArea {
                         anchors.fill: parent

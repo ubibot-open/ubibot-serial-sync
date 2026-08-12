@@ -52,6 +52,12 @@ public:
     int logFontSize() const;
     void setLogFontSize(int pixelSize);
 
+    // "light" or "dark" -- anything else stored (shouldn't happen outside a
+    // hand-edited settings file) falls back to "light". Drives Theme.qml's
+    // whole color palette.
+    QString themeMode() const;
+    void setThemeMode(const QString &mode);
+
     // Clears the persisted language/font overrides above (the "Settings &
     // About" dialog's own settings) so the next read of each falls back to
     // its built-in default -- system-locale detection for language(),

@@ -116,6 +116,14 @@ void AppController::setLogFontSize(int pixelSize) {
 
 QStringList AppController::availableFontFamilies() const { return QFontDatabase::families(); }
 
+QString AppController::themeMode() const { return settings_.themeMode(); }
+
+void AppController::setThemeMode(const QString &mode) {
+    if (settings_.themeMode() == mode) return;
+    settings_.setThemeMode(mode);
+    emit themeModeChanged();
+}
+
 void AppController::restoreDefaultSettings() {
     settings_.resetDisplayPreferences();
 
@@ -132,6 +140,7 @@ void AppController::restoreDefaultSettings() {
     emit currentModelChanged();
 
     emit logFontChanged();
+    emit themeModeChanged();
 }
 
 QVariantList AppController::availableLanguages() const {

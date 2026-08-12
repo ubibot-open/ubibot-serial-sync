@@ -14,17 +14,10 @@ ApplicationWindow {
     // Fusion (set in main.cpp) is one of the few built-in styles that
     // actually honors palette roles, so this is a cheap way to pull the
     // whole app's default control coloring toward the design's light/blue
-    // theme without hand-skinning every control type.
-    palette {
-        window: Theme.background
-        windowText: Theme.text
-        base: Theme.surface
-        text: Theme.text
-        button: Theme.surface
-        buttonText: Theme.text
-        highlight: Theme.accent
-        highlightedText: Theme.background
-    }
+    // theme without hand-skinning every control type. Popups/Dialogs don't
+    // reliably inherit this from the ApplicationWindow, though -- each one
+    // sets `palette: Theme.palette` itself too (see Theme.qml).
+    palette: Theme.palette
 
     Connections {
         target: AppController
@@ -219,7 +212,7 @@ ApplicationWindow {
                                         anchors.centerIn: parent
                                         text: segment.modelData
                                         font.pixelSize: 13
-                                        color: modeBar.currentIndex === index ? Theme.background : Theme.text
+                                        color: modeBar.currentIndex === index ? Theme.accentForeground : Theme.text
                                     }
                                     MouseArea {
                                         anchors.fill: parent
@@ -311,7 +304,11 @@ ApplicationWindow {
                                 }
                             }
 
-                            background: Rectangle { border.color: Theme.divider; border.width: 1 }
+                            // Was missing an explicit `color:` -- a bare
+                            // Rectangle defaults to white, which happened to
+                            // look right against the old fixed light theme
+                            // but stayed glaring white against a dark one.
+                            background: Rectangle { color: Theme.surface; border.color: Theme.divider; border.width: 1 }
                         }
                     }
                     ColumnLayout {
@@ -340,6 +337,7 @@ ApplicationWindow {
                     padding: 0
                     modal: false
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+                    palette: Theme.palette
 
                     background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
 
@@ -461,7 +459,16 @@ ApplicationWindow {
         modal: true
         anchors.centerIn: Overlay.overlay
         standardButtons: Dialog.Ok
-        Label { id: errorLabel; width: 320; wrapMode: Text.WordWrap }
+        palette: Theme.palette
+        background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+        header: Label {
+            text: portErrorDialog.title
+            font.bold: true
+            padding: 12
+            color: Theme.text
+            background: Rectangle { color: Theme.background }
+        }
+        Label { id: errorLabel; width: 320; wrapMode: Text.WordWrap; color: Theme.text }
     }
 
     // Transient status-bar message (e.g. "Log saved to ..."), matching the

@@ -261,7 +261,7 @@ Item {
                     readOnly: true
                     selectByMouse: true
                     selectionColor: Theme.accent
-                    selectedTextColor: Theme.background
+                    selectedTextColor: Theme.accentForeground
 
                     function rebuild() { text = AppController.logModel.fullHtmlDump() }
                     Component.onCompleted: rebuild()

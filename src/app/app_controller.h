@@ -48,6 +48,11 @@ class AppController : public QObject {
     Q_PROPERTY(QString logFontFamily READ logFontFamily WRITE setLogFontFamily NOTIFY logFontChanged)
     Q_PROPERTY(int logFontSize READ logFontSize WRITE setLogFontSize NOTIFY logFontChanged)
 
+    // "light" or "dark" -- Theme.qml (the app-wide color palette singleton)
+    // reads this to decide which set of colors every Theme.* property
+    // resolves to.
+    Q_PROPERTY(QString themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
+
     // Which serial port is currently picked, shared between the port combo
     // boxes on the "Device commands" and "Serial" panels (only one of which
     // is visible at a time, but both should show/drive the same choice) --
@@ -92,6 +97,8 @@ public:
     void setLogFontFamily(const QString &family);
     int logFontSize() const;
     void setLogFontSize(int pixelSize);
+    QString themeMode() const;
+    void setThemeMode(const QString &mode);
     // Installed font families, for the data-monitor font picker in
     // SettingsAboutDialog.qml.
     Q_INVOKABLE QStringList availableFontFamilies() const;
@@ -186,6 +193,7 @@ signals:
     void selectedPortNameChanged();
     void currentLanguageChanged();
     void logFontChanged();
+    void themeModeChanged();
     void draftTextChanged();
     void echoTxChanged();
     void sendAsHexChanged();

@@ -14,6 +14,23 @@ Dialog {
     anchors.centerIn: Overlay.overlay
     width: 460
     standardButtons: Dialog.Close
+    // Dialogs don't reliably inherit ApplicationWindow's own palette --
+    // see Theme.qml. This is the one place the user actually picks
+    // light/dark, so it especially can't be left stuck on the wrong colors.
+    // `palette` alone re-themes the controls inside but Fusion's default
+    // Dialog background apparently doesn't rebind to `palette.window`
+    // live, so the canvas itself needs an explicit override too.
+    palette: Theme.palette
+    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+    // Same rebind gap as `background` above, but for the title strip --
+    // Fusion's default Dialog header is its own separately-drawn piece.
+    header: Label {
+        text: root.title
+        font.bold: true
+        padding: 12
+        color: Theme.text
+        background: Rectangle { color: Theme.background }
+    }
 
     // Keeps languageCombo/fontFamilyCombo in sync when the underlying
     // AppController properties change from outside a user pick on those
@@ -32,6 +49,17 @@ Dialog {
         }
         function onLogFontChanged() {
             fontFamilyCombo.currentIndex = fontFamilyCombo.find(AppController.logFontFamily)
+        }
+        // RadioButton.checked is reassigned internally the instant it's
+        // clicked, same hazard as TextArea.text (see Main.qml's inputField
+        // comment) -- an initial declarative `checked: ...` binding gets
+        // severed by that assignment, so a later external change (Restore
+        // defaults, below) wouldn't otherwise reach the button that was
+        // clicked. Re-deriving both explicitly on every themeModeChanged
+        // sidesteps that regardless of which binding is still alive.
+        function onThemeModeChanged() {
+            lightThemeRadio.checked = AppController.themeMode !== "dark"
+            darkThemeRadio.checked = AppController.themeMode === "dark"
         }
     }
 
@@ -79,6 +107,30 @@ Dialog {
                     to: 32
                     value: AppController.logFontSize
                     onValueModified: AppController.logFontSize = value
+                }
+            }
+        }
+
+        GroupBox {
+            title: qsTr("Theme")
+            Layout.fillWidth: true
+
+            RowLayout {
+                anchors.fill: parent
+                ButtonGroup { id: themeGroup }
+                RadioButton {
+                    id: lightThemeRadio
+                    text: qsTr("Light")
+                    checked: AppController.themeMode !== "dark"
+                    ButtonGroup.group: themeGroup
+                    onClicked: AppController.themeMode = "light"
+                }
+                RadioButton {
+                    id: darkThemeRadio
+                    text: qsTr("Dark")
+                    checked: AppController.themeMode === "dark"
+                    ButtonGroup.group: themeGroup
+                    onClicked: AppController.themeMode = "dark"
                 }
             }
         }
@@ -139,10 +191,20 @@ Dialog {
         modal: true
         anchors.centerIn: Overlay.overlay
         standardButtons: Dialog.Ok
+        palette: Theme.palette
+        background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+        header: Label {
+            text: updateResultDialog.title
+            font.bold: true
+            padding: 12
+            color: Theme.text
+            background: Rectangle { color: Theme.background }
+        }
         Label {
             width: 320
             wrapMode: Text.WordWrap
             text: AppController.checkForLibraryUpdate()
+            color: Theme.text
         }
     }
 }

@@ -433,6 +433,18 @@
         <translation>数据监视字体</translation>
     </message>
     <message>
+        <source>Theme</source>
+        <translation>主题</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>浅色</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>深色</translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation>字号</translation>
     </message>
