@@ -67,9 +67,12 @@ Item {
         }
 
         // Design renders these as flat, square-cornered chips (24px tall,
-        // bold 12px label) rather than standard buttons -- hand-rolled
-        // rather than Button since checkable Button pulls in the style's
-        // full pill-shaped chrome and padding.
+        // 12px label) rather than standard buttons -- hand-rolled rather
+        // than Button since checkable Button pulls in the style's full
+        // pill-shaped chrome and padding. The checked chip already stands
+        // out via its inverted accent background, so the label itself
+        // stays normal weight rather than every chip being bold regardless
+        // of state.
         Flow {
             Layout.fillWidth: true
             spacing: 6
@@ -90,7 +93,6 @@ Item {
                         anchors.centerIn: parent
                         text: chip.modelData.label
                         font.pixelSize: 12
-                        font.bold: true
                         color: chip.modelData.checked ? Theme.background : Theme.text
                     }
                     MouseArea {
@@ -176,7 +178,11 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 1
-                        Label { text: delegateRoot.name; font.bold: true }
+                        // Bold only for favorited commands -- with every
+                        // row's name bold regardless, the whole list read as
+                        // uniformly heavy with no real hierarchy; this way
+                        // bold actually signals something (starred).
+                        Label { text: delegateRoot.name; font.bold: delegateRoot.favorite }
                         Label {
                             text: delegateRoot.cmd
                             font.family: Theme.monoFont
