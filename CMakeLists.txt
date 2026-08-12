@@ -67,6 +67,7 @@ qt_add_qml_module(UbiBotSerialAssistant
     QML_FILES
         qml/Main.qml
         qml/Theme.qml
+        qml/DialogCard.qml
         qml/SerialSettingsPanel.qml
         qml/CommandLibraryPanel.qml
         qml/RemoteAssistPanel.qml

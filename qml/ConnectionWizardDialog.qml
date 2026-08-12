@@ -19,15 +19,19 @@ Dialog {
     // apparently doesn't rebind to `palette.window` live, so the canvas
     // itself needs an explicit override too.
     palette: Theme.palette
-    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+    // See DialogCard.qml for why this dialog needs its own elevated
+    // surface + border + shadow instead of a plain Theme.background fill.
+    background: DialogCard {}
     // Same rebind gap as `background` above, but for the title strip --
     // Fusion's default Dialog header is its own separately-drawn piece.
+    // Uses Theme.surface (not Theme.background) to match DialogCard's fill
+    // above so the header reads as part of the same panel, not a seam.
     header: Label {
         text: root.title
         font.bold: true
         padding: 12
         color: Theme.text
-        background: Rectangle { color: Theme.background }
+        background: Rectangle { color: Theme.surface }
     }
 
     property int selectedPortRow: -1
@@ -179,14 +183,23 @@ Dialog {
     footer: DialogButtonBox {
         // Same rebind gap as `background`/`header` above -- an explicit
         // `footer:` gets its own separately-drawn Fusion background too.
-        background: Rectangle { color: Theme.background }
+        // Theme.surface again, matching DialogCard/header.
+        background: Rectangle { color: Theme.surface }
+        // A Popup's children apparently don't reliably pick up a *live*
+        // change to an inherited palette either (only their own direct
+        // assignment reacts) -- see Theme.qml -- so this box and each of
+        // its buttons need their own explicit `palette:` too, not just the
+        // Dialog root's.
+        palette: Theme.palette
         Button {
             text: qsTr("Cancel")
+            palette: Theme.palette
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
         Button {
             text: qsTr("Back")
             enabled: swipe.currentIndex > 0
+            palette: Theme.palette
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
             onClicked: swipe.setCurrentIndex(swipe.currentIndex - 1)
         }
@@ -196,6 +209,7 @@ Dialog {
                      : swipe.currentIndex === 1 ? root.selectedModelId.length > 0
                      : true
             highlighted: true
+            palette: Theme.palette
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
             onClicked: {
                 if (swipe.currentIndex < 2) {

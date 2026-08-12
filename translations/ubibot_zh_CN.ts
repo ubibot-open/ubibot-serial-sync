@@ -77,6 +77,10 @@
 <context>
     <name>Main</name>
     <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+    <message>
         <source>UbiBot Serial Assistant</source>
         <translation>UbiBot 串口助手</translation>
     </message>
@@ -245,6 +249,10 @@
 </context>
 <context>
     <name>RemoteAssistPanel</name>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
     <message>
         <source>Remote support</source>
         <translation>远程协助</translation>
@@ -420,6 +428,14 @@
 </context>
 <context>
     <name>SettingsAboutDialog</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
     <message>
         <source>Settings &amp; About</source>
         <translation>设置与关于</translation>

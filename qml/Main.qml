@@ -353,7 +353,10 @@ ApplicationWindow {
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
                     palette: Theme.palette
 
-                    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+                    // See DialogCard.qml for why this needs its own
+                    // elevated surface + border + shadow instead of a
+                    // plain Theme.background fill.
+                    background: DialogCard {}
 
                     contentItem: ColumnLayout {
                         spacing: 0
@@ -472,15 +475,28 @@ ApplicationWindow {
         title: qsTr("Failed to open port")
         modal: true
         anchors.centerIn: Overlay.overlay
-        standardButtons: Dialog.Ok
         palette: Theme.palette
-        background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+        // See DialogCard.qml for why this dialog needs its own elevated
+        // surface + border + shadow instead of a plain Theme.background fill.
+        background: DialogCard {}
         header: Label {
             text: portErrorDialog.title
             font.bold: true
             padding: 12
             color: Theme.text
-            background: Rectangle { color: Theme.background }
+            background: Rectangle { color: Theme.surface }
+        }
+        // Was `standardButtons: Dialog.Ok` -- see SettingsAboutDialog.qml's
+        // root footer for why that auto-generated button had to be spelled
+        // out explicitly instead (needs its own `palette:`).
+        footer: DialogButtonBox {
+            palette: Theme.palette
+            background: Rectangle { color: Theme.surface }
+            Button {
+                text: qsTr("OK")
+                palette: Theme.palette
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            }
         }
         Label { id: errorLabel; width: 320; wrapMode: Text.WordWrap; color: Theme.text }
     }

@@ -28,15 +28,40 @@ QtObject {
 
     readonly property bool dark: AppController.themeMode === "dark"
 
-    readonly property color background: dark ? "#1c1d20" : "#f2f2f3"
-    readonly property color surface: dark ? "#26282c" : "#e9e9ea"
-    readonly property color text: dark ? "#e6e6e8" : "#1d1f20"
+    // background/surface/text/accent also exist as fixed Light/Dark literal
+    // pairs below (backgroundLight/backgroundDark, ...) -- see the
+    // `lightPalette`/`darkPalette` comment near the bottom for why.
+    readonly property color backgroundLight: "#f2f2f3"
+    readonly property color backgroundDark: "#1c1d20"
+    readonly property color background: dark ? backgroundDark : backgroundLight
+
+    readonly property color surfaceLight: "#e9e9ea"
+    readonly property color surfaceDark: "#26282c"
+    readonly property color surface: dark ? surfaceDark : surfaceLight
+
+    readonly property color textLight: "#1d1f20"
+    readonly property color textDark: "#e6e6e8"
+    readonly property color text: dark ? textDark : textLight
+
     readonly property color textMuted: dark ? "#97999e" : "#7a7a7d"
-    readonly property color accent: dark ? "#6f9fcc" : "#5980a6"
+
+    readonly property color accentLight: "#5980a6"
+    readonly property color accentDark: "#6f9fcc"
+    readonly property color accent: dark ? accentDark : accentLight
     readonly property color accent700: dark ? "#a2c8e8" : "#416180"
     readonly property color accent800: dark ? "#cfe3f4" : "#2c455d"
     readonly property color accentTint: dark ? "#24313d" : "#eef6ff"
     readonly property color divider: dark ? "#3c3e44" : "#c9c9ca"
+    // A Dialog/Popup's own background used to just be Theme.background with
+    // a `divider`-colored 1px border -- but that's the *same* color as the
+    // main window sitting behind it, so the border (already subtle by
+    // design, for use as a quiet in-page separator) was the only thing
+    // marking the dialog's edge, and it all but disappeared in dark mode
+    // (divider "#3c3e44" against background "#1c1d20" from a few feet back
+    // reads as one solid color). DialogCard.qml uses `surface` for the
+    // dialog's fill (a real tonal step up from `background`, not the same
+    // color) and this stronger, higher-contrast border on top of it.
+    readonly property color dialogBorder: dark ? "#55585f" : "#a6a6a9"
     readonly property color error: dark ? "#e58a87" : "#aa3333"
     // The readable color for text/icons drawn on top of an accent-colored
     // surface (selected tab/chip label, Fusion's palette.highlightedText,
@@ -79,14 +104,53 @@ QtObject {
     // Window/Dialog/Popup's own `palette` property (not just the main
     // ApplicationWindow) so Fusion's default control colors track the
     // current theme everywhere, not only where Theme.* is read directly.
-    readonly property Palette palette: Palette {
-        window: theme.background
-        windowText: theme.text
-        base: theme.surface
-        text: theme.text
-        button: theme.surface
-        buttonText: theme.text
-        highlight: theme.accent
+    //
+    // This used to be a *single* Palette object whose roles were bound to
+    // theme.background/.text/etc, on the assumption that mutating those
+    // properties live would propagate to every control that had done
+    // `palette: Theme.palette`. It doesn't: Fusion-styled controls
+    // (ComboBox, RadioButton, Button, GroupBox, DialogButtonBox, ...)
+    // convert whatever Palette object gets assigned into a plain QPalette
+    // *snapshot* at the moment the assignment happens, and never look at
+    // that object again -- they don't listen for its own windowChanged/
+    // textChanged/etc signals. Meanwhile `palette: Theme.palette` in each
+    // control is itself a QML binding that only re-evaluates when the
+    // *`Theme.palette` reference* changes -- and with one shared object
+    // whose sub-properties just mutate in place, that reference never
+    // changes, so the binding fires exactly once (control creation) and
+    // never again. Net effect: reopening a dialog after a theme switch
+    // looks fine (fresh snapshot at creation time), but toggling the theme
+    // while a dialog is already open leaves every Fusion control's chrome
+    // frozen on the old colors while plain `color: Theme.background`-style
+    // bindings elsewhere update correctly -- exactly the bug reported
+    // against SettingsAboutDialog/ConnectionWizardDialog.
+    //
+    // Fix: keep two fully-static Palette instances instead of one mutable
+    // shared one, and have `palette` switch which object it points to via
+    // a ternary that reads `dark` directly. That read makes `dark` a real
+    // dependency of the *outer* `palette` binding, so flipping it changes
+    // `palette`'s identity -- which does re-fire every consumer's
+    // `palette: Theme.palette` binding and forces a fresh QPalette
+    // snapshot, live, with no per-dialog workaround needed.
+    readonly property Palette lightPalette: Palette {
+        window: theme.backgroundLight
+        windowText: theme.textLight
+        base: theme.surfaceLight
+        text: theme.textLight
+        button: theme.surfaceLight
+        buttonText: theme.textLight
+        highlight: theme.accentLight
         highlightedText: theme.accentForeground
     }
+    readonly property Palette darkPalette: Palette {
+        window: theme.backgroundDark
+        windowText: theme.textDark
+        base: theme.surfaceDark
+        text: theme.textDark
+        button: theme.surfaceDark
+        buttonText: theme.textDark
+        highlight: theme.accentDark
+        highlightedText: theme.accentForeground
+    }
+    readonly property Palette palette: dark ? darkPalette : lightPalette
 }

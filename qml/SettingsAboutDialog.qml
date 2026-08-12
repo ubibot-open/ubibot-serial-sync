@@ -13,7 +13,6 @@ Dialog {
     modal: true
     anchors.centerIn: Overlay.overlay
     width: 460
-    standardButtons: Dialog.Close
     // Dialogs don't reliably inherit ApplicationWindow's own palette --
     // see Theme.qml. This is the one place the user actually picks
     // light/dark, so it especially can't be left stuck on the wrong colors.
@@ -21,15 +20,35 @@ Dialog {
     // Dialog background apparently doesn't rebind to `palette.window`
     // live, so the canvas itself needs an explicit override too.
     palette: Theme.palette
-    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+    // See DialogCard.qml for why this dialog needs its own elevated
+    // surface + border + shadow instead of a plain Theme.background fill.
+    background: DialogCard {}
     // Same rebind gap as `background` above, but for the title strip --
     // Fusion's default Dialog header is its own separately-drawn piece.
+    // Uses Theme.surface (not Theme.background) to match DialogCard's fill
+    // above so the header reads as part of the same panel, not a seam.
     header: Label {
         text: root.title
         font.bold: true
         padding: 12
         color: Theme.text
-        background: Rectangle { color: Theme.background }
+        background: Rectangle { color: Theme.surface }
+    }
+    // A Popup's children apparently don't reliably pick up a *live* change
+    // to an inherited palette either (only their own direct assignment
+    // reacts) -- see Theme.qml. Was `standardButtons: Dialog.Close`, but
+    // that auto-generated button can't be reached to give it its own
+    // `palette:`, so it's spelled out explicitly here instead (identical
+    // behavior: a single Close button that dismisses the dialog).
+    footer: DialogButtonBox {
+        palette: Theme.palette
+        // Theme.surface again, matching DialogCard/header above.
+        background: Rectangle { color: Theme.surface }
+        Button {
+            text: qsTr("Close")
+            palette: Theme.palette
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+        }
     }
 
     // Keeps languageCombo/fontFamilyCombo in sync when the underlying
@@ -66,13 +85,21 @@ Dialog {
     contentItem: ColumnLayout {
         spacing: 14
 
+        // Every GroupBox/ComboBox/RadioButton/Button below gets its own
+        // explicit `palette: Theme.palette` for the same reason the footer
+        // buttons above do -- these are Fusion-styled controls that read
+        // `control.palette.xxx` for their own chrome (frame, fill, ...);
+        // relying on inheriting it from `root` above doesn't reliably
+        // survive a *live* theme switch, only a fresh one at open time.
         GroupBox {
             title: qsTr("Interface language")
             Layout.fillWidth: true
+            palette: Theme.palette
 
             ComboBox {
                 id: languageCombo
                 anchors.fill: parent
+                palette: Theme.palette
                 textRole: "nativeName"
                 valueRole: "code"
                 model: AppController.availableLanguages()
@@ -84,6 +111,7 @@ Dialog {
         GroupBox {
             title: qsTr("Data monitor font")
             Layout.fillWidth: true
+            palette: Theme.palette
 
             RowLayout {
                 anchors.fill: parent
@@ -92,6 +120,7 @@ Dialog {
                 ComboBox {
                     id: fontFamilyCombo
                     Layout.fillWidth: true
+                    palette: Theme.palette
                     editable: true
                     model: AppController.availableFontFamilies()
                     Component.onCompleted: currentIndex = find(AppController.logFontFamily)
@@ -103,6 +132,7 @@ Dialog {
 
                 SpinBox {
                     id: fontSizeSpin
+                    palette: Theme.palette
                     from: 8
                     to: 32
                     value: AppController.logFontSize
@@ -114,6 +144,7 @@ Dialog {
         GroupBox {
             title: qsTr("Theme")
             Layout.fillWidth: true
+            palette: Theme.palette
 
             RowLayout {
                 anchors.fill: parent
@@ -121,6 +152,7 @@ Dialog {
                 RadioButton {
                     id: lightThemeRadio
                     text: qsTr("Light")
+                    palette: Theme.palette
                     checked: AppController.themeMode !== "dark"
                     ButtonGroup.group: themeGroup
                     onClicked: AppController.themeMode = "light"
@@ -128,6 +160,7 @@ Dialog {
                 RadioButton {
                     id: darkThemeRadio
                     text: qsTr("Dark")
+                    palette: Theme.palette
                     checked: AppController.themeMode === "dark"
                     ButtonGroup.group: themeGroup
                     onClicked: AppController.themeMode = "dark"
@@ -138,6 +171,7 @@ Dialog {
         GroupBox {
             title: qsTr("Command library")
             Layout.fillWidth: true
+            palette: Theme.palette
 
             RowLayout {
                 anchors.fill: parent
@@ -151,6 +185,7 @@ Dialog {
                 Item { Layout.fillWidth: true }
                 Button {
                     text: qsTr("Check for updates")
+                    palette: Theme.palette
                     onClicked: updateResultDialog.open()
                 }
             }
@@ -179,6 +214,7 @@ Dialog {
 
             Button {
                 text: qsTr("Restore defaults")
+                palette: Theme.palette
                 onClicked: AppController.restoreDefaultSettings()
             }
             Item { Layout.fillWidth: true }
@@ -190,15 +226,25 @@ Dialog {
         title: qsTr("Command library")
         modal: true
         anchors.centerIn: Overlay.overlay
-        standardButtons: Dialog.Ok
         palette: Theme.palette
-        background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+        background: DialogCard {}
         header: Label {
             text: updateResultDialog.title
             font.bold: true
             padding: 12
             color: Theme.text
-            background: Rectangle { color: Theme.background }
+            background: Rectangle { color: Theme.surface }
+        }
+        // Was `standardButtons: Dialog.Ok` -- see root's footer above for why
+        // that auto-generated button had to be spelled out explicitly instead.
+        footer: DialogButtonBox {
+            palette: Theme.palette
+            background: Rectangle { color: Theme.surface }
+            Button {
+                text: qsTr("OK")
+                palette: Theme.palette
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            }
         }
         Label {
             width: 320

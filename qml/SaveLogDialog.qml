@@ -19,15 +19,19 @@ Dialog {
     // `palette.window` live, so the canvas itself needs an explicit
     // override too.
     palette: Theme.palette
-    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+    // See DialogCard.qml for why this dialog needs its own elevated
+    // surface + border + shadow instead of a plain Theme.background fill.
+    background: DialogCard {}
     // Same rebind gap as `background` above, but for the title strip --
     // Fusion's default Dialog header is its own separately-drawn piece.
+    // Uses Theme.surface (not Theme.background) to match DialogCard's fill
+    // above so the header reads as part of the same panel, not a seam.
     header: Label {
         text: root.title
         font.bold: true
         padding: 12
         color: Theme.text
-        background: Rectangle { color: Theme.background }
+        background: Rectangle { color: Theme.surface }
     }
 
     property string errorText: ""
@@ -50,31 +54,35 @@ Dialog {
             rowSpacing: 8
 
             Label { text: qsTr("File name") }
-            TextField { id: fileNameField; Layout.fillWidth: true; font.family: Theme.monoFont }
+            TextField { id: fileNameField; Layout.fillWidth: true; font.family: Theme.monoFont; palette: Theme.palette }
 
             Label { text: qsTr("Location") }
             RowLayout {
                 Layout.fillWidth: true
-                TextField { id: locationField; Layout.fillWidth: true; font.family: Theme.monoFont }
-                Button { text: qsTr("Browse…"); onClicked: folderDialog.open() }
+                TextField { id: locationField; Layout.fillWidth: true; font.family: Theme.monoFont; palette: Theme.palette }
+                Button { text: qsTr("Browse…"); palette: Theme.palette; onClicked: folderDialog.open() }
             }
         }
 
+        // Explicit `palette:` on the GroupBox and each control below for the
+        // same reason the footer buttons need it -- see the footer comment.
         GroupBox {
             title: qsTr("Format")
             Layout.fillWidth: true
+            palette: Theme.palette
             RowLayout {
                 anchors.fill: parent
                 ButtonGroup { id: formatGroup }
-                RadioButton { id: plainRadio; text: qsTr("Plain text (.log)"); ButtonGroup.group: formatGroup; property string value: "text" }
-                RadioButton { id: csvRadio; text: "CSV"; ButtonGroup.group: formatGroup; property string value: "csv" }
-                RadioButton { id: hexRadio; text: qsTr("HEX dump"); ButtonGroup.group: formatGroup; property string value: "hex" }
+                RadioButton { id: plainRadio; text: qsTr("Plain text (.log)"); palette: Theme.palette; ButtonGroup.group: formatGroup; property string value: "text" }
+                RadioButton { id: csvRadio; text: "CSV"; palette: Theme.palette; ButtonGroup.group: formatGroup; property string value: "csv" }
+                RadioButton { id: hexRadio; text: qsTr("HEX dump"); palette: Theme.palette; ButtonGroup.group: formatGroup; property string value: "hex" }
             }
         }
 
         CheckBox {
             id: autoRotateCheck
             text: qsTr("Continue logging to disk, rotating the file every day")
+            palette: Theme.palette
         }
 
         Label {
@@ -89,11 +97,18 @@ Dialog {
     footer: DialogButtonBox {
         // Same rebind gap as `background`/`header` above -- an explicit
         // `footer:` gets its own separately-drawn Fusion background too.
-        background: Rectangle { color: Theme.background }
-        Button { text: qsTr("Cancel"); DialogButtonBox.buttonRole: DialogButtonBox.RejectRole }
+        // Theme.surface again, matching DialogCard/header.
+        background: Rectangle { color: Theme.surface }
+        // A Popup's children apparently don't reliably pick up a *live*
+        // change to an inherited palette either (only their own direct
+        // assignment reacts) -- see Theme.qml -- so this box and each of
+        // its buttons need their own explicit `palette:` too.
+        palette: Theme.palette
+        Button { text: qsTr("Cancel"); palette: Theme.palette; DialogButtonBox.buttonRole: DialogButtonBox.RejectRole }
         Button {
             text: qsTr("Save")
             highlighted: true
+            palette: Theme.palette
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             onClicked: {
                 var baseName = fileNameField.text
