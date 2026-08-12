@@ -30,6 +30,56 @@ LocalizedText readLocalized(const QJsonObject &obj) {
     return t;
 }
 
+DeviceProtocol readProtocol(const QJsonObject &modelObj) {
+    return modelObj.value(QStringLiteral("protocol")).toString() == QStringLiteral("json") ? DeviceProtocol::Json
+                                                                                             : DeviceProtocol::At;
+}
+
+CommandType readCommandType(const QJsonObject &cmdObj) {
+    const QString s = cmdObj.value(QStringLiteral("type")).toString();
+    if (s == QStringLiteral("set")) return CommandType::Set;
+    if (s == QStringLiteral("action")) return CommandType::Action;
+    return CommandType::Query;
+}
+
+// See docs/device-json-protocol-schema.md#5 -- string values chosen to
+// match Qt's own enum names, restricted to the subset SerialOptions (the
+// QML-facing dropdown source) actually offers, so a value read here is
+// always resolvable back to a combo-box row.
+QSerialPort::Parity readParity(const QString &s) {
+    if (s == QStringLiteral("Even")) return QSerialPort::EvenParity;
+    if (s == QStringLiteral("Odd")) return QSerialPort::OddParity;
+    return QSerialPort::NoParity;
+}
+
+QSerialPort::StopBits readStopBits(double n) {
+    if (n == 2) return QSerialPort::TwoStop;
+    if (n == 1.5) return QSerialPort::OneAndHalfStop;
+    return QSerialPort::OneStop;
+}
+
+QSerialPort::FlowControl readFlowControl(const QString &s) {
+    if (s == QStringLiteral("Hardware")) return QSerialPort::HardwareControl;
+    if (s == QStringLiteral("Software")) return QSerialPort::SoftwareControl;
+    return QSerialPort::NoFlowControl;
+}
+
+QVector<CommandParam> readParams(const QJsonObject &cmdObj) {
+    QVector<CommandParam> params;
+    const QJsonArray paramArray = cmdObj.value(QStringLiteral("params")).toArray();
+    params.reserve(paramArray.size());
+    for (const QJsonValue &paramVal : paramArray) {
+        const QJsonObject paramObj = paramVal.toObject();
+        CommandParam param;
+        param.key = paramObj.value(QStringLiteral("key")).toString();
+        param.label = readLocalized(paramObj.value(QStringLiteral("label")).toObject());
+        param.hint = paramObj.value(QStringLiteral("hint")).toString();
+        param.defaultValue = paramObj.value(QStringLiteral("default")).toString();
+        params.push_back(param);
+    }
+    return params;
+}
+
 }  // namespace
 
 bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
@@ -58,27 +108,44 @@ bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
         const QJsonObject modelObj = modelVal.toObject();
         DeviceModel model;
         model.id = modelObj.value(QStringLiteral("id")).toString();
+        model.protocol = readProtocol(modelObj);
+        model.name = readLocalized(modelObj.value(QStringLiteral("name")).toObject());
         model.description = readLocalized(modelObj.value(QStringLiteral("description")).toObject());
+
+        if (modelObj.contains(QStringLiteral("serial"))) {
+            const QJsonObject serialObj = modelObj.value(QStringLiteral("serial")).toObject();
+            model.hasSerialDefaults = true;
+            model.serial.baudRate = serialObj.value(QStringLiteral("baudRate")).toInt(115200);
+            model.serial.dataBits =
+                static_cast<QSerialPort::DataBits>(serialObj.value(QStringLiteral("dataBits")).toInt(8));
+            model.serial.parity = readParity(serialObj.value(QStringLiteral("parity")).toString());
+            model.serial.stopBits = readStopBits(serialObj.value(QStringLiteral("stopBits")).toDouble(1));
+            model.serial.flowControl = readFlowControl(serialObj.value(QStringLiteral("flowControl")).toString());
+        }
 
         const QJsonArray cmdArray = modelObj.value(QStringLiteral("commands")).toArray();
         model.commands.reserve(cmdArray.size());
         for (const QJsonValue &cmdVal : cmdArray) {
             const QJsonObject cmdObj = cmdVal.toObject();
             DeviceCommand cmd;
+            cmd.id = cmdObj.value(QStringLiteral("id")).toString();
             cmd.group = readLocalized(cmdObj.value(QStringLiteral("group")).toObject());
             cmd.name = readLocalized(cmdObj.value(QStringLiteral("name")).toObject());
-            cmd.cmdTemplate = cmdObj.value(QStringLiteral("cmd")).toString();
+            cmd.isJsonProtocol = (model.protocol == DeviceProtocol::Json);
+            cmd.params = readParams(cmdObj);
 
-            const QJsonArray paramArray = cmdObj.value(QStringLiteral("params")).toArray();
-            cmd.params.reserve(paramArray.size());
-            for (const QJsonValue &paramVal : paramArray) {
-                const QJsonObject paramObj = paramVal.toObject();
-                CommandParam param;
-                param.key = paramObj.value(QStringLiteral("key")).toString();
-                param.label = readLocalized(paramObj.value(QStringLiteral("label")).toObject());
-                param.hint = paramObj.value(QStringLiteral("hint")).toString();
-                param.defaultValue = paramObj.value(QStringLiteral("default")).toString();
-                cmd.params.push_back(param);
+            if (cmd.isJsonProtocol) {
+                cmd.type = readCommandType(cmdObj);
+                cmd.needsInput = cmdObj.value(QStringLiteral("needsInput")).toBool();
+                const QByteArray encoded = cmdObj.value(QStringLiteral("payloadBase64")).toString().toLatin1();
+                cmd.jsonPayload = QString::fromUtf8(QByteArray::fromBase64(encoded));
+            } else {
+                cmd.cmdTemplate = cmdObj.value(QStringLiteral("cmd")).toString();
+                // AT protocol never had an explicit needsInput field --
+                // derive it from params so callers (AppController::
+                // activateCommandRow) can check the one flag regardless of
+                // protocol.
+                cmd.needsInput = cmd.hasParams();
             }
 
             model.commands.push_back(cmd);

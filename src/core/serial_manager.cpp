@@ -74,7 +74,9 @@ qint64 SerialManager::write(const QByteArray &data) {
     return port_.write(data);
 }
 
-QString SerialManager::portSummary() const {
+QString SerialManager::portSummary() const { return summaryFor(cfg_); }
+
+QString SerialManager::summaryFor(const SerialConfig &cfg) {
     auto parityChar = [](QSerialPort::Parity p) {
         switch (p) {
         case QSerialPort::NoParity: return QStringLiteral("N");
@@ -94,9 +96,9 @@ QString SerialManager::portSummary() const {
         }
     };
     return QStringLiteral("%1 %2-%3-%4")
-        .arg(cfg_.baudRate)
-        .arg(int(cfg_.dataBits))
-        .arg(parityChar(cfg_.parity), stopBitsText(cfg_.stopBits));
+        .arg(cfg.baudRate)
+        .arg(int(cfg.dataBits))
+        .arg(parityChar(cfg.parity), stopBitsText(cfg.stopBits));
 }
 
 void SerialManager::handleReadyRead() {

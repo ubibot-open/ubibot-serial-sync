@@ -135,17 +135,40 @@ public:
     Q_INVOKABLE void sendManualText();
     Q_INVOKABLE void clearDraft();
 
-    // Parameter-less commands send immediately; ones with parameters do
-    // nothing here -- QML reads hasParams from commandModel and opens the
-    // params panel itself, then calls sendCommandWithParams().
+    // AT protocol: parameter-less commands send immediately; ones with
+    // parameters do nothing here -- QML reads hasParams from commandModel
+    // and opens the params panel itself, then calls sendCommandWithParams().
+    // JSON protocol (see docs/device-json-protocol-schema.md#9): commands
+    // with needsInput also do nothing here -- QML reads needsManualEdit and
+    // calls loadCommandIntoDraft() instead. Guarded by needsInput either
+    // way, so this is a no-op if QML calls it on a row it shouldn't have.
     Q_INVOKABLE void activateCommandRow(int row);
     Q_INVOKABLE QString commandNameForRow(int row) const;
     Q_INVOKABLE QVariantList paramsForRow(int row) const;
     Q_INVOKABLE QString previewCommand(int row, const QVariantMap &values) const;
     Q_INVOKABLE void sendCommandWithParams(int row, const QVariantMap &values);
     Q_INVOKABLE void toggleFavorite(int row);
+    // JSON-protocol commands with needsInput: true -- stages the command's
+    // (undecoded-placeholder) payload in the manual-send box for the user
+    // to finish and send themselves. No-op for anything else (AT commands,
+    // or JSON commands that don't need input).
+    Q_INVOKABLE void loadCommandIntoDraft(int row);
 
-    // Returns an error string on failure, empty on success.
+    // {present, baudRate, dataBits, parity, stopBits, flowControl} for the
+    // given model id -- the last four are the raw QSerialPort enum ints, so
+    // QML can feed them straight to a SerialOptions combo's indexOfValue().
+    // present is false (and the rest absent) when the model has no "serial"
+    // block in devices.json. Backs SerialSettingsPanel.qml's "selecting a
+    // model overwrites the serial fields" behavior.
+    Q_INVOKABLE QVariantMap serialDefaultsForModel(const QString &modelId) const;
+    // e.g. "115200 8-N-1" -- the model's serial defaults if it has any,
+    // else the same fallback finishWizard() uses. Used by
+    // ConnectionWizardDialog.qml's summary step instead of a hardcoded string.
+    Q_INVOKABLE QString serialSummaryForModel(const QString &modelId) const;
+
+    // Returns an error string on failure, empty on success. Opens at the
+    // model's serial defaults when it has any (see serialDefaultsForModel),
+    // else the historical fixed 115200 8-N-1.
     Q_INVOKABLE QString finishWizard(const QString &portName, const QString &modelId);
 
     Q_INVOKABLE QString suggestedLogBaseName() const;
@@ -175,6 +198,12 @@ private:
     QByteArray composeAsciiPayload(const QString &text) const;
     QByteArray composeHexPayload(const QString &text) const;
     void sendLiteral(const QString &text);
+    // The model's serial defaults if it has any (DeviceModel::
+    // hasSerialDefaults), else a default-constructed SerialConfig (115200
+    // 8-N-1) -- the one place serialDefaultsForModel(), serialSummaryForModel(),
+    // and finishWizard() all resolve "what should this model's port open at"
+    // from, so the three stay consistent with each other.
+    SerialConfig effectiveSerialConfig(const QString &modelId) const;
 
     // Raw serial reads land in arbitrary, driver-chosen chunk sizes -- a
     // single logical line from the device routinely arrives as several

@@ -138,8 +138,14 @@ Dialog {
                 Label {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    text: qsTr("Ready to open %1 at 115200 8-N-1 and load the %2 command set.")
+                    // Was a hardcoded "115200 8-N-1" -- now reflects
+                    // whatever this model will actually open at, since a
+                    // JSON-protocol model can carry its own serial defaults
+                    // (docs/device-json-protocol-schema.md#5) instead of
+                    // the historical fixed rate every AT device used.
+                    text: qsTr("Ready to open %1 at %2 and load the %3 command set.")
                         .arg(root.selectedPortRow >= 0 ? AppController.portListModel.portNameAt(root.selectedPortRow) : "")
+                        .arg(AppController.serialSummaryForModel(root.selectedModelId))
                         .arg(root.selectedModelId)
                 }
                 Label {

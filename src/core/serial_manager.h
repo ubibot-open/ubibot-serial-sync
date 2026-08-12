@@ -47,6 +47,11 @@ public:
     const SerialConfig &currentConfig() const { return cfg_; }
     // e.g. "115200 8-N-1"
     QString portSummary() const;
+    // Same formatting as portSummary(), for an arbitrary config rather than
+    // this manager's currently-open one -- e.g. previewing what a device
+    // model's recommended serial settings would look like before the port
+    // is actually opened (AppController::serialSummaryForModel).
+    static QString summaryFor(const SerialConfig &cfg);
 
 signals:
     void dataReceived(const QByteArray &data);

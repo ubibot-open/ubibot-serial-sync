@@ -22,7 +22,20 @@ class CommandListModel : public QAbstractListModel {
     Q_PROPERTY(QVariantList filterChips READ filterChips NOTIFY chipsChanged)
 
 public:
-    enum Roles { GroupRole = Qt::UserRole + 1, NameRole, CmdRole, HasParamsRole, FavoriteRole };
+    enum Roles {
+        GroupRole = Qt::UserRole + 1,
+        NameRole,
+        CmdRole,
+        HasParamsRole,
+        FavoriteRole,
+        // True only for a JSON-protocol command with needsInput: clicking it
+        // should load DeviceCommand::wirePayload() into the manual-send box
+        // rather than sending immediately or opening the AT-style params
+        // panel. See CommandLibraryPanel.qml's row click handler -- checked
+        // ahead of HasParamsRole since a JSON command may also carry
+        // (purely informational) params.
+        NeedsManualEditRole,
+    };
 
     // filterKey sentinel selecting the favorites-only view. Any other
     // non-empty value is a literal group name (LocalizedText::zh); empty

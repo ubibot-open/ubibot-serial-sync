@@ -1,5 +1,5 @@
 {
-  "version": "lib-2026.07.31",
+  "version": "lib-2026.08.12",
   "models": [
     {
       "id": "WS1 Pro",
@@ -98,6 +98,41 @@
             { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
             { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
           ]
+        }
+      ]
+    },
+    {
+      "id": "JSON-Device-1",
+      "protocol": "json",
+      "name": {
+        "zh": "JSON 协议设备（占位，请改成真实型号名）",
+        "en": "JSON Protocol Device (placeholder -- rename to the real model)"
+      },
+      "description": {
+        "zh": "占位条目：用来落地 JSON 指令协议的数据结构，指令内容是真实值，设备型号名/描述待替换。",
+        "en": "Placeholder entry for the JSON command protocol -- command payloads are real, model name/description still need replacing."
+      },
+      "commands": [
+        {
+          "id": "read-product",
+          "group": { "zh": "设备信息", "en": "Device Info" },
+          "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query",
+          "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
+        },
+        {
+          "id": "setup-wifi",
+          "group": { "zh": "配置", "en": "Config" },
+          "name": { "zh": "设置 WiFi", "en": "Setup WiFi" },
+          "type": "set",
+          "needsInput": true,
+          "params": [
+            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "", "default": "" },
+            { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+          ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
         }
       ]
     }

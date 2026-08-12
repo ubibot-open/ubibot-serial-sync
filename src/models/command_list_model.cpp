@@ -34,9 +34,10 @@ QVariant CommandListModel::data(const QModelIndex &index, int role) const {
     switch (role) {
     case GroupRole: return cmd.group.text();
     case NameRole: return cmd.name.text();
-    case CmdRole: return cmd.cmdTemplate;
+    case CmdRole: return cmd.wirePayload();
     case HasParamsRole: return cmd.hasParams();
     case FavoriteRole: return isFavorite(cmd);
+    case NeedsManualEditRole: return cmd.isJsonProtocol && cmd.needsInput;
     }
     return {};
 }
@@ -48,6 +49,7 @@ QHash<int, QByteArray> CommandListModel::roleNames() const {
         {CmdRole, "cmd"},
         {HasParamsRole, "hasParams"},
         {FavoriteRole, "favorite"},
+        {NeedsManualEditRole, "needsManualEdit"},
     };
 }
 
@@ -66,15 +68,23 @@ void CommandListModel::setFilterKey(const QString &key) {
     emit filterChanged();
 }
 
+namespace {
+// Commands added under the new JSON-protocol schema carry a stable `id`;
+// legacy AT commands don't, so those keep using name.zh like before (and
+// still lose their favorite if renamed -- pre-existing behavior, unchanged
+// here). See docs/device-json-protocol-schema.md#11.
+QString favoriteKey(const DeviceCommand &cmd) { return cmd.id.isEmpty() ? cmd.name.zh : cmd.id; }
+}  // namespace
+
 bool CommandListModel::isFavorite(const DeviceCommand &cmd) const {
-    return settings_->isFavorite(modelId_, cmd.name.zh);
+    return settings_->isFavorite(modelId_, favoriteKey(cmd));
 }
 
 void CommandListModel::toggleFavorite(int row) {
     if (row < 0 || row >= rows_.size()) return;
     const DeviceCommand &cmd = rows_.at(row);
     const bool fav = !isFavorite(cmd);
-    settings_->setFavorite(modelId_, cmd.name.zh, fav);
+    settings_->setFavorite(modelId_, favoriteKey(cmd), fav);
     emit dataChanged(index(row), index(row), {FavoriteRole});
     if (filterKey_ == kFavoritesFilterKey && !fav) rebuild();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QHash>
+#include <QSerialPort>
 #include <QString>
 #include <QVector>
 
@@ -15,30 +16,80 @@ struct LocalizedText {
     QString text() const;
 };
 
+// See docs/device-json-protocol-schema.md. "At" is the original plain-text
+// AT-command protocol (WS1/WS1 Pro/GS1-AL4G1RS/SP1 today); "Json" is
+// devices that speak JSON request objects (e.g. {"command":"ReadProduct"}).
+enum class DeviceProtocol { At, Json };
+
+// Only meaningful for DeviceProtocol::Json commands. Purely descriptive --
+// nothing in code branches on it except UI grouping/labeling -- but see
+// needsInput below for the field that actually drives behavior.
+enum class CommandType { Query, Set, Action };
+
 struct CommandParam {
-    QString key;            // token name, e.g. "sec" for "<sec>" in the command template
+    // AT protocol: the <key> token substituted in cmdTemplate at send time
+    // (DeviceCommand::resolve). JSON protocol: purely documentation -- see
+    // DeviceCommand::needsInput -- typically just the JSON field name
+    // that's blank in the payload and needs filling in by hand.
+    QString key;
     LocalizedText label;
     QString hint;
     QString defaultValue;
 };
 
 struct DeviceCommand {
+    QString id;              // stable key for favorites/history; empty for legacy AT commands (falls back to name.zh)
     LocalizedText group;
     LocalizedText name;
-    QString cmdTemplate;    // e.g. "AT+INTERVAL=<sec>"
+    QString cmdTemplate;     // AT protocol only, e.g. "AT+INTERVAL=<sec>"
     QVector<CommandParam> params;
+
+    bool isJsonProtocol = false;      // copied from the owning DeviceModel at load time
+    CommandType type = CommandType::Query;
+    // AT protocol: true whenever params is non-empty (kept in sync at load
+    // time so callers can check this one flag regardless of protocol).
+    // JSON protocol: read from devices.json -- decides what clicking the
+    // command does (see AppController::activateCommandRow /
+    // loadCommandIntoDraft): false sends jsonPayload immediately, true
+    // loads it into the manual-send box (with any blank fields/placeholders
+    // left as-is) for the user to fill in and send themselves -- there is
+    // deliberately no template-substitution step for JSON commands.
+    bool needsInput = false;
+    QString jsonPayload;     // JSON protocol only: the UTF-8 text decoded from payloadBase64
 
     bool hasParams() const { return !params.isEmpty(); }
 
-    // Substitutes each <key> token with the matching value in `values`
-    // (falling back to the param's default, then its hint) and returns the
-    // literal string that would be sent over the wire.
+    // The literal bytes-to-be (as text) for this command, whichever
+    // protocol it is -- what activateCommandRow()/loadCommandIntoDraft()
+    // send or stage, respectively.
+    QString wirePayload() const { return isJsonProtocol ? jsonPayload : cmdTemplate; }
+
+    // AT protocol only. Substitutes each <key> token with the matching
+    // value in `values` (falling back to the param's default, then its
+    // hint) and returns the literal string that would be sent over the
+    // wire.
     QString resolve(const QHash<QString, QString> &values) const;
+};
+
+// Recommended serial parameters for a DeviceModel. Only meaningful when
+// DeviceModel::hasSerialDefaults is true (i.e. the model's JSON actually had
+// a "serial" object) -- otherwise these are just default-constructed and
+// unused.
+struct SerialDefaults {
+    qint32 baudRate = 115200;
+    QSerialPort::DataBits dataBits = QSerialPort::Data8;
+    QSerialPort::Parity parity = QSerialPort::NoParity;
+    QSerialPort::StopBits stopBits = QSerialPort::OneStop;
+    QSerialPort::FlowControl flowControl = QSerialPort::NoFlowControl;
 };
 
 struct DeviceModel {
     QString id;
+    DeviceProtocol protocol = DeviceProtocol::At;
+    LocalizedText name;          // display name; falls back to `id` when empty
     LocalizedText description;
+    bool hasSerialDefaults = false;
+    SerialDefaults serial;
     QVector<DeviceCommand> commands;
 };
 

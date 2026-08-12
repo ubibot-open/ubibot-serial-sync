@@ -307,8 +307,14 @@ void AppController::sendManualText() {
 
 void AppController::activateCommandRow(int row) {
     const DeviceCommand *cmd = commandModel_->commandAt(row);
-    if (!cmd || cmd->hasParams()) return;
-    sendLiteral(cmd->cmdTemplate);
+    if (!cmd || cmd->needsInput) return;
+    sendLiteral(cmd->wirePayload());
+}
+
+void AppController::loadCommandIntoDraft(int row) {
+    const DeviceCommand *cmd = commandModel_->commandAt(row);
+    if (!cmd || !cmd->isJsonProtocol || !cmd->needsInput) return;
+    setDraftText(cmd->wirePayload());
 }
 
 QString AppController::commandNameForRow(int row) const {
@@ -344,8 +350,37 @@ void AppController::sendCommandWithParams(int row, const QVariantMap &values) {
 
 void AppController::toggleFavorite(int row) { commandModel_->toggleFavorite(row); }
 
+SerialConfig AppController::effectiveSerialConfig(const QString &modelId) const {
+    SerialConfig cfg;  // 115200 8-N-1 by default (SerialConfig's own defaults)
+    if (const DeviceModel *m = library_.model(modelId); m && m->hasSerialDefaults) {
+        cfg.baudRate = m->serial.baudRate;
+        cfg.dataBits = m->serial.dataBits;
+        cfg.parity = m->serial.parity;
+        cfg.stopBits = m->serial.stopBits;
+        cfg.flowControl = m->serial.flowControl;
+    }
+    return cfg;
+}
+
+QVariantMap AppController::serialDefaultsForModel(const QString &modelId) const {
+    const DeviceModel *m = library_.model(modelId);
+    QVariantMap result;
+    result[QStringLiteral("present")] = m && m->hasSerialDefaults;
+    if (!m || !m->hasSerialDefaults) return result;
+    result[QStringLiteral("baudRate")] = m->serial.baudRate;
+    result[QStringLiteral("dataBits")] = int(m->serial.dataBits);
+    result[QStringLiteral("parity")] = int(m->serial.parity);
+    result[QStringLiteral("stopBits")] = int(m->serial.stopBits);
+    result[QStringLiteral("flowControl")] = int(m->serial.flowControl);
+    return result;
+}
+
+QString AppController::serialSummaryForModel(const QString &modelId) const {
+    return SerialManager::summaryFor(effectiveSerialConfig(modelId));
+}
+
 QString AppController::finishWizard(const QString &portName, const QString &modelId) {
-    SerialConfig cfg;
+    SerialConfig cfg = effectiveSerialConfig(modelId);
     cfg.portName = portName;
 
     QString error;

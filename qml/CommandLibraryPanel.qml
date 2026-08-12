@@ -134,6 +134,7 @@ Item {
                 required property string cmd
                 required property bool hasParams
                 required property bool favorite
+                required property bool needsManualEdit
 
                 width: listView.width
                 height: 56
@@ -149,7 +150,12 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        if (delegateRoot.hasParams) root.openParams(delegateRoot.index)
+                        // needsManualEdit checked first: a JSON-protocol
+                        // command may also carry (purely informational)
+                        // params, which would otherwise wrongly route it
+                        // into the AT-style params panel below.
+                        if (delegateRoot.needsManualEdit) AppController.loadCommandIntoDraft(delegateRoot.index)
+                        else if (delegateRoot.hasParams) root.openParams(delegateRoot.index)
                         else AppController.activateCommandRow(delegateRoot.index)
                     }
                 }

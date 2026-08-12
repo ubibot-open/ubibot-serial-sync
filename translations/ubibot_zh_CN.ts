@@ -355,8 +355,8 @@
         <translation>推荐</translation>
     </message>
     <message>
-        <source>Ready to open %1 at 115200 8-N-1 and load the %2 command set.</source>
-        <translation>设置完成。点击「完成」后将以 115200 8-N-1 打开 %1 并加载 %2 指令集。</translation>
+        <source>Ready to open %1 at %2 and load the %3 command set.</source>
+        <translation>设置完成。点击「完成」后将以 %2 打开 %1 并加载 %3 指令集。</translation>
     </message>
     <message>
         <source>Cancel</source>

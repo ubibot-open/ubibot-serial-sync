@@ -45,11 +45,32 @@ Flickable {
         flowCombo.currentIndex = previousFlowControl !== undefined ? flowCombo.indexOfValue(previousFlowControl) : 0
     }
 
+    // See docs/device-json-protocol-schema.md#5 -- selecting a model with a
+    // "serial" block in devices.json unconditionally overwrites these
+    // fields with its recommended values, regardless of whatever the user
+    // had picked before. A model without one (every existing AT device)
+    // leaves these fields untouched.
+    function applyModelSerialDefaults() {
+        const d = AppController.serialDefaultsForModel(AppController.currentModelId)
+        if (!d.present) return
+        baudCombo.editText = String(d.baudRate)
+        dataBitsCombo.currentIndex = dataBitsCombo.indexOfValue(d.dataBits)
+        parityCombo.currentIndex = parityCombo.indexOfValue(d.parity)
+        stopBitsCombo.currentIndex = stopBitsCombo.indexOfValue(d.stopBits)
+        flowCombo.currentIndex = flowCombo.indexOfValue(d.flowControl)
+    }
+
     Connections {
         target: AppController
         function onCurrentLanguageChanged() { root.rebuildOptions() }
+        function onCurrentModelChanged() { root.applyModelSerialDefaults() }
     }
-    Component.onCompleted: rebuildOptions()
+    Component.onCompleted: {
+        rebuildOptions()
+        // Covers the case where the app starts up already on a model that
+        // has serial defaults (e.g. it was the last one selected).
+        applyModelSerialDefaults()
+    }
 
     // Design lays these three groups out as flat sections -- a small-caps
     // heading directly above its rows, no surrounding border/box -- rather
