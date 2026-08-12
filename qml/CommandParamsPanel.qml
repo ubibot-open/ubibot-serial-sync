@@ -74,6 +74,10 @@ Rectangle {
                     TextField {
                         Layout.fillWidth: true
                         placeholderText: modelData.hint
+                        // Fusion's default placeholder color barely shows up
+                        // against this field's dark-mode background -- see
+                        // Main.qml's inputField for the same fix.
+                        placeholderTextColor: Theme.textMuted
                         text: root.values[modelData.key] !== undefined ? root.values[modelData.key] : ""
                         font.family: Theme.monoFont
                         onTextEdited: root.updateValue(modelData.key, text)

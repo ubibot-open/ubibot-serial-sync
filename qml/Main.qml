@@ -292,6 +292,13 @@ ApplicationWindow {
                             id: inputField
                             font.family: Theme.monoFont
                             placeholderText: qsTr("Type data to send…")
+                            // Fusion's default placeholder color is a fixed
+                            // gray tuned for a light background -- barely
+                            // distinguishable from this box's own dark-mode
+                            // background (Theme.surface). Theme.textMuted
+                            // is already the "dim but legible" color for
+                            // both themes.
+                            placeholderTextColor: Theme.textMuted
                             // Deliberately not a `text: AppController.draftText`
                             // binding -- QML drops a property's binding as soon
                             // as anything assigns to it directly, and every

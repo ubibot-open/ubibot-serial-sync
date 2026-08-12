@@ -62,6 +62,10 @@ Item {
             id: searchField
             Layout.fillWidth: true
             placeholderText: qsTr("Search commands")
+            // Fusion's default placeholder color barely shows up against
+            // this field's dark-mode background -- see Main.qml's
+            // inputField for the same fix.
+            placeholderTextColor: Theme.textMuted
             text: AppController.commandModel.searchText
             onTextChanged: AppController.commandModel.searchText = text
         }
