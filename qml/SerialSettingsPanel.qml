@@ -122,6 +122,11 @@ Flickable {
                 }
                 ToolButton {
                     icon.source: "qrc:/icons/refresh.svg"
+                    // refresh.svg is a hardcoded dark stroke with no
+                    // `icon.color` of its own -- invisible against a dark
+                    // toolbar/panel without this (see Main.qml's
+                    // CompactToolButton for the same fix).
+                    icon.color: Theme.text
                     onClicked: AppController.portListModel.refresh()
                 }
             }

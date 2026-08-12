@@ -36,6 +36,13 @@ ApplicationWindow {
         implicitWidth: 32
         implicitHeight: 32
         padding: 4
+        // Every icons/*.svg is drawn with a hardcoded dark stroke
+        // (Theme.text's light-mode value) and no `icon.color` of its own
+        // to recolor it by -- fine against the (light) toolbar it was
+        // designed for, invisible once the toolbar goes dark. Setting this
+        // here (rather than on each of the icons below) recolors all of
+        // them at once.
+        icon.color: Theme.text
         ToolTip.visible: hovered
         ToolTip.delay: 400
     }
