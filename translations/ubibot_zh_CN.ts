@@ -160,6 +160,22 @@
         <source>Failed to open port</source>
         <translation>打开串口失败</translation>
     </message>
+    <message>
+        <source>History</source>
+        <translation>历史记录</translation>
+    </message>
+    <message>
+        <source>Send history</source>
+        <translation>发送历史</translation>
+    </message>
+    <message>
+        <source>Clear history</source>
+        <translation>清空历史</translation>
+    </message>
+    <message>
+        <source>No history yet</source>
+        <translation>暂无历史记录</translation>
+    </message>
 </context>
 <context>
     <name>SerialSettingsPanel</name>

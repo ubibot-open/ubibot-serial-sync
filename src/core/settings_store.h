@@ -35,6 +35,12 @@ public:
     QString lastLogDirectory() const;
     void setLastLogDirectory(const QString &dir);
 
+    // Manual-send history (bottom "Type data to send…" box), newest first,
+    // text only -- CommandHistoryModel owns the in-memory timestamps and
+    // just persists/reloads the text list here.
+    QStringList commandHistory() const;
+    void setCommandHistory(const QStringList &entries);
+
     bool continuousLoggingEnabled() const;
     void setContinuousLoggingEnabled(bool enabled);
 

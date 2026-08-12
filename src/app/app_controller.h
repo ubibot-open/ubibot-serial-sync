@@ -4,6 +4,7 @@
 #include "core/log_manager.h"
 #include "core/serial_manager.h"
 #include "core/settings_store.h"
+#include "models/command_history_model.h"
 #include "models/command_list_model.h"
 #include "models/log_list_model.h"
 #include "models/port_list_model.h"
@@ -56,6 +57,7 @@ class AppController : public QObject {
     Q_PROPERTY(LogListModel *logModel READ logModel CONSTANT)
     Q_PROPERTY(CommandListModel *commandModel READ commandModel CONSTANT)
     Q_PROPERTY(PortListModel *portListModel READ portListModel CONSTANT)
+    Q_PROPERTY(CommandHistoryModel *commandHistoryModel READ commandHistoryModel CONSTANT)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -105,6 +107,7 @@ public:
     LogListModel *logModel() const { return logModel_; }
     CommandListModel *commandModel() const { return commandModel_; }
     PortListModel *portListModel() const { return portListModel_; }
+    CommandHistoryModel *commandHistoryModel() const { return commandHistoryModel_; }
 
     // {code, nativeName} for every shipped language -- backs the dropdown in
     // SettingsAboutDialog.qml.
@@ -190,6 +193,7 @@ private:
     LogListModel *logModel_;
     CommandListModel *commandModel_;
     PortListModel *portListModel_;
+    CommandHistoryModel *commandHistoryModel_;
     QTimer *repeatTimer_;
 
     QString draftText_;

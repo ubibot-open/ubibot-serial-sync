@@ -1,6 +1,7 @@
 #include "app/app_controller.h"
 
 #include "core/language_manager.h"
+#include "models/command_history_model.h"
 #include "models/command_list_model.h"
 #include "models/log_list_model.h"
 #include "models/port_list_model.h"
@@ -26,6 +27,7 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     logModel_ = new LogListModel(&logManager_, this);
     commandModel_ = new CommandListModel(&library_, &settings_, this);
     portListModel_ = new PortListModel(this);
+    commandHistoryModel_ = new CommandHistoryModel(&settings_, this);
 
     repeatTimer_ = new QTimer(this);
     connect(repeatTimer_, &QTimer::timeout, this, &AppController::sendManualText);
@@ -290,6 +292,11 @@ void AppController::sendManualText() {
         serial_.write(composeAsciiPayload(text));
         if (echoTx_) logManager_.append(LogKind::Tx, text.toUtf8());
     }
+
+    // Repeat-send calls this on every timer tick with the same draftText_ --
+    // push() itself no-ops when text already sits at the front of the
+    // history, so that doesn't flood the list with one row per tick.
+    commandHistoryModel_->push(text);
 }
 
 void AppController::activateCommandRow(int row) {

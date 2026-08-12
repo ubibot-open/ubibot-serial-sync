@@ -279,11 +279,33 @@ ApplicationWindow {
                     TextArea {
                         id: inputField
                         Layout.fillWidth: true
+                        // Was a fixed 74px, matched to the button column's
+                        // old two-button height. Now that the column has a
+                        // third (History) button and is taller, fill to
+                        // match it instead of leaving a gap below a
+                        // fixed-height box.
+                        Layout.fillHeight: false
                         Layout.preferredHeight: 74
                         font.family: Theme.monoFont
                         placeholderText: qsTr("Type data to send…")
-                        text: AppController.draftText
+                        // Deliberately not a `text: AppController.draftText`
+                        // binding -- QML drops a property's binding as soon
+                        // as anything assigns to it directly, and every
+                        // keystroke does exactly that to `text`. After the
+                        // user's first keystroke this binding would be gone
+                        // for good, so external changes to draftText (Clear,
+                        // double-clicking a history entry below) would stop
+                        // reaching the box. The Connections handler below
+                        // does that sync imperatively instead, which keeps
+                        // working no matter how the user has edited the text.
+                        Component.onCompleted: text = AppController.draftText
                         onTextChanged: if (text !== AppController.draftText) AppController.draftText = text
+                        Connections {
+                            target: AppController
+                            function onDraftTextChanged() {
+                                if (inputField.text !== AppController.draftText) inputField.text = AppController.draftText
+                            }
+                        }
 
                         background: Rectangle { border.color: Theme.divider; border.width: 1 }
                     }
@@ -292,6 +314,102 @@ ApplicationWindow {
                         Layout.fillWidth: false
                         Button { text: qsTr("Send"); highlighted: true; Layout.fillWidth: true; onClicked: AppController.sendManualText() }
                         Button { text: qsTr("Clear"); Layout.fillWidth: true; onClicked: AppController.clearDraft() }
+                        Button {
+                            id: historyButton
+                            text: qsTr("History")
+                            Layout.fillWidth: true
+                            onClicked: historyPopup.visible ? historyPopup.close() : historyPopup.open()
+                        }
+                    }
+                }
+
+                // Recently-sent manual text, newest first. Opens upward from
+                // the History button since this row sits near the bottom of
+                // the window -- opening downward would mostly land off-screen.
+                Popup {
+                    id: historyPopup
+                    parent: historyButton
+                    x: historyButton.width - width
+                    y: -height - 6
+                    width: 320
+                    padding: 0
+                    modal: false
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                    background: Rectangle { color: Theme.background; border.color: Theme.divider; border.width: 1 }
+
+                    contentItem: ColumnLayout {
+                        spacing: 0
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.margins: 8
+                            Label { text: qsTr("Send history"); font.bold: true; Layout.fillWidth: true }
+                            ToolButton {
+                                text: qsTr("Clear history")
+                                flat: true
+                                enabled: historyList.count > 0
+                                onClicked: AppController.commandHistoryModel.clear()
+                            }
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: Theme.divider }
+
+                        Label {
+                            visible: historyList.count === 0
+                            text: qsTr("No history yet")
+                            color: Theme.textMuted
+                            font.pixelSize: 12
+                            Layout.margins: 14
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+
+                        ListView {
+                            id: historyList
+                            visible: count > 0
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: Math.min(contentHeight, 260)
+                            clip: true
+                            model: AppController.commandHistoryModel
+                            delegate: ItemDelegate {
+                                id: historyDelegate
+                                required property string commandText
+                                required property string timeText
+                                width: ListView.view.width
+                                // Same reasoning as the wizard's list delegates:
+                                // ItemDelegate's own implicit height ignores
+                                // whatever is stuffed into it below, so size off
+                                // the row's implicit height instead.
+                                implicitHeight: historyRow.implicitHeight + 14
+
+                                // Double-click (not single-click) loads the
+                                // entry -- a single click while just browsing
+                                // history shouldn't clobber whatever the user
+                                // is currently typing.
+                                onDoubleClicked: {
+                                    AppController.draftText = historyDelegate.commandText
+                                    historyPopup.close()
+                                }
+
+                                RowLayout {
+                                    id: historyRow
+                                    anchors.fill: parent
+                                    anchors.margins: 7
+                                    Label {
+                                        text: historyDelegate.commandText
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                        font.family: Theme.monoFont
+                                        font.pixelSize: 12
+                                    }
+                                    Label {
+                                        text: historyDelegate.timeText
+                                        visible: historyDelegate.timeText.length > 0
+                                        color: Theme.textMuted
+                                        font.pixelSize: 10
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 

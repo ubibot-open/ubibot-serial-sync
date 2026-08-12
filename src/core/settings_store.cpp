@@ -15,6 +15,7 @@ constexpr auto kLastModel = "device/lastModel";
 constexpr auto kFavoritesGroup = "favorites";
 constexpr auto kWindowGeometry = "window/geometry";
 constexpr auto kLastLogDir = "log/lastDirectory";
+constexpr auto kCommandHistory = "send/history";
 constexpr auto kContinuousLogging = "log/continuousEnabled";
 constexpr auto kLogFontFamily = "log/fontFamily";
 constexpr auto kLogFontSize = "log/fontSize";
@@ -101,6 +102,14 @@ QString SettingsStore::lastLogDirectory() const {
 
 void SettingsStore::setLastLogDirectory(const QString &dir) {
     QSettings().setValue(kLastLogDir, dir);
+}
+
+QStringList SettingsStore::commandHistory() const {
+    return QSettings().value(kCommandHistory).toStringList();
+}
+
+void SettingsStore::setCommandHistory(const QStringList &entries) {
+    QSettings().setValue(kCommandHistory, entries);
 }
 
 bool SettingsStore::continuousLoggingEnabled() const {

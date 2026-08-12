@@ -93,6 +93,8 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/models/log_list_model.cpp
         src/models/command_list_model.h
         src/models/command_list_model.cpp
+        src/models/command_history_model.h
+        src/models/command_history_model.cpp
         src/models/port_list_model.h
         src/models/port_list_model.cpp
         src/app/app_controller.h
