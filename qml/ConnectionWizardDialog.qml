@@ -73,12 +73,20 @@ Dialog {
                     required property string displayLabel
                     required property bool recommended
                     width: ListView.view.width
+                    // ItemDelegate's own implicit height comes from its
+                    // (unused) text/icon content, not from the RowLayout
+                    // stuffed into it below -- left alone, rows collapse to
+                    // that unrelated default and the label gets cramped
+                    // against the delegate's edges. Size off the row's own
+                    // implicit height instead so the padding is consistent.
+                    implicitHeight: portRow.implicitHeight + 20
                     highlighted: root.selectedPortRow === index
                     onClicked: root.selectedPortRow = index
 
                     RowLayout {
+                        id: portRow
                         anchors.fill: parent
-                        anchors.margins: 6
+                        anchors.margins: 10
                         Label { text: portDelegate.displayLabel; Layout.fillWidth: true }
                         Label {
                             visible: portDelegate.recommended
@@ -99,12 +107,19 @@ Dialog {
                     required property string modelData
                     required property int index
                     width: ListView.view.width
+                    // Two lines (model name + wrapped description) need more
+                    // room than ItemDelegate's own default implicit height
+                    // gives them -- size off the ColumnLayout's implicit
+                    // height instead, same reasoning as the port list above.
+                    implicitHeight: modelColumn.implicitHeight + 20
                     highlighted: root.selectedModelId === modelData
                     onClicked: root.selectedModelId = modelData
 
                     ColumnLayout {
+                        id: modelColumn
                         anchors.fill: parent
-                        anchors.margins: 6
+                        anchors.margins: 10
+                        spacing: 4
                         Label { text: modelDelegate.modelData; font.bold: true }
                         Label {
                             text: AppController.modelDescriptionFor(modelDelegate.modelData)
