@@ -41,6 +41,14 @@ public:
     void setHexMode(bool hex);
     bool showTimestamp() const { return showTimestamp_; }
     void setShowTimestamp(bool show);
+    // Not QML-facing -- AppController pushes this whenever
+    // AppController::themeMode changes (and once at startup), since the
+    // data monitor's own colors (TX/RX/SYS/ERR base color, ANSI palette)
+    // are plain C++ constants tuned per-theme, not QML bindings that could
+    // read Theme.qml directly. Forces a full re-render like setHexMode()
+    // does, since every already-rendered line's HTML has last theme's
+    // colors baked in.
+    void setDarkPalette(bool dark);
     int lineCount() const;
     qint64 rxBytes() const;
     qint64 txBytes() const;
@@ -84,4 +92,8 @@ private:
     LogManager *manager_;
     bool hexMode_ = false;
     bool showTimestamp_ = true;
+    // Matches the app's default theme (see SettingsStore::themeMode's own
+    // "light" default) until AppController pushes the real value at
+    // startup; only matters for the brief window before that first push.
+    bool darkPalette_ = false;
 };

@@ -52,15 +52,22 @@ QtObject {
     // value to a signal (expecting a script to be run)".
     readonly property color accentForeground: "#f5f7fa"
 
-    // Data monitor only: a real terminal reads better dark, and colored
-    // device log output (see ansi_text.h) needs a dark backdrop to show up
-    // against at all -- these deliberately don't track the light/dark
-    // switch above. colorForKind() in log_list_model.cpp mirrors dividerMuted/
-    // sent/sys/err so the TX/RX/SYS/ERR tag matches the line's base color.
-    readonly property color consoleBackground: "#1b1f27"
-    readonly property color consoleText: "#d8dce0"
-    readonly property color consoleMuted: "#6b7280"
-    readonly property color consoleBorder: "#33383f"
+    // Data monitor (right-hand pane) + its right-click context menu. Used
+    // to be permanently dark regardless of theme -- a real terminal reads
+    // better dark, and colored device log output (see ansi_text.h) needs a
+    // dark backdrop to show up against at all -- but that meant a jarring
+    // dark rectangle sitting in the middle of an otherwise light app.
+    // In dark mode this already matches the rest of the app, so those
+    // values are unchanged; light mode now just reuses the normal light
+    // tokens instead of its own fixed dark ones. colorForKind() and
+    // ansiColor() in log_list_model.cpp/ansi_text.cpp mirror these (and
+    // consoleMuted below) by hand for the same two cases, since that's
+    // plain C++ with no access to this singleton -- LogListModel::
+    // setDarkPalette(), pushed by AppController, is what keeps it in sync.
+    readonly property color consoleBackground: dark ? "#1b1f27" : background
+    readonly property color consoleText: dark ? "#d8dce0" : text
+    readonly property color consoleMuted: dark ? "#6b7280" : textMuted
+    readonly property color consoleBorder: dark ? "#33383f" : divider
 
     readonly property string monoFont: "Consolas"
 

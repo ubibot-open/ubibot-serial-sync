@@ -13,6 +13,13 @@
 // and as what bare resets (SGR 0/39) return to -- callers pass the
 // direction color (TX/RX/SYS/ERR) here so a line with no escape codes at
 // all still renders in that color, unchanged from before this existed.
+//
+// `dark` picks which of two built-in 16-color ANSI palettes a numbered SGR
+// code (e.g. "\x1b[32m") maps to -- one tuned for a dark terminal
+// background, one for a light one (see ansiColor() in the .cpp). This
+// exists because the data monitor's own background now follows the app's
+// light/dark theme (LogListModel::setDarkPalette) rather than always being
+// dark, and the dark-tuned palette's muted colors are hard to read on white.
 namespace AnsiText {
 
 struct Result {
@@ -25,6 +32,6 @@ struct Result {
     int length = 0;
 };
 
-Result toRichText(const QString &raw, const QString &baseColor);
+Result toRichText(const QString &raw, const QString &baseColor, bool dark);
 
 }  // namespace AnsiText

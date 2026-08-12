@@ -10,11 +10,14 @@ import UbiBot
 // recording regardless, so unpausing shows everything that happened while
 // paused.
 //
-// Styled as a dark terminal rather than a tinted panel on the app's light
-// background: real hardware logs (RT-Thread/msh boot output and similar)
-// arrive full of ANSI color escape codes, which LogListModel's per-line
-// rendering turns into <span> runs (see ansi_text.h) -- those colors only
-// read correctly against a dark backdrop, the same as any other terminal.
+// Styled as a real terminal: real hardware logs (RT-Thread/msh boot output
+// and similar) arrive full of ANSI color escape codes, which LogListModel's
+// per-line rendering turns into <span> runs (see ansi_text.h). Used to be
+// permanently dark regardless of the rest of the app for this reason (dark
+// terminal colors don't read against a light backdrop) -- now it follows
+// AppController.themeMode like everything else (Theme.console* below), with
+// LogListModel/ansi_text.cpp mirroring whichever of the two ANSI palettes
+// matches so device-colored output stays legible either way.
 //
 // The whole scrollback renders as ONE continuous rich-text document (a
 // single read-only TextEdit) rather than a ListView of one row per entry:

@@ -8,7 +8,7 @@ namespace {
 // rather than the washed-out primaries a literal xterm palette would give
 // (pure "#008000" green disappears next to near-black; this is closer to
 // the muted "One Dark"-style palette most modern terminal themes use).
-QString ansiColor(int code) {
+QString ansiColorDark(int code) {
     switch (code) {
     case 30: return QStringLiteral("#5c6370");  // black -> dim gray, still visible
     case 31: return QStringLiteral("#e06c75");  // red
@@ -29,6 +29,38 @@ QString ansiColor(int code) {
     default: return QString();
     }
 }
+
+// Same 16 codes, but darkened/saturated for a light (near-white) terminal
+// background instead -- the dark palette above's whole point is muted
+// pastels that don't glare against near-black, which makes most of them
+// nearly invisible against near-white (e.g. "white" -> "#d8dce0" is a
+// few shades off paper-white). Modeled on the "Atom One Light" scheme,
+// a well-known light terminal palette. "White"/"bright white" in
+// particular are inverted to a light gray / near-black respectively --
+// literal (near-)white text would vanish on this background.
+QString ansiColorLight(int code) {
+    switch (code) {
+    case 30: return QStringLiteral("#383a42");  // black
+    case 31: return QStringLiteral("#e45649");  // red
+    case 32: return QStringLiteral("#50a14f");  // green
+    case 33: return QStringLiteral("#986801");  // yellow
+    case 34: return QStringLiteral("#4078f2");  // blue
+    case 35: return QStringLiteral("#a626a4");  // magenta
+    case 36: return QStringLiteral("#0184bc");  // cyan
+    case 37: return QStringLiteral("#a0a1a7");  // white -> light gray, not literal white
+    case 90: return QStringLiteral("#696c77");  // bright black
+    case 91: return QStringLiteral("#ca1243");  // bright red
+    case 92: return QStringLiteral("#50a14f");  // bright green
+    case 93: return QStringLiteral("#986801");  // bright yellow
+    case 94: return QStringLiteral("#4078f2");  // bright blue
+    case 95: return QStringLiteral("#a626a4");  // bright magenta
+    case 96: return QStringLiteral("#0184bc");  // bright cyan
+    case 97: return QStringLiteral("#282c34");  // bright white -> near-black
+    default: return QString();
+    }
+}
+
+QString ansiColor(int code, bool dark) { return dark ? ansiColorDark(code) : ansiColorLight(code); }
 
 // Appends one plain (non-escape-sequence) character to `out`, HTML-escaped,
 // and returns how many characters it renders as (0 for a dropped control
@@ -60,7 +92,7 @@ int appendEscaped(QString &out, QChar c) {
 
 }  // namespace
 
-AnsiText::Result AnsiText::toRichText(const QString &raw, const QString &baseColor) {
+AnsiText::Result AnsiText::toRichText(const QString &raw, const QString &baseColor, bool dark) {
     QString html;
     html.reserve(raw.size() + 32);
     int length = 0;
@@ -136,7 +168,7 @@ AnsiText::Result AnsiText::toRichText(const QString &raw, const QString &baseCol
                         if (color != baseColor) colorChanged = true;
                         color = baseColor;
                     } else {
-                        const QString mapped = ansiColor(code);
+                        const QString mapped = ansiColor(code, dark);
                         if (!mapped.isEmpty()) {
                             if (color != mapped) colorChanged = true;
                             color = mapped;

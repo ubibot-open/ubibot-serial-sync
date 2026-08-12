@@ -1,18 +1,28 @@
 #include "models/log_list_model.h"
 
 namespace {
-// Base/"reset" color for each line kind, tuned for the data monitor's dark
-// terminal background (see DataMonitorView.qml) rather than the light
-// window chrome around it. Also doubles as the color ANSI reset codes
-// (SGR 0/39) return to when a device's colored log output resets mid-line.
-QString colorForKind(LogKind k) {
-    switch (k) {
-    case LogKind::Tx: return QStringLiteral("#e0a458");
-    case LogKind::Rx: return QStringLiteral("#d8dce0");
-    case LogKind::Sys: return QStringLiteral("#7fa8c9");
-    case LogKind::Err: return QStringLiteral("#f07178");
+// Base/"reset" color for each line kind. Two variants, matching whichever
+// of Theme.qml's two palettes the data monitor's own background currently
+// uses (see LogListModel::setDarkPalette) -- also doubles as the color
+// ANSI reset codes (SGR 0/39) return to when a device's colored log output
+// resets mid-line.
+QString colorForKind(LogKind k, bool dark) {
+    if (dark) {
+        switch (k) {
+        case LogKind::Tx: return QStringLiteral("#e0a458");
+        case LogKind::Rx: return QStringLiteral("#d8dce0");
+        case LogKind::Sys: return QStringLiteral("#7fa8c9");
+        case LogKind::Err: return QStringLiteral("#f07178");
+        }
+        return QStringLiteral("#d8dce0");
     }
-    return QStringLiteral("#d8dce0");
+    switch (k) {
+    case LogKind::Tx: return QStringLiteral("#986801");
+    case LogKind::Rx: return QStringLiteral("#2b2d31");
+    case LogKind::Sys: return QStringLiteral("#3a6ea8");
+    case LogKind::Err: return QStringLiteral("#c5372b");
+    }
+    return QStringLiteral("#2b2d31");
 }
 
 QString dirTag(LogKind k) {
@@ -25,10 +35,11 @@ QString dirTag(LogKind k) {
     return QString();
 }
 
-// Mirrors Theme.consoleMuted in Theme.qml -- the timestamp color baked into
-// each line's rich text here has to match by hand since this is plain C++
-// with no access to the QML singleton.
-const QString kConsoleMutedColor = QStringLiteral("#6b7280");
+// Mirrors Theme.consoleMuted/Theme.textMuted in Theme.qml (dark/light
+// respectively) -- the timestamp color baked into each line's rich text
+// here has to match by hand since this is plain C++ with no access to the
+// QML singleton.
+QString consoleMutedColor(bool dark) { return dark ? QStringLiteral("#6b7280") : QStringLiteral("#7a7a7d"); }
 }  // namespace
 
 LogListModel::LogListModel(LogManager *manager, QObject *parent)
@@ -72,10 +83,10 @@ QVariant LogListModel::data(const QModelIndex &index, int role) const {
     case TimeRole: return showTimestamp_ ? e.time.toString(QStringLiteral("HH:mm:ss")) : QString();
     case DirRole: return dirTag(e.kind);
     case TextRole: return (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-    case ColorRole: return colorForKind(e.kind);
+    case ColorRole: return colorForKind(e.kind, darkPalette_);
     case HtmlRole: {
         const QString plain = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-        return AnsiText::toRichText(plain, colorForKind(e.kind)).html;
+        return AnsiText::toRichText(plain, colorForKind(e.kind, darkPalette_), darkPalette_).html;
     }
     }
     return {};
@@ -109,6 +120,14 @@ void LogListModel::setShowTimestamp(bool show) {
     emit rebuildNeeded();
 }
 
+void LogListModel::setDarkPalette(bool dark) {
+    if (darkPalette_ == dark) return;
+    darkPalette_ = dark;
+    if (!manager_->entries().isEmpty())
+        emit dataChanged(index(0), index(manager_->entries().size() - 1), {ColorRole, HtmlRole});
+    emit rebuildNeeded();
+}
+
 int LogListModel::lineCount() const { return manager_->entries().size(); }
 qint64 LogListModel::rxBytes() const { return manager_->rxBytes(); }
 qint64 LogListModel::txBytes() const { return manager_->txBytes(); }
@@ -127,12 +146,12 @@ void LogListModel::clear() { manager_->clear(); }
 // raw string length would count them, and lineEvicted() would then tell
 // the view to remove the wrong number of characters).
 AnsiText::Result LogListModel::lineHtml(const LogEntry &e) const {
-    const QString baseColor = colorForKind(e.kind);
+    const QString baseColor = colorForKind(e.kind, darkPalette_);
     QString prefix;
     int prefixLength = 0;
     if (showTimestamp_) {
         prefix += QStringLiteral("<span style=\"color:%1\">%2</span>&nbsp;&nbsp;")
-                      .arg(kConsoleMutedColor, e.time.toString(QStringLiteral("HH:mm:ss")));
+                      .arg(consoleMutedColor(darkPalette_), e.time.toString(QStringLiteral("HH:mm:ss")));
         prefixLength += 8 + 2;  // "HH:mm:ss" + 2 gap chars
     }
     // Padded to a fixed 3 characters ("TX " / "SYS") so every line's
@@ -145,7 +164,7 @@ AnsiText::Result LogListModel::lineHtml(const LogEntry &e) const {
     prefixLength += 3 + 2;  // dir tag padded to 3 + 2 gap chars
 
     const QString text = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-    const AnsiText::Result content = AnsiText::toRichText(text, baseColor);
+    const AnsiText::Result content = AnsiText::toRichText(text, baseColor, darkPalette_);
     return {prefix + content.html, prefixLength + content.length};
 }
 
