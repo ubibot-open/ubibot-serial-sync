@@ -48,6 +48,13 @@ class AppController : public QObject {
     Q_PROPERTY(QString logFontFamily READ logFontFamily WRITE setLogFontFamily NOTIFY logFontChanged)
     Q_PROPERTY(int logFontSize READ logFontSize WRITE setLogFontSize NOTIFY logFontChanged)
 
+    // Which serial port is currently picked, shared between the port combo
+    // boxes on the "Device commands" and "Serial" panels (only one of which
+    // is visible at a time, but both should show/drive the same choice) --
+    // whichever one the user last touched wins, and "Open port" in the
+    // toolbar opens whatever this holds.
+    Q_PROPERTY(QString selectedPortName READ selectedPortName WRITE setSelectedPortName NOTIFY selectedPortNameChanged)
+
     Q_PROPERTY(QString draftText READ draftText WRITE setDraftText NOTIFY draftTextChanged)
     Q_PROPERTY(bool echoTx READ echoTx WRITE setEchoTx NOTIFY echoTxChanged)
     Q_PROPERTY(bool sendAsHex READ sendAsHex WRITE setSendAsHex NOTIFY sendAsHexChanged)
@@ -92,6 +99,9 @@ public:
     // exposed on that dialog (language, data monitor font) back to its
     // built-in default.
     Q_INVOKABLE void restoreDefaultSettings();
+
+    QString selectedPortName() const { return selectedPortName_; }
+    void setSelectedPortName(const QString &name);
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);
@@ -150,6 +160,7 @@ public:
 signals:
     void connectionChanged();
     void currentModelChanged();
+    void selectedPortNameChanged();
     void currentLanguageChanged();
     void logFontChanged();
     void draftTextChanged();
@@ -196,6 +207,7 @@ private:
     CommandHistoryModel *commandHistoryModel_;
     QTimer *repeatTimer_;
 
+    QString selectedPortName_;
     QString draftText_;
     bool echoTx_ = true;
     bool sendAsHex_ = false;

@@ -145,6 +145,12 @@ QVariantList AppController::availableLanguages() const {
     return result;
 }
 
+void AppController::setSelectedPortName(const QString &name) {
+    if (selectedPortName_ == name) return;
+    selectedPortName_ = name;
+    emit selectedPortNameChanged();
+}
+
 void AppController::setDraftText(const QString &text) {
     if (draftText_ == text) return;
     draftText_ = text;

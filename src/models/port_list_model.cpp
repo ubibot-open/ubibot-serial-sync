@@ -40,3 +40,10 @@ void PortListModel::refresh() {
 QString PortListModel::portNameAt(int row) const {
     return (row >= 0 && row < ports_.size()) ? ports_.at(row).portName : QString();
 }
+
+int PortListModel::indexOfPortName(const QString &portName) const {
+    for (int i = 0; i < ports_.size(); ++i) {
+        if (ports_.at(i).portName == portName) return i;
+    }
+    return -1;
+}

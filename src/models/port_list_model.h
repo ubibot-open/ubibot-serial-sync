@@ -23,6 +23,10 @@ public:
 
     Q_INVOKABLE void refresh();
     Q_INVOKABLE QString portNameAt(int row) const;
+    // -1 if not present (e.g. unplugged since it was selected). Lets a
+    // combo box resolve a remembered port *name* back to a row index after
+    // refresh() reshuffles/resizes the list.
+    Q_INVOKABLE int indexOfPortName(const QString &portName) const;
 
 private:
     QVector<SerialManager::PortInfo> ports_;
