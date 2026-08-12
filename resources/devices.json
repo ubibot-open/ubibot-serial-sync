@@ -3,140 +3,188 @@
   "models": [
     {
       "id": "WS1 Pro",
-      "protocol": "at",
+      "protocol": "json",
       "description": {
         "zh": "轻松连 WS1 Pro · 温湿度 + 光照 + WiFi 网关",
         "en": "Easylink WS1 Pro · Temp/Humidity + Light + WiFi gateway"
       },
       "serial": { "baudRate": 115200, "dataBits": 8, "parity": "None", "stopBits": 1, "flowControl": "None" },
       "commands": [
-        { "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "type": "query", "cmd": "AT+DEVINFO?" },
-        { "id": "read-firmware-version", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取固件版本", "en": "Read firmware version" }, "type": "query", "cmd": "AT+VER?" },
-        { "id": "read-signal-strength", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取信号强度", "en": "Read signal strength" }, "type": "query", "cmd": "AT+RSSI?" },
-        { "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "type": "query", "cmd": "AT+DATA?" },
         {
-          "id": "read-history", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取历史数据", "en": "Read history" }, "type": "query", "cmd": "AT+HISTORY=<n>",
-          "params": [ { "key": "n", "label": { "zh": "条数", "en": "Count" }, "hint": "50", "default": "50" } ]
+          "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
         },
         {
-          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "type": "set", "cmd": "AT+INTERVAL=<sec>",
-          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "300", "default": "300" } ]
+          "id": "read-firmware-version", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取固件版本", "en": "Read firmware version" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFZlcnNpb24ifQ=="
         },
         {
-          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "type": "set", "cmd": "AT+WIFI=<ssid>,<pwd>",
+          "id": "read-signal-strength", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取信号强度", "en": "Read signal strength" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFJzc2kifQ=="
+        },
+        {
+          "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZERhdGEifQ=="
+        },
+        {
+          "id": "read-history", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取历史数据", "en": "Read history" },
+          "type": "query", "needsInput": true,
+          "params": [ { "key": "Count", "label": { "zh": "条数", "en": "Count" }, "hint": "50", "default": "50" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZEhpc3RvcnkiLCJDb3VudCI6IiJ9"
+        },
+        {
+          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" },
+          "type": "set", "needsInput": true,
+          "params": [ { "key": "Value", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "300", "default": "300" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0SW50ZXJ2YWwiLCJWYWx1ZSI6IiJ9"
+        },
+        {
+          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" },
+          "type": "set", "needsInput": true,
           "params": [
-            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
-            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
-          ]
+            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
+            { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+          ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
         },
-        { "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "type": "action", "cmd": "AT+REBOOT" },
-        { "id": "factory-reset", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "恢复出厂设置", "en": "Factory reset" }, "type": "action", "cmd": "AT+FACTORY" }
+        {
+          "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" },
+          "type": "action", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVib290In0="
+        },
+        {
+          "id": "factory-reset", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "恢复出厂设置", "en": "Factory reset" },
+          "type": "action", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiRmFjdG9yeVJlc2V0In0="
+        }
       ]
     },
     {
       "id": "WS1",
-      "protocol": "at",
+      "protocol": "json",
       "description": {
         "zh": "轻松连 WS1 · 基础环境监测节点",
         "en": "Easylink WS1 · Basic environmental node"
       },
       "serial": { "baudRate": 115200, "dataBits": 8, "parity": "None", "stopBits": 1, "flowControl": "None" },
       "commands": [
-        { "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "type": "query", "cmd": "AT+DEVINFO?" },
-        { "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "type": "query", "cmd": "AT+DATA?" },
         {
-          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "type": "set", "cmd": "AT+INTERVAL=<sec>",
-          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "600", "default": "600" } ]
+          "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
         },
         {
-          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "type": "set", "cmd": "AT+WIFI=<ssid>,<pwd>",
+          "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZERhdGEifQ=="
+        },
+        {
+          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" },
+          "type": "set", "needsInput": true,
+          "params": [ { "key": "Value", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "600", "default": "600" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0SW50ZXJ2YWwiLCJWYWx1ZSI6IiJ9"
+        },
+        {
+          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" },
+          "type": "set", "needsInput": true,
           "params": [
-            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
-            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
-          ]
+            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
+            { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+          ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
         },
-        { "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "type": "action", "cmd": "AT+REBOOT" }
+        {
+          "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" },
+          "type": "action", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVib290In0="
+        }
       ]
     },
     {
       "id": "GS1-AL4G1RS",
-      "protocol": "at",
+      "protocol": "json",
       "description": {
         "zh": "轻松连 GS1 · 4G 工业网关，支持 RS485 探头",
         "en": "Easylink GS1 · 4G industrial gateway with RS485 probe support"
       },
       "serial": { "baudRate": 115200, "dataBits": 8, "parity": "None", "stopBits": 1, "flowControl": "None" },
       "commands": [
-        { "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "type": "query", "cmd": "AT+DEVINFO?" },
-        { "id": "read-sim-status", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取 SIM 状态", "en": "Read SIM status" }, "type": "query", "cmd": "AT+SIM?" },
-        { "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "type": "query", "cmd": "AT+DATA?" },
         {
-          "id": "read-rs485-probe", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取 RS485 探头", "en": "Read RS485 probe" }, "type": "query", "cmd": "AT+RS485=<addr>",
-          "params": [ { "key": "addr", "label": { "zh": "从机地址", "en": "Slave address" }, "hint": "01", "default": "01" } ]
+          "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
         },
         {
-          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" }, "type": "set", "cmd": "AT+INTERVAL=<sec>",
-          "params": [ { "key": "sec", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "900", "default": "900" } ]
+          "id": "read-sim-status", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取 SIM 状态", "en": "Read SIM status" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFNpbSJ9"
         },
         {
-          "id": "set-apn", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 APN", "en": "Set APN" }, "type": "set", "cmd": "AT+APN=<apn>",
-          "params": [ { "key": "apn", "label": { "zh": "APN", "en": "APN" }, "hint": "cmnet", "default": "cmnet" } ]
+          "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZERhdGEifQ=="
         },
-        { "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" }, "type": "action", "cmd": "AT+REBOOT" }
+        {
+          "id": "read-rs485-probe", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取 RS485 探头", "en": "Read RS485 probe" },
+          "type": "query", "needsInput": true,
+          "params": [ { "key": "Addr", "label": { "zh": "从机地址", "en": "Slave address" }, "hint": "01", "default": "01" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFJTNDg1IiwiQWRkciI6IiJ9"
+        },
+        {
+          "id": "set-upload-interval", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置设备上传时间", "en": "Set upload interval" },
+          "type": "set", "needsInput": true,
+          "params": [ { "key": "Value", "label": { "zh": "上传间隔 (秒)", "en": "Upload interval (s)" }, "hint": "900", "default": "900" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0SW50ZXJ2YWwiLCJWYWx1ZSI6IiJ9"
+        },
+        {
+          "id": "set-apn", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 APN", "en": "Set APN" },
+          "type": "set", "needsInput": true,
+          "params": [ { "key": "Apn", "label": { "zh": "APN", "en": "APN" }, "hint": "cmnet", "default": "cmnet" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0QXBuIiwiQXBuIjoiIn0="
+        },
+        {
+          "id": "reboot-device", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备", "en": "Reboot device" },
+          "type": "action", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVib290In0="
+        }
       ]
     },
     {
       "id": "SP1",
-      "protocol": "at",
+      "protocol": "json",
       "description": {
         "zh": "轻松连 SP1 · 智能插座，支持功率计量",
         "en": "Easylink SP1 · Smart plug with power metering"
       },
       "serial": { "baudRate": 115200, "dataBits": 8, "parity": "None", "stopBits": 1, "flowControl": "None" },
       "commands": [
-        { "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" }, "type": "query", "cmd": "AT+DEVINFO?" },
-        { "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" }, "type": "query", "cmd": "AT+DATA?" },
         {
-          "id": "toggle-relay", "group": { "zh": "控制", "en": "Control" }, "name": { "zh": "开关继电器", "en": "Toggle relay" }, "type": "action", "cmd": "AT+RELAY=<on>",
-          "params": [ { "key": "on", "label": { "zh": "状态 (0/1)", "en": "State (0/1)" }, "hint": "1", "default": "1" } ]
-        },
-        {
-          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" }, "type": "set", "cmd": "AT+WIFI=<ssid>,<pwd>",
-          "params": [
-            { "key": "ssid", "label": { "zh": "SSID", "en": "SSID" }, "hint": "UbiBot-Office", "default": "UbiBot-Office" },
-            { "key": "pwd", "label": { "zh": "密码", "en": "Password" }, "hint": "••••••", "default": "" }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "JSON-Device-1",
-      "protocol": "json",
-      "name": {
-        "zh": "JSON 协议设备（占位，请改成真实型号名）",
-        "en": "JSON Protocol Device (placeholder -- rename to the real model)"
-      },
-      "description": {
-        "zh": "占位条目：用来落地 JSON 指令协议的数据结构，指令内容是真实值，设备型号名/描述待替换。",
-        "en": "Placeholder entry for the JSON command protocol -- command payloads are real, model name/description still need replacing."
-      },
-      "commands": [
-        {
-          "id": "read-product",
-          "group": { "zh": "设备信息", "en": "Device Info" },
-          "name": { "zh": "读取设备信息", "en": "Read device info" },
-          "type": "query",
-          "needsInput": false,
+          "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query", "needsInput": false,
           "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
         },
         {
-          "id": "setup-wifi",
-          "group": { "zh": "配置", "en": "Config" },
-          "name": { "zh": "设置 WiFi", "en": "Setup WiFi" },
-          "type": "set",
-          "needsInput": true,
+          "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZERhdGEifQ=="
+        },
+        {
+          "id": "toggle-relay", "group": { "zh": "控制", "en": "Control" }, "name": { "zh": "开关继电器", "en": "Toggle relay" },
+          "type": "action", "needsInput": true,
+          "params": [ { "key": "State", "label": { "zh": "状态 (0/1)", "en": "State (0/1)" }, "hint": "1", "default": "1" } ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0UmVsYXkiLCJTdGF0ZSI6IiJ9"
+        },
+        {
+          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" },
+          "type": "set", "needsInput": true,
           "params": [
-            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "", "default": "" },
+            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
             { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
             { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
           ],
