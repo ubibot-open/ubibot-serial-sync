@@ -133,9 +133,12 @@ bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
             cmd.name = readLocalized(cmdObj.value(QStringLiteral("name")).toObject());
             cmd.isJsonProtocol = (model.protocol == DeviceProtocol::Json);
             cmd.params = readParams(cmdObj);
+            // "type" (query/set/action) is just a descriptive classification
+            // -- meaningful for AT commands too, not only JSON ones -- so
+            // it's read the same way regardless of protocol.
+            cmd.type = readCommandType(cmdObj);
 
             if (cmd.isJsonProtocol) {
-                cmd.type = readCommandType(cmdObj);
                 cmd.needsInput = cmdObj.value(QStringLiteral("needsInput")).toBool();
                 const QByteArray encoded = cmdObj.value(QStringLiteral("payloadBase64")).toString().toLatin1();
                 cmd.jsonPayload = QString::fromUtf8(QByteArray::fromBase64(encoded));
