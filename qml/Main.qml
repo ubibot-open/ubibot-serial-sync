@@ -276,38 +276,43 @@ ApplicationWindow {
                     Layout.margins: 12
                     spacing: 10
 
-                    TextArea {
-                        id: inputField
+                    ScrollView {
+                        id: inputScroll
                         Layout.fillWidth: true
-                        // Was a fixed 74px, matched to the button column's
-                        // old two-button height. Now that the column has a
-                        // third (History) button and is taller, fill to
-                        // match it instead of leaving a gap below a
-                        // fixed-height box.
-                        Layout.fillHeight: false
-                        Layout.preferredHeight: 74
-                        font.family: Theme.monoFont
-                        placeholderText: qsTr("Type data to send…")
-                        // Deliberately not a `text: AppController.draftText`
-                        // binding -- QML drops a property's binding as soon
-                        // as anything assigns to it directly, and every
-                        // keystroke does exactly that to `text`. After the
-                        // user's first keystroke this binding would be gone
-                        // for good, so external changes to draftText (Clear,
-                        // double-clicking a history entry below) would stop
-                        // reaching the box. The Connections handler below
-                        // does that sync imperatively instead, which keeps
-                        // working no matter how the user has edited the text.
-                        Component.onCompleted: text = AppController.draftText
-                        onTextChanged: if (text !== AppController.draftText) AppController.draftText = text
-                        Connections {
-                            target: AppController
-                            function onDraftTextChanged() {
-                                if (inputField.text !== AppController.draftText) inputField.text = AppController.draftText
-                            }
-                        }
+                        // Starts at the original fixed 74px. Multi-line
+                        // content beyond that grows the box (so short input
+                        // still looks the same as before) up to 200px, past
+                        // which it stops growing and a scrollbar takes over
+                        // instead -- otherwise overflowing lines were simply
+                        // invisible with no way to reach them.
+                        Layout.preferredHeight: Math.max(74, Math.min(200, inputField.contentHeight + 20))
+                        clip: true
 
-                        background: Rectangle { border.color: Theme.divider; border.width: 1 }
+                        TextArea {
+                            id: inputField
+                            font.family: Theme.monoFont
+                            placeholderText: qsTr("Type data to send…")
+                            // Deliberately not a `text: AppController.draftText`
+                            // binding -- QML drops a property's binding as soon
+                            // as anything assigns to it directly, and every
+                            // keystroke does exactly that to `text`. After the
+                            // user's first keystroke this binding would be gone
+                            // for good, so external changes to draftText (Clear,
+                            // double-clicking a history entry below) would stop
+                            // reaching the box. The Connections handler below
+                            // does that sync imperatively instead, which keeps
+                            // working no matter how the user has edited the text.
+                            Component.onCompleted: text = AppController.draftText
+                            onTextChanged: if (text !== AppController.draftText) AppController.draftText = text
+                            Connections {
+                                target: AppController
+                                function onDraftTextChanged() {
+                                    if (inputField.text !== AppController.draftText) inputField.text = AppController.draftText
+                                }
+                            }
+
+                            background: Rectangle { border.color: Theme.divider; border.width: 1 }
+                        }
                     }
                     ColumnLayout {
                         Layout.preferredWidth: 116
