@@ -6,6 +6,7 @@
 #include "models/log_list_model.h"
 #include "models/port_list_model.h"
 
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFontDatabase>
@@ -57,6 +58,13 @@ AppController::AppController(QObject *parent) : QObject(parent) {
 }
 
 AppController::~AppController() = default;
+
+// Reads back QCoreApplication::applicationVersion() (set in main.cpp from
+// the same APP_VERSION compile definition) rather than hardcoding its own
+// copy of the string -- see CMakeLists.txt's top-of-file comment for where
+// that actually comes from.
+QString AppController::appVersion() const { return QCoreApplication::applicationVersion(); }
+QString AppController::qtVersion() const { return QStringLiteral(QT_VERSION_STR); }
 
 bool AppController::portOpen() const { return serial_.isOpen(); }
 

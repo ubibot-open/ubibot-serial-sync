@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 
+# *** Bump this on every release -- it's the ONLY place the version number
+# needs to change. CMake's PROJECT_VERSION (used below to feed main.cpp/
+# AppController, the app's own display, and the macOS bundle info) and the
+# Windows .exe's own file-version resource both come from this single
+# MAJOR.MINOR.PATCH.TWEAK value. Four components (not the usual three) since
+# that's what was asked for -- CMake's project(VERSION ...) already supports
+# up to four.
 project(UbiBotSerialAssistant
-    VERSION 1.0.0
+    VERSION 0.1.1.1
     DESCRIPTION "UbiBot Serial Assistant / UbiBot 串口助手"
     LANGUAGES CXX
 )
@@ -116,6 +123,31 @@ set_target_properties(UbiBotSerialAssistant PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
 )
+
+# Every place the app needs its own version number (main.cpp's
+# setApplicationVersion(), AppController::appVersion() for the title bar/
+# Settings & About dialog, ...) reads it back from PROJECT_VERSION via this
+# one compile definition, rather than each hardcoding its own copy of the
+# string -- so bumping the version for a release really is just the one
+# edit at the top of this file.
+target_compile_definitions(UbiBotSerialAssistant PRIVATE
+    APP_VERSION="${PROJECT_VERSION}"
+)
+
+if(WIN32)
+    # Stamps the built .exe with a real Windows file-version resource (see
+    # app_version.rc.in) from the same PROJECT_VERSION -- otherwise a
+    # Windows build has no version info in the binary at all, unlike the
+    # macOS bundle above which already gets one.
+    configure_file(
+        resources/app_version.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/app_version.rc
+        @ONLY
+    )
+    target_sources(UbiBotSerialAssistant PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}/app_version.rc
+    )
+endif()
 
 # --- Translations -----------------------------------------------------
 # Source strings (tr()/qsTr()) are written in English, which needs no .ts

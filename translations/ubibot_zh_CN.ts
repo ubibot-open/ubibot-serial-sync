@@ -433,6 +433,10 @@
         <translation>关闭</translation>
     </message>
     <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1（Qt %2）</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>

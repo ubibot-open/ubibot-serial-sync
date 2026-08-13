@@ -143,6 +143,17 @@ ApplicationWindow {
             spacing: 8
             Image { source: "qrc:/icons/app.svg"; sourceSize: Qt.size(16, 16) }
             Label { text: window.title; color: Theme.text; font.pixelSize: 12 }
+            // Version shown here (not appended to window.title itself) so
+            // the OS-facing title -- taskbar button tooltip, alt-tab, etc.
+            // -- stays just the plain app name; only this custom title
+            // bar's own label needs it. AppController.appVersion ultimately
+            // comes from CMakeLists.txt's `project(VERSION ...)` -- see the
+            // comment there for how to bump it on release.
+            Label {
+                text: "v" + AppController.appVersion
+                color: Theme.textMuted
+                font.pixelSize: 11
+            }
         }
 
         Row {

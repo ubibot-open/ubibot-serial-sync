@@ -13,7 +13,11 @@ int main(int argc, char *argv[]) {
     QGuiApplication::setOrganizationName(QStringLiteral("UbiBot"));
     QGuiApplication::setOrganizationDomain(QStringLiteral("ubibot.com"));
     QGuiApplication::setApplicationName(QStringLiteral("UbiBotSerialAssistant"));
-    QGuiApplication::setApplicationVersion(QStringLiteral("1.0.0"));
+    // APP_VERSION comes from CMakeLists.txt's `project(VERSION ...)` (a
+    // single -D compile definition, see there) -- not hardcoded here so
+    // there's exactly one place to bump per release rather than several
+    // that can drift out of sync.
+    QGuiApplication::setApplicationVersion(QStringLiteral(APP_VERSION));
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/app.svg")));
 
     // Nothing here ever named an explicit default font, so every Text/

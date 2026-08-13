@@ -199,7 +199,7 @@ Dialog {
 
             Label { text: qsTr("Version"); font.pixelSize: 11; color: Theme.textMuted }
             Label { text: qsTr("Platform"); font.pixelSize: 11; color: Theme.textMuted }
-            Label { text: "1.0.0 (Qt 6.11)" }
+            Label { text: qsTr("%1 (Qt %2)").arg(AppController.appVersion).arg(AppController.qtVersion) }
             Label { text: "Windows · macOS · Linux" }
 
             Label { text: qsTr("Support"); font.pixelSize: 11; color: Theme.textMuted }

@@ -34,6 +34,15 @@ class AppController : public QObject {
     Q_PROPERTY(QString portStatusText READ portStatusText NOTIFY connectionChanged)
     Q_PROPERTY(QString portSummary READ portSummary NOTIFY connectionChanged)
 
+    // The app's own release version (see CMakeLists.txt's top-of-file
+    // comment for where this actually comes from/how to bump it) -- shown
+    // in the custom title bar and Settings & About. qtVersion is the Qt
+    // build it was compiled against, shown alongside it in Settings &
+    // About; neither needs a NOTIFY, both are fixed for the process's
+    // whole lifetime.
+    Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
+    Q_PROPERTY(QString qtVersion READ qtVersion CONSTANT)
+
     Q_PROPERTY(QString currentModelId READ currentModelId WRITE setCurrentModelId NOTIFY currentModelChanged)
     Q_PROPERTY(QString currentModelDescription READ currentModelDescription NOTIFY currentModelChanged)
     Q_PROPERTY(QStringList modelIds READ modelIds CONSTANT)
@@ -74,6 +83,9 @@ class AppController : public QObject {
 public:
     explicit AppController(QObject *parent = nullptr);
     ~AppController() override;
+
+    QString appVersion() const;
+    QString qtVersion() const;
 
     bool portOpen() const;
     QString portStatusText() const;
