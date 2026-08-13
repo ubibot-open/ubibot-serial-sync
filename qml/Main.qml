@@ -18,11 +18,19 @@ ApplicationWindow {
     // UI. TitleBar below (declared as part of `header`) replaces it with
     // one styled off Theme like everything else. The trade-off: Windows'
     // own resize cursors/borders and (on Windows 11) the DWM drop
-    // shadow/rounded corners disappear along with the native frame --
-    // the resizeBorder MouseAreas near the end of this file and TitleBar's
-    // own top-edge strip stand in for the resize borders; there is no
-    // attempt to reproduce the DWM shadow/rounded corners, which would
-    // need native platform code this project doesn't otherwise have.
+    // shadow/rounded corners disappear along with the native frame -- the
+    // resizeGrip MouseAreas near the end of this file and TitleBar's own
+    // top-edge strip stand in for the resize borders, and the 1px outline
+    // Rectangles (one in the header block, three more near the resize
+    // grips) stand in for the lost native border -- without ANY visible
+    // edge, this window was impossible to tell apart from whatever sat
+    // directly behind it once that happened to be a similar color. There
+    // is still no attempt at reproducing the DWM drop shadow itself (a soft
+    // blur bleeding onto whatever's behind the window) -- that needs a
+    // translucent, oversized-past-its-own-content window, which would also
+    // need reworking how the resize grips/maximize above are positioned;
+    // a plain, solid outline was the lower-risk fix for "can't see the
+    // window's edge at all," which is the actual problem this solves.
     flags: Qt.Window | Qt.FramelessWindowHint
 
     // Fusion (set in main.cpp) is one of the few built-in styles that
@@ -331,6 +339,30 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+
+        // Top/left/right of the window-perimeter border -- see the
+        // `flags:` comment above: going frameless dropped the OS's own
+        // window border/drop shadow along with its title bar, and without
+        // some edge of its own this window visually disappears into
+        // whatever's directly behind it once that happens to be a similar
+        // color. Declared last (topmost) and sized to this whole header
+        // block (title bar + menu + toolbar together, the one region that
+        // reaches the window's true top edge) rather than window-level,
+        // for the same reason the resize grips are split the same way --
+        // window's own plain children only reach down to contentItem,
+        // which starts below all of this. The matching left/right/bottom
+        // pieces below (window-level, reaching contentItem's true edges)
+        // pick up exactly where this leaves off, tracing one continuous
+        // outline with no gap at the seam. transparent fill + border-only,
+        // so it doesn't intercept clicks meant for the title bar buttons/
+        // menu/toolbar underneath.
+        Rectangle {
+            visible: window.visibility !== Window.Maximized
+            anchors.fill: parent
+            color: "transparent"
+            border.color: Theme.dialogBorder
+            border.width: 1
         }
     }
 
@@ -691,6 +723,30 @@ ApplicationWindow {
         anchors { bottom: parent.bottom; right: parent.right }
         cursorShape: Qt.SizeFDiagCursor
         onPressed: window.startSystemResize(Qt.BottomEdge | Qt.RightEdge)
+    }
+
+    // Left/right/bottom of the window-perimeter border -- picks up exactly
+    // where the header's own top/left/right piece leaves off (see that
+    // comment for the full explanation); these three reach contentItem's
+    // true left/right/bottom edges, which do line up with the window's own,
+    // unlike contentItem's top.
+    Rectangle {
+        visible: window.visibility !== Window.Maximized
+        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+        width: 1
+        color: Theme.dialogBorder
+    }
+    Rectangle {
+        visible: window.visibility !== Window.Maximized
+        anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+        width: 1
+        color: Theme.dialogBorder
+    }
+    Rectangle {
+        visible: window.visibility !== Window.Maximized
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+        height: 1
+        color: Theme.dialogBorder
     }
 
     // --- dialogs ---------------------------------------------------------
