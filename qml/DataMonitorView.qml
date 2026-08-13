@@ -269,6 +269,51 @@ Item {
                 onContentHeightChanged: if (!root.paused && stickToBottom) contentY = Math.max(0, contentHeight - height)
                 onContentYChanged: stickToBottom = (contentY + height >= contentHeight - 4)
 
+                // A large data dump can run the scrollback into thousands of
+                // lines -- the mouse wheel alone (the only way to move
+                // around before this) makes finding a specific spot in that
+                // tedious. AlwaysOn (rather than the default auto-hiding
+                // overlay) so it's visible without having to hover first --
+                // the whole point is making "how much is there / where am I"
+                // obvious at a glance, not just adding a way to drag.
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                    contentItem: Rectangle {
+                        implicitWidth: 8
+                        radius: width / 2
+                        color: Theme.consoleMuted
+                        opacity: parent.pressed ? 0.9 : (parent.hovered ? 0.7 : 0.45)
+                    }
+                    background: Rectangle {
+                        implicitWidth: 8
+                        color: Theme.consoleBorder
+                        opacity: 0.3
+                    }
+                }
+                // Only actually scrollable when wrapLines is off (contentWidth
+                // matches the viewport exactly otherwise) -- explicitly
+                // hidden rather than trusting policy: AsNeeded to notice
+                // that on its own, since a stray sub-pixel rounding
+                // difference between contentWidth and the viewport was
+                // enough to show a spurious full-width one even while
+                // wrapped. Same styling as the vertical one above for a
+                // consistent look either way.
+                ScrollBar.horizontal: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                    visible: !root.wrapLines
+                    contentItem: Rectangle {
+                        implicitHeight: 8
+                        radius: height / 2
+                        color: Theme.consoleMuted
+                        opacity: parent.pressed ? 0.9 : (parent.hovered ? 0.7 : 0.45)
+                    }
+                    background: Rectangle {
+                        implicitHeight: 8
+                        color: Theme.consoleBorder
+                        opacity: 0.3
+                    }
+                }
+
                 TextEdit {
                     id: contentEdit
                     width: root.wrapLines ? flick.width : implicitWidth
