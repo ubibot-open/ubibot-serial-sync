@@ -49,25 +49,64 @@ This project was scaffolded from a design mockup; see
 Open `CMakeLists.txt` as a project, pick a Qt 6.11 kit, and build/run — no
 extra configuration needed.
 
-### Command line (Windows, MSVC + Ninja)
+### Releasing a Windows build (MinGW)
 
-Run from a "Developer PowerShell/Command Prompt for VS" so `cl.exe` is on
-`PATH`, and point `CMAKE_PREFIX_PATH` at your Qt install:
+This is the actual, verified command-line process for producing a
+double-clickable, standalone Windows build to hand to someone else —
+tested against a Qt 6.11.1 **MinGW 64-bit** install (`E:\Qt\6.11.1\mingw_64`
+plus its bundled `E:\Qt\Tools\mingw1310_64` toolchain in the paths below;
+adjust both to wherever your own Qt install lives). If you installed Qt via
+the MSVC kit instead, see the next section.
 
-```bash
-cmake -S . -B build -G Ninja -DCMAKE_PREFIX_PATH="C:/Qt/6.11.0/msvc2022_64" -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+**1. Bump the version number first** (skip this if you're just doing a test
+build) — see [Releasing a new version](#releasing-a-new-version) below.
+
+**2. Configure a Release build** in its own directory, separate from
+whatever Debug build you already have (they can coexist):
+
+```powershell
+$env:PATH = "E:\Qt\6.11.1\mingw_64\bin;E:\Qt\Tools\mingw1310_64\bin;" + $env:PATH
+cmake -S . -B build\Release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="E:\Qt\6.11.1\mingw_64"
+cmake --build build\Release
 ```
 
-The executable lands in `build/UbiBotSerialAssistant.exe`. For a
-double-clickable, standalone build, run Qt's deploy tool afterwards:
+**3. Copy the .exe into a clean, empty folder** — `windeployqt` dumps every
+DLL/plugin/QML module it copies into whatever directory the .exe it's
+pointed at lives in, and `build\Release` is full of unrelated CMake/Ninja
+build files you don't want to hand someone along with the app:
 
-```bash
-C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe build/UbiBotSerialAssistant.exe
+```powershell
+mkdir deploy\UbiBotSerialAssistant
+copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
 ```
 
-(`windeployqt` picks up the QML files/plugins this app needs automatically
-via the module registered in `CMakeLists.txt`'s `qt_add_qml_module()` call.)
+**4. Run `windeployqt` on that copy** — this is what actually gathers every
+Qt DLL, platform plugin, image format, and QML module (including this
+app's own `UbiBot` module) the .exe needs to run on a machine with no Qt
+installed at all:
+
+```powershell
+E:\Qt\6.11.1\mingw_64\bin\windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --qmldir qml --release
+```
+
+`deploy\UbiBotSerialAssistant\` is now a complete, self-contained ~110 MB
+folder — zip it up (or hand the folder over directly) and
+`UbiBotSerialAssistant.exe` inside it runs standalone on any Windows machine,
+no Qt install, no PATH changes, nothing else needed. (Verified by actually
+launching that copy on a machine with Qt removed from `PATH` entirely.)
+
+### Windows (MSVC + Ninja)
+
+Same shape as above, from a "Developer PowerShell/Command Prompt for VS" so
+`cl.exe` is on `PATH`:
+
+```bash
+cmake -S . -B build\Release -G Ninja -DCMAKE_PREFIX_PATH="C:/Qt/6.11.0/msvc2022_64" -DCMAKE_BUILD_TYPE=Release
+cmake --build build\Release
+mkdir deploy\UbiBotSerialAssistant
+copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
+C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe deploy/UbiBotSerialAssistant/UbiBotSerialAssistant.exe --qmldir qml --release
+```
 
 ### macOS / Linux
 
@@ -75,6 +114,29 @@ via the module registered in `CMakeLists.txt`'s `qt_add_qml_module()` call.)
 cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.0/gcc_64
 cmake --build build
 ```
+
+## Releasing a new version
+
+There is exactly one place to edit: the `VERSION` in `CMakeLists.txt`'s
+`project(...)` call, right at the top of the file:
+
+```cmake
+project(UbiBotSerialAssistant
+    VERSION 1.1.1.1
+    ...
+)
+```
+
+Bump it (e.g. to `1.1.1.2`), save, and rebuild — that single number then
+flows automatically to everywhere the app shows its own version:
+
+- the custom title bar (`v1.1.1.1`)
+- the "Version" row in Settings & About
+- the built `.exe`'s own Windows file-version resource (right-click the
+  .exe → Properties → Details → "File version"/"Product version")
+
+Nothing else needs editing; there's no second copy of the version number
+hardcoded anywhere else to keep in sync.
 
 ## Project layout
 
@@ -205,13 +267,19 @@ resolves it to whichever single language is currently active.
 
 A few implementation choices worth knowing about before you dig in:
 
-- **Window chrome is a standard `ApplicationWindow`** (native title bar,
-  `MenuBar`, `ToolBar`), not the frameless custom-drawn window in the
-  original design mockup — far less platform-specific edge-case code to
-  maintain, at the cost of not being a pixel-perfect match. The visual style
-  is Qt Quick Controls' "Fusion" style (set in `main.cpp` via
-  `QQuickStyle::setStyle()`), chosen for a native-desktop look rather than
-  the touch-oriented default.
+- **Window chrome is a frameless, custom-drawn `ApplicationWindow`**
+  (`Main.qml`'s `flags: Qt.Window | Qt.FramelessWindowHint`, plus its own
+  `TitleBar` component standing in for the OS-native one) rather than a
+  standard one with the platform's own title bar — matches the original
+  design mockup, and means the whole window (not just its contents) follows
+  the app's light/dark theme instead of the OS always drawing a plain white
+  title bar regardless. Losing the native frame also loses the OS's own
+  resize cursors/border and (Windows 11) drop shadow/rounded corners; the
+  1px outline + resize-grip `MouseArea`s in `Main.qml` stand in for the
+  former, there's no attempt at the latter. The visual style of everything
+  *inside* the window is Qt Quick Controls' "Fusion" style (set in
+  `main.cpp` via `QQuickStyle::setStyle()`), chosen for a native-desktop
+  look rather than the touch-oriented default.
 - **Remote support is a UI placeholder.** Generating a session code/OTP and
   setting permissions all work (entirely in QML — there's no backing logic
   to speak of), but there's no signaling/relay server or peer-to-peer
