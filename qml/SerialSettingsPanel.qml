@@ -103,11 +103,9 @@ Flickable {
             Label { Layout.preferredWidth: 70; text: qsTr("Port") }
             RowLayout {
                 Layout.fillWidth: true
-                ComboBox {
+                PortComboBox {
                     id: portCombo
                     Layout.fillWidth: true
-                    textRole: "displayLabel"
-                    model: AppController.portListModel
                     // Shared with the port picker on the "Device commands"
                     // panel -- whichever one the user picks a port in, both
                     // should agree on it. Falls back to the first detected

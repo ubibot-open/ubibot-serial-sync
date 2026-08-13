@@ -37,11 +37,9 @@ Item {
 
         Label { text: qsTr("Port · PORT") }
 
-        ComboBox {
+        PortComboBox {
             id: portCombo
             Layout.fillWidth: true
-            textRole: "displayLabel"
-            model: AppController.portListModel
             // Shared with the port picker on the "Serial" panel -- whichever
             // one the user picks a port in, both should agree on it (and
             // it's what "Open port" in the toolbar actually opens). Falls
