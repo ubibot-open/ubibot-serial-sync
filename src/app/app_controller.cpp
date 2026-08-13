@@ -227,15 +227,28 @@ void AppController::handleIncomingData(const QByteArray &data) {
 
     rxLineBuffer_ += data;
 
+    // Collected and handed to LogManager as one appendBatch() call instead
+    // of one logManager_.append() per line -- a device dumping a large
+    // stored log can hand this hundreds of thousands of lines in a single
+    // burst (spread across many dataReceived calls, or occasionally all at
+    // once if the OS buffered heavily before this had a chance to read),
+    // and appending them one at a time meant one full model-update +
+    // data-monitor-document cycle per line. Individually cheap, but
+    // multiplied across that many lines -- and with an O(document size)
+    // cost buried in evicting the oldest one once the scrollback is at
+    // capacity -- that was slow enough to freeze the UI outright. See
+    // LogManager::appendBatch()/LogListModel's entriesAppended handler.
+    QList<QByteArray> lines;
     int start = 0;
     while (true) {
         const int newlineAt = rxLineBuffer_.indexOf('\n', start);
         if (newlineAt < 0) break;
         QByteArray line = rxLineBuffer_.mid(start, newlineAt - start);
         if (line.endsWith('\r')) line.chop(1);
-        logManager_.append(LogKind::Rx, line);
+        lines.push_back(line);
         start = newlineAt + 1;
     }
+    if (!lines.isEmpty()) logManager_.appendBatch(LogKind::Rx, lines);
     rxLineBuffer_ = rxLineBuffer_.mid(start);
 
     if (rxLineBuffer_.size() >= kMaxBufferedLine) {

@@ -5,6 +5,7 @@
 
 #include <QAbstractListModel>
 #include <QQmlEngine>
+#include <QTimer>
 
 // QML-facing view over LogManager's scrollback. Still a QAbstractListModel
 // (one row per LogEntry, `time`/`text`/`html`/`color` roles) for anything
@@ -96,4 +97,23 @@ private:
     // "light" default) until AppController pushes the real value at
     // startup; only matters for the brief window before that first push.
     bool darkPalette_ = false;
+
+    // A single LogManager::bulkChanged() already costs about as much as
+    // rebuilding this whole (capacity_-capped) document once -- see
+    // LogManager::appendBatch(). A device dumping a huge stored log can
+    // still fire that many times in a row in quick succession (once per
+    // dataReceived chunk), and doing the actual rebuild on every single one
+    // just multiplies that cost back out again. bulkFlushTimer_ collapses
+    // any run of back-to-back bulkChanged()s that are still arriving faster
+    // than it can fire into exactly one rebuild, timed from whenever things
+    // actually go quiet -- entries() already holds the final, settled state
+    // by the time that happens, so nothing about the *content* of that one
+    // rebuild depends on how many bulkChanged()s got coalesced into it.
+    // pendingBulkRebuild_ additionally suppresses the normal incremental
+    // handlers while a coalesced rebuild is outstanding, since reconciling
+    // "a few more lines trickled in normally" with "a from-scratch rebuild
+    // is about to blow all of that away anyway" isn't worth the complexity
+    // -- the eventual rebuild already reflects everything.
+    bool pendingBulkRebuild_ = false;
+    QTimer *bulkFlushTimer_;
 };

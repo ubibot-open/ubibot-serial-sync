@@ -44,26 +44,80 @@ QString consoleMutedColor(bool dark) { return dark ? QStringLiteral("#6b7280") :
 
 LogListModel::LogListModel(LogManager *manager, QObject *parent)
     : QAbstractListModel(parent), manager_(manager) {
-    connect(manager_, &LogManager::rowAboutToBeRemoved, this, [this] {
-        beginRemoveRows(QModelIndex(), 0, 0);
-        // Fires before LogManager actually erases entries()[0], so it's
-        // still the about-to-be-evicted entry here -- computed fresh from
-        // current hexMode_/showTimestamp_ rather than cached from when it
-        // was appended, which is safe only because any toggle of either
-        // triggers rebuildNeeded() (full re-render), so the document is
-        // always re-synced to the current mode before this can run again.
-        if (!manager_->entries().isEmpty())
-            emit lineEvicted(lineHtml(manager_->entries().first()).length + 1);
+    // See the header comment on bulkFlushTimer_/pendingBulkRebuild_ -- a
+    // short debounce so a whole run of back-to-back bulkChanged()s (a
+    // device dumping a huge stored log, arriving as many separate
+    // dataReceived chunks in quick succession) collapses into exactly one
+    // rebuild, timed from whenever they actually stop rather than firing
+    // once per chunk.
+    bulkFlushTimer_ = new QTimer(this);
+    bulkFlushTimer_->setSingleShot(true);
+    bulkFlushTimer_->setInterval(50);
+    connect(bulkFlushTimer_, &QTimer::timeout, this, [this] {
+        pendingBulkRebuild_ = false;
+        beginResetModel();
+        endResetModel();
+        emit lineCountChanged();
+        emit rebuildNeeded();
     });
-    connect(manager_, &LogManager::rowRemoved, this, [this] { endRemoveRows(); });
-    connect(manager_, &LogManager::entryAdded, this, [this](const LogEntry &e) {
-        const int row = manager_->entries().size() - 1;
-        beginInsertRows(QModelIndex(), row, row);
+
+    connect(manager_, &LogManager::entriesAboutToBeEvicted, this, [this](int count) {
+        if (pendingBulkRebuild_) return;  // an eventual rebuild will already reflect this
+        beginRemoveRows(QModelIndex(), 0, count - 1);
+        // Fires before LogManager actually erases entries()[0..count-1], so
+        // they're still the about-to-be-evicted entries here -- computed
+        // fresh from current hexMode_/showTimestamp_ rather than cached
+        // from when each was appended, which is safe only because any
+        // toggle of either triggers rebuildNeeded() (full re-render), so
+        // the document is always re-synced to the current mode before this
+        // can run again. Summed into one docLength (rather than emitting
+        // lineEvicted() once per evicted line) so the view drops all of
+        // them with a single contentEdit.remove() call -- QTextDocument's
+        // remove() is not O(1) in document size, and a burst evicting
+        // thousands of lines at once is exactly the case this needs to
+        // stay cheap for.
+        const auto &entries = manager_->entries();
+        const int n = qMin(count, entries.size());
+        int totalLength = 0;
+        for (int i = 0; i < n; ++i) totalLength += lineHtml(entries.at(i)).length + 1;  // +1 per line's "<br/>"
+        emit lineEvicted(totalLength);
+    });
+    connect(manager_, &LogManager::entriesEvicted, this, [this] {
+        if (pendingBulkRebuild_) return;
+        endRemoveRows();
+    });
+    connect(manager_, &LogManager::entriesAppended, this, [this](int count) {
+        if (pendingBulkRebuild_) return;  // an eventual rebuild will already reflect this
+        const auto &entries = manager_->entries();
+        const int first = entries.size() - count;
+        const int last = entries.size() - 1;
+        beginInsertRows(QModelIndex(), first, last);
         endInsertRows();
         emit lineCountChanged();
-        emit lineAppended(lineHtml(e).html + QStringLiteral("<br/>"));
+        // One concatenated string and one lineAppended() for the whole
+        // batch, not one per line -- see LogManager::entriesAppended.
+        QString html;
+        for (int i = first; i <= last; ++i) {
+            html += lineHtml(entries.at(i)).html;
+            html += QStringLiteral("<br/>");
+        }
+        emit lineAppended(html);
+    });
+    // Doesn't rebuild immediately -- see bulkFlushTimer_'s header comment.
+    // entries() already reflects the final, settled state whenever the
+    // debounced rebuild actually runs, regardless of how many bulkChanged()
+    // (or ignored entriesAppended/entriesAboutToBeEvicted, above) fired
+    // while it was pending.
+    connect(manager_, &LogManager::bulkChanged, this, [this] {
+        pendingBulkRebuild_ = true;
+        bulkFlushTimer_->start();
     });
     connect(manager_, &LogManager::cleared, this, [this] {
+        // Supersedes any rebuild still pending from a just-finished burst --
+        // that would otherwise fire moments later and redraw whatever the
+        // burst had left behind right after the user cleared it.
+        bulkFlushTimer_->stop();
+        pendingBulkRebuild_ = false;
         beginResetModel();
         endResetModel();
         emit lineCountChanged();
