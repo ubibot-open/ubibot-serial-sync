@@ -501,4 +501,11 @@
         <translation>恢复默认值</translation>
     </message>
 </context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>串口已断开连接。</translation>
+    </message>
+</context>
 </TS>

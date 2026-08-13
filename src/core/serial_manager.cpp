@@ -111,8 +111,26 @@ void SerialManager::handleReadyRead() {
 
 void SerialManager::handleError(QSerialPort::SerialPortError err) {
     if (err == QSerialPort::NoError) return;
-    emit errorOccurred(port_.errorString());
-    if (err == QSerialPort::ResourceError && port_.isOpen()) {
+
+    // QSerialPort has no dedicated "device physically removed" signal --
+    // unplugging a USB-serial adapter while its port is open just makes the
+    // next read/write fail, and on Windows that most often comes back as
+    // PermissionError ("Access is denied", which is misleading here since
+    // nothing about permissions changed) rather than ResourceError.
+    // DeviceNotFoundError covers the equivalent case on Linux/macOS or on a
+    // later open() attempt. Whichever of the three shows up, it means the
+    // port is simply gone, not that something is wrong with how this app is
+    // talking to it -- report that plainly instead of surfacing the raw,
+    // platform-specific OS string, and close our side of the connection so
+    // the toolbar's Open/Close port button (bound to isOpen()) doesn't
+    // stay stuck on "Close port" for a port that no longer exists to close.
+    const bool disconnected = err == QSerialPort::ResourceError || err == QSerialPort::PermissionError ||
+                               err == QSerialPort::DeviceNotFoundError;
+    if (disconnected && port_.isOpen()) {
+        emit errorOccurred(tr("Serial port disconnected."));
         close();
+        return;
     }
+
+    emit errorOccurred(port_.errorString());
 }
