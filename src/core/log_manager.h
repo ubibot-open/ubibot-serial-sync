@@ -60,7 +60,7 @@ signals:
     // QTextDocument::remove() at position 0 (see the eviction signals
     // below) is not O(1) in document size, and paying that cost once per
     // line rather than once per *batch* is what actually froze the UI.
-    // LogListModel batches every kept line's rich text into one string and
+    // LogListModel batches every kept line's text into one string and
     // fires one lineAppended() for the lot, rather than once per entry.
     void entriesAppended(int count);
 

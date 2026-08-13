@@ -49,9 +49,9 @@ void LogManager::appendBatch(LogKind kind, const QList<QByteArray> &lines) {
     // A batch bigger than the whole scrollback capacity -- exactly what a
     // device dumping hundreds of thousands of lines in one go looks like --
     // means every line before this batch's own trailing `capacity_` would
-    // just be turned into rich text and evicted again immediately without
-    // ever being visible. Skip storing (and LogListModel rendering) those
-    // outright rather than doing, and immediately discarding, that work.
+    // just be inserted and evicted again immediately without ever being
+    // visible. Skip storing (and LogListModel rendering) those outright
+    // rather than doing, and immediately discarding, that work.
     const int keepFrom = batch.size() > capacity_ ? batch.size() - capacity_ : 0;
     const int toKeep = batch.size() - keepFrom;
 
@@ -65,12 +65,14 @@ void LogManager::appendBatch(LogKind kind, const QList<QByteArray> &lines) {
     // regardless. It does NOT help when a single chunk's own added/evicted
     // count is already large (the OS having buffered a lot before this got
     // a chance to read it, say, or a very high baud rate): the data
-    // monitor's TextEdit still has to parse that many lines of rich HTML
-    // and insert/remove them, and that cost scales with lines touched, not
-    // number of calls. Past this many touched lines in one go, rebuilding
-    // the whole (capacity_-capped, so bounded regardless of batch size)
-    // document from scratch is cheaper than editing it incrementally --
-    // see LogListModel's bulkChanged handling.
+    // monitor's TextEdit still has to insert/remove that many lines, and
+    // that cost scales with lines touched, not number of calls, even now
+    // that the document is plain text rather than per-line HTML (see
+    // DataMonitorView.qml/LogHighlighter for why it's plain text at all).
+    // Past this many touched lines in one go, rebuilding the whole
+    // (capacity_-capped, so bounded regardless of batch size) document
+    // from scratch is cheaper than editing it incrementally -- see
+    // LogListModel's bulkChanged handling.
     static constexpr int kBulkThreshold = 300;
     const bool bulk = (evictCount + toKeep) > kBulkThreshold;
 

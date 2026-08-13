@@ -28,11 +28,6 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     commandModel_ = new CommandListModel(&library_, &settings_, this);
     portListModel_ = new PortListModel(this);
     commandHistoryModel_ = new CommandHistoryModel(&settings_, this);
-    // logModel_'s TX/RX/SYS/ERR base colors and ANSI palette are plain C++
-    // constants (see log_list_model.cpp), not QML bindings that could read
-    // Theme.qml directly -- has to be pushed by hand, here and in
-    // setThemeMode()/restoreDefaultSettings() below.
-    logModel_->setDarkPalette(settings_.themeMode() == QStringLiteral("dark"));
 
     repeatTimer_ = new QTimer(this);
     connect(repeatTimer_, &QTimer::timeout, this, &AppController::sendManualText);
@@ -126,7 +121,6 @@ QString AppController::themeMode() const { return settings_.themeMode(); }
 void AppController::setThemeMode(const QString &mode) {
     if (settings_.themeMode() == mode) return;
     settings_.setThemeMode(mode);
-    logModel_->setDarkPalette(settings_.themeMode() == QStringLiteral("dark"));
     emit themeModeChanged();
 }
 
@@ -146,7 +140,6 @@ void AppController::restoreDefaultSettings() {
     emit currentModelChanged();
 
     emit logFontChanged();
-    logModel_->setDarkPalette(settings_.themeMode() == QStringLiteral("dark"));
     emit themeModeChanged();
 }
 

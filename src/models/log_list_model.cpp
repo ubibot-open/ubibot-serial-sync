@@ -1,30 +1,6 @@
 #include "models/log_list_model.h"
 
 namespace {
-// Base/"reset" color for each line kind. Two variants, matching whichever
-// of Theme.qml's two palettes the data monitor's own background currently
-// uses (see LogListModel::setDarkPalette) -- also doubles as the color
-// ANSI reset codes (SGR 0/39) return to when a device's colored log output
-// resets mid-line.
-QString colorForKind(LogKind k, bool dark) {
-    if (dark) {
-        switch (k) {
-        case LogKind::Tx: return QStringLiteral("#e0a458");
-        case LogKind::Rx: return QStringLiteral("#d8dce0");
-        case LogKind::Sys: return QStringLiteral("#7fa8c9");
-        case LogKind::Err: return QStringLiteral("#f07178");
-        }
-        return QStringLiteral("#d8dce0");
-    }
-    switch (k) {
-    case LogKind::Tx: return QStringLiteral("#986801");
-    case LogKind::Rx: return QStringLiteral("#2b2d31");
-    case LogKind::Sys: return QStringLiteral("#3a6ea8");
-    case LogKind::Err: return QStringLiteral("#c5372b");
-    }
-    return QStringLiteral("#2b2d31");
-}
-
 QString dirTag(LogKind k) {
     switch (k) {
     case LogKind::Tx: return QStringLiteral("TX");
@@ -34,12 +10,6 @@ QString dirTag(LogKind k) {
     }
     return QString();
 }
-
-// Mirrors Theme.consoleMuted/Theme.textMuted in Theme.qml (dark/light
-// respectively) -- the timestamp color baked into each line's rich text
-// here has to match by hand since this is plain C++ with no access to the
-// QML singleton.
-QString consoleMutedColor(bool dark) { return dark ? QStringLiteral("#6b7280") : QStringLiteral("#7a7a7d"); }
 }  // namespace
 
 LogListModel::LogListModel(LogManager *manager, QObject *parent)
@@ -79,7 +49,7 @@ LogListModel::LogListModel(LogManager *manager, QObject *parent)
         const auto &entries = manager_->entries();
         const int n = qMin(count, entries.size());
         int totalLength = 0;
-        for (int i = 0; i < n; ++i) totalLength += lineHtml(entries.at(i)).length + 1;  // +1 per line's "<br/>"
+        for (int i = 0; i < n; ++i) totalLength += linePlainText(entries.at(i)).length() + 1;  // +1 per "\n"
         emit lineEvicted(totalLength);
     });
     connect(manager_, &LogManager::entriesEvicted, this, [this] {
@@ -96,12 +66,12 @@ LogListModel::LogListModel(LogManager *manager, QObject *parent)
         emit lineCountChanged();
         // One concatenated string and one lineAppended() for the whole
         // batch, not one per line -- see LogManager::entriesAppended.
-        QString html;
+        QString text;
         for (int i = first; i <= last; ++i) {
-            html += lineHtml(entries.at(i)).html;
-            html += QStringLiteral("<br/>");
+            text += linePlainText(entries.at(i));
+            text += QLatin1Char('\n');
         }
-        emit lineAppended(html);
+        emit lineAppended(text);
     });
     // Doesn't rebuild immediately -- see bulkFlushTimer_'s header comment.
     // entries() already reflects the final, settled state whenever the
@@ -137,11 +107,6 @@ QVariant LogListModel::data(const QModelIndex &index, int role) const {
     case TimeRole: return showTimestamp_ ? e.time.toString(QStringLiteral("HH:mm:ss")) : QString();
     case DirRole: return dirTag(e.kind);
     case TextRole: return (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-    case ColorRole: return colorForKind(e.kind, darkPalette_);
-    case HtmlRole: {
-        const QString plain = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-        return AnsiText::toRichText(plain, colorForKind(e.kind, darkPalette_), darkPalette_).html;
-    }
     }
     return {};
 }
@@ -151,8 +116,6 @@ QHash<int, QByteArray> LogListModel::roleNames() const {
         {TimeRole, "time"},
         {DirRole, "dir"},
         {TextRole, "text"},
-        {ColorRole, "color"},
-        {HtmlRole, "html"},
     };
 }
 
@@ -160,8 +123,7 @@ void LogListModel::setHexMode(bool hex) {
     if (hexMode_ == hex) return;
     hexMode_ = hex;
     emit hexModeChanged();
-    if (!manager_->entries().isEmpty())
-        emit dataChanged(index(0), index(manager_->entries().size() - 1), {TextRole, HtmlRole});
+    if (!manager_->entries().isEmpty()) emit dataChanged(index(0), index(manager_->entries().size() - 1), {TextRole});
     emit rebuildNeeded();
 }
 
@@ -174,59 +136,37 @@ void LogListModel::setShowTimestamp(bool show) {
     emit rebuildNeeded();
 }
 
-void LogListModel::setDarkPalette(bool dark) {
-    if (darkPalette_ == dark) return;
-    darkPalette_ = dark;
-    if (!manager_->entries().isEmpty())
-        emit dataChanged(index(0), index(manager_->entries().size() - 1), {ColorRole, HtmlRole});
-    emit rebuildNeeded();
-}
-
 int LogListModel::lineCount() const { return manager_->entries().size(); }
 qint64 LogListModel::rxBytes() const { return manager_->rxBytes(); }
 qint64 LogListModel::txBytes() const { return manager_->txBytes(); }
 
 void LogListModel::clear() { manager_->clear(); }
 
-// Builds one line's rich text AND its rendered length together (rather
-// than as two separately-maintained computations, as an earlier version of
-// this did) specifically so they can't drift apart: the prefix (timestamp
-// + dir tag) is fixed-width plain ASCII, so its length is just arithmetic,
-// but the content half runs through AnsiText::toRichText, whose rendered
-// length depends on what ANSI/control bytes happened to be in this
-// particular line -- reusing its Result.length here, rather than
-// re-deriving it from e.asciiText().length(), is what keeps this accurate
-// (ANSI escape codes and dropped control bytes render as zero characters;
-// raw string length would count them, and lineEvicted() would then tell
-// the view to remove the wrong number of characters).
-AnsiText::Result LogListModel::lineHtml(const LogEntry &e) const {
-    const QString baseColor = colorForKind(e.kind, darkPalette_);
+// Builds one line's displayable plain text: a fixed-shape prefix (optional
+// timestamp + the dir tag, padded to 3 characters so every line's content
+// starts at the same column regardless of TX/RX vs SYS/ERR) plus the
+// content with ANSI escape codes and other control-byte noise stripped --
+// see ansi_text.h. LogHighlighter recognizes this exact shape to color the
+// prefix/content live rather than the color being baked in here the way it
+// used to be as embedded HTML.
+QString LogListModel::linePlainText(const LogEntry &e) const {
     QString prefix;
-    int prefixLength = 0;
     if (showTimestamp_) {
-        prefix += QStringLiteral("<span style=\"color:%1\">%2</span>&nbsp;&nbsp;")
-                      .arg(consoleMutedColor(darkPalette_), e.time.toString(QStringLiteral("HH:mm:ss")));
-        prefixLength += 8 + 2;  // "HH:mm:ss" + 2 gap chars
+        prefix += e.time.toString(QStringLiteral("HH:mm:ss"));
+        prefix += QStringLiteral("  ");
     }
-    // Padded to a fixed 3 characters ("TX " / "SYS") so every line's
-    // content starts at the same column despite TX/RX vs SYS/ERR being
-    // different lengths -- plain spaces would get collapsed by the rich
-    // text renderer's HTML whitespace rules, hence &nbsp; instead.
-    QString dirPadded = dirTag(e.kind).leftJustified(3);
-    dirPadded.replace(QLatin1Char(' '), QStringLiteral("&nbsp;"));
-    prefix += QStringLiteral("<span style=\"color:%1\">%2</span>&nbsp;&nbsp;").arg(baseColor, dirPadded);
-    prefixLength += 3 + 2;  // dir tag padded to 3 + 2 gap chars
+    prefix += dirTag(e.kind).leftJustified(3);
+    prefix += QStringLiteral("  ");
 
-    const QString text = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
-    const AnsiText::Result content = AnsiText::toRichText(text, baseColor, darkPalette_);
-    return {prefix + content.html, prefixLength + content.length};
+    const QString raw = (hexMode_ && e.kind == LogKind::Rx) ? e.hexText() : e.asciiText();
+    return prefix + AnsiText::stripToPlain(raw);
 }
 
-QString LogListModel::fullHtmlDump() const {
-    QString html;
+QString LogListModel::fullPlainDump() const {
+    QString text;
     for (const LogEntry &e : manager_->entries()) {
-        html += lineHtml(e).html;
-        html += QStringLiteral("<br/>");
+        text += linePlainText(e);
+        text += QLatin1Char('\n');
     }
-    return html;
+    return text;
 }

@@ -79,20 +79,26 @@ QtObject {
 
     // Data monitor (right-hand pane) + its right-click context menu. Used
     // to be permanently dark regardless of theme -- a real terminal reads
-    // better dark, and colored device log output (see ansi_text.h) needs a
-    // dark backdrop to show up against at all -- but that meant a jarring
-    // dark rectangle sitting in the middle of an otherwise light app.
-    // In dark mode this already matches the rest of the app, so those
-    // values are unchanged; light mode now just reuses the normal light
-    // tokens instead of its own fixed dark ones. colorForKind() and
-    // ansiColor() in log_list_model.cpp/ansi_text.cpp mirror these (and
-    // consoleMuted below) by hand for the same two cases, since that's
-    // plain C++ with no access to this singleton -- LogListModel::
-    // setDarkPalette(), pushed by AppController, is what keeps it in sync.
+    // better dark, and colored device log output needs a dark backdrop to
+    // show up against at all -- but that meant a jarring dark rectangle
+    // sitting in the middle of an otherwise light app. In dark mode this
+    // already matches the rest of the app, so those values are unchanged;
+    // light mode now just reuses the normal light tokens instead of its
+    // own fixed dark ones.
     readonly property color consoleBackground: dark ? "#1b1f27" : background
     readonly property color consoleText: dark ? "#d8dce0" : text
     readonly property color consoleMuted: dark ? "#6b7280" : textMuted
     readonly property color consoleBorder: dark ? "#33383f" : divider
+
+    // Per-line-kind data monitor colors -- bound directly to LogHighlighter
+    // (see DataMonitorView.qml) rather than hardcoded/mirrored in C++ the
+    // way they used to be in LogListModel's old colorForKind(). Changing
+    // any of these re-highlights the data monitor's whole document once,
+    // the same as any other live theme change elsewhere in the app.
+    readonly property color consoleTx: dark ? "#e0a458" : "#986801"
+    readonly property color consoleRx: dark ? "#d8dce0" : "#2b2d31"
+    readonly property color consoleSys: dark ? "#7fa8c9" : "#3a6ea8"
+    readonly property color consoleErr: dark ? "#f07178" : "#c5372b"
 
     readonly property string monoFont: "Consolas"
 

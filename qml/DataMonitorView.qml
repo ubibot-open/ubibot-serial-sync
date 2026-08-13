@@ -10,20 +10,27 @@ import UbiBot
 // recording regardless, so unpausing shows everything that happened while
 // paused.
 //
-// Styled as a real terminal: real hardware logs (RT-Thread/msh boot output
-// and similar) arrive full of ANSI color escape codes, which LogListModel's
-// per-line rendering turns into <span> runs (see ansi_text.h). Used to be
-// permanently dark regardless of the rest of the app for this reason (dark
-// terminal colors don't read against a light backdrop) -- now it follows
-// AppController.themeMode like everything else (Theme.console* below), with
-// LogListModel/ansi_text.cpp mirroring whichever of the two ANSI palettes
-// matches so device-colored output stays legible either way.
+// Styled as a real terminal, following AppController.themeMode like
+// everything else (Theme.console* below). Coloring is done live by
+// LogHighlighter (a QSyntaxHighlighter attached to contentEdit.textDocument
+// just below) rather than pre-built into each line's own text -- this used
+// to be one continuous *rich-text* document, each line arriving as
+// self-colored HTML (including reproducing a device's own ANSI color
+// escape codes as its own <span> runs -- see ansi_text.h's history). That
+// stopped scaling: hundreds of thousands of lines of embedded HTML (a
+// device dumping a large stored log over serial) made even a handful of
+// characters' worth of insert/remove meaningfully expensive, multiplied
+// across enough lines to stutter or freeze the UI outright, batching those
+// operations only helped so much. Plain text is far cheaper for
+// QTextDocument to lay out, at the cost of a device's own ANSI colors no
+// longer surviving -- a line just renders in its TX/RX/SYS/ERR kind color
+// now, same as any line without color codes always did.
 //
-// The whole scrollback renders as ONE continuous rich-text document (a
-// single read-only TextEdit) rather than a ListView of one row per entry:
-// a ListView delegate only ever lets the user select within a single row
-// at a time, and dragging a selection across multiple lines -- like any
-// real terminal -- needs one shared text document to select across. The
+// The whole scrollback still renders as ONE continuous document (a single
+// read-only TextEdit) rather than a ListView of one row per entry: a
+// ListView delegate only ever lets the user select within a single row at
+// a time, and dragging a selection across multiple lines -- like any real
+// terminal -- needs one shared text document to select across. The
 // document is built incrementally (contentEdit.insert()/remove() from
 // LogListModel's lineAppended()/lineEvicted()) rather than by re-binding
 // `text` to the whole scrollback on every new line, which would re-layout
@@ -43,7 +50,7 @@ Item {
     signal saveLogRequested()
 
     // Strips each line's leading "HH:mm:ss  TAG  " prefix (see
-    // LogListModel::lineHtml) from a chunk of selected plain text --
+    // LogListModel::linePlainText) from a chunk of selected plain text --
     // dragging a selection across several lines otherwise pulls each
     // line's timestamp and TX/RX/SYS/ERR tag along with it, which is noise
     // when what you actually want is just the payload. QQuickTextEdit has
@@ -51,12 +58,6 @@ Item {
     // uniform text area) and no rectangular/column-selection mode either,
     // so the drag highlight itself will still visually cover the prefix --
     // only what actually lands on the clipboard gets cleaned up here.
-    //
-    // Both gaps in the prefix, and any padding inside the tag itself
-    // ("TX " -> "TX" + 1 pad char), render as U+00A0 rather than a plain
-    // space: lineHtml() has to use &nbsp; there since a rich-text renderer
-    // collapses consecutive literal HTML spaces, which would otherwise
-    // throw off the fixed-width column alignment.
     //
     // The timestamp half is optional so this still matches correctly with
     // "Show timestamp" off. Only lines that actually START with this
@@ -255,7 +256,7 @@ Item {
                 TextEdit {
                     id: contentEdit
                     width: root.wrapLines ? flick.width : implicitWidth
-                    textFormat: TextEdit.RichText
+                    textFormat: TextEdit.PlainText
                     font.family: AppController.logFontFamily
                     font.pixelSize: AppController.logFontSize
                     color: Theme.consoleText
@@ -266,14 +267,30 @@ Item {
                     selectionColor: Theme.accent
                     selectedTextColor: Theme.accentForeground
 
-                    function rebuild() { text = AppController.logModel.fullHtmlDump() }
+                    function rebuild() { text = AppController.logModel.fullPlainDump() }
                     Component.onCompleted: rebuild()
 
                     Connections {
                         target: AppController.logModel
-                        function onLineAppended(html) { contentEdit.insert(contentEdit.length, html) }
+                        function onLineAppended(text) { contentEdit.insert(contentEdit.length, text) }
                         function onLineEvicted(docLength) { contentEdit.remove(0, docLength) }
                         function onRebuildNeeded() { contentEdit.rebuild() }
+                    }
+
+                    // Colors each line live by recognizing its
+                    // "HH:mm:ss  TAG  content" shape (see LogListModel::
+                    // linePlainText) rather than the text itself carrying
+                    // color -- see the file-level comment above for why.
+                    // Bound straight to Theme.qml's tokens, so a light/dark
+                    // switch re-highlights the whole document the same way
+                    // every other themed color in the app updates live.
+                    LogHighlighter {
+                        document: contentEdit.textDocument
+                        timestampColor: Theme.consoleMuted
+                        txColor: Theme.consoleTx
+                        rxColor: Theme.consoleRx
+                        sysColor: Theme.consoleSys
+                        errColor: Theme.consoleErr
                     }
                 }
             }

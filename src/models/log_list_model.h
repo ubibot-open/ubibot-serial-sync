@@ -8,16 +8,17 @@
 #include <QTimer>
 
 // QML-facing view over LogManager's scrollback. Still a QAbstractListModel
-// (one row per LogEntry, `time`/`text`/`html`/`color` roles) for anything
-// that wants row-at-a-time access, but DataMonitorView itself no longer
-// uses it that way -- a ListView of one row per entry only ever lets the
-// user select text within a single row at a time, not drag a selection
-// across lines like a real terminal. Instead it renders the whole
-// scrollback as ONE continuous rich-text document (single TextEdit) built
-// from lineAppended()/lineEvicted()/rebuildNeeded() below, which is also
-// why those exist alongside the per-row API: appending is O(1) (a
-// TextEdit.insert at the end) rather than re-binding the whole document's
-// text on every new line.
+// (one row per LogEntry, `time`/`dir`/`text` roles) for anything that wants
+// row-at-a-time access, but DataMonitorView itself no longer uses it that
+// way -- a ListView of one row per entry only ever lets the user select
+// text within a single row at a time, not drag a selection across lines
+// like a real terminal. Instead it renders the whole scrollback as ONE
+// continuous plain-text document (single TextEdit, colored by
+// LogHighlighter rather than pre-built per-line HTML -- see its own header
+// comment for why) built from lineAppended()/lineEvicted()/rebuildNeeded()
+// below, which is also why those exist alongside the per-row API: appending
+// is O(1) (a TextEdit.insert at the end) rather than re-binding the whole
+// document's text on every new line.
 class LogListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT
@@ -30,7 +31,7 @@ class LogListModel : public QAbstractListModel {
     Q_PROPERTY(qint64 txBytes READ txBytes NOTIFY countersChanged)
 
 public:
-    enum Roles { TimeRole = Qt::UserRole + 1, DirRole, TextRole, ColorRole, HtmlRole };
+    enum Roles { TimeRole = Qt::UserRole + 1, DirRole, TextRole };
 
     explicit LogListModel(LogManager *manager, QObject *parent = nullptr);
 
@@ -42,14 +43,6 @@ public:
     void setHexMode(bool hex);
     bool showTimestamp() const { return showTimestamp_; }
     void setShowTimestamp(bool show);
-    // Not QML-facing -- AppController pushes this whenever
-    // AppController::themeMode changes (and once at startup), since the
-    // data monitor's own colors (TX/RX/SYS/ERR base color, ANSI palette)
-    // are plain C++ constants tuned per-theme, not QML bindings that could
-    // read Theme.qml directly. Forces a full re-render like setHexMode()
-    // does, since every already-rendered line's HTML has last theme's
-    // colors baked in.
-    void setDarkPalette(bool dark);
     int lineCount() const;
     qint64 rxBytes() const;
     qint64 txBytes() const;
@@ -57,14 +50,12 @@ public:
     Q_INVOKABLE void clear();
 
     // Every entry currently in scope, pre-rendered exactly like
-    // lineAppended() below and concatenated in order -- what
-    // DataMonitorView sets as its TextEdit's initial `text`, and rebuilds
-    // wholesale from on rebuildNeeded() (hexMode/showTimestamp changed, or
-    // the log was cleared). Each line's HTML already includes its own
-    // trailing "<br/>", including the last one, so a line's rendered
-    // length (see lineHtml() below) stays valid uniformly whether it was
-    // there from this dump or arrived later via lineAppended().
-    Q_INVOKABLE QString fullHtmlDump() const;
+    // lineAppended() below and concatenated in order (one real "\n" between
+    // each, including after the last) -- what DataMonitorView sets as its
+    // TextEdit's initial `text`, and rebuilds wholesale from on
+    // rebuildNeeded() (hexMode/showTimestamp changed, or the log was
+    // cleared).
+    Q_INVOKABLE QString fullPlainDump() const;
 
 signals:
     void hexModeChanged();
@@ -76,27 +67,21 @@ signals:
     // incrementally from these rather than re-bound to the whole
     // scrollback on every change, which would re-layout the entire
     // document (thousands of lines, worst case) on every single new one.
-    void lineAppended(const QString &html);
-    // docLength is how many characters (as TextEdit counts them -- visible
-    // text only, no markup, "<br/>" itself counting as exactly one) the
-    // evicted line + its trailing separator occupy at the very front of
-    // the document, i.e. exactly what a `contentEdit.remove(0, docLength)`
-    // needs to drop it and nothing more.
+    void lineAppended(const QString &text);
+    // docLength is how many characters the evicted line + its trailing "\n"
+    // occupy at the very front of the document -- exactly what a
+    // `contentEdit.remove(0, docLength)` needs to drop it and nothing more.
+    // Plain text (unlike the old HTML) has no markup to complicate this --
+    // it's just linePlainText(e).length() + 1.
     void lineEvicted(int docLength);
     void rebuildNeeded();
 
 private:
-    // Result.length is the line's rendered length (prefix + content),
-    // exactly what lineEvicted()'s docLength needs -- see ansi_text.h.
-    AnsiText::Result lineHtml(const LogEntry &e) const;
+    QString linePlainText(const LogEntry &e) const;
 
     LogManager *manager_;
     bool hexMode_ = false;
     bool showTimestamp_ = true;
-    // Matches the app's default theme (see SettingsStore::themeMode's own
-    // "light" default) until AppController pushes the real value at
-    // startup; only matters for the brief window before that first push.
-    bool darkPalette_ = false;
 
     // A single LogManager::bulkChanged() already costs about as much as
     // rebuilding this whole (capacity_-capped) document once -- see
