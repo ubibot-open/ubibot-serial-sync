@@ -9,13 +9,18 @@ import UbiBot
 // the toolbar's "Open port" button actually opens).
 //
 // Plain ComboBox + textRole: "displayLabel" used to render every row as one
-// flat "COM4 (USB-SERIAL CH340)" line -- enough to tell ports apart, but not
-// laid out for skimming several at a glance. This gives each row its own
-// two-line delegate (port name + description) plus a "Recommended" tag for
+// flat "COM4 (USB Serial)" line -- enough to tell ports apart, but not laid
+// out for skimming several at a glance, and Windows' own port description is
+// often a generic "USB Serial Device" that never actually says which bridge
+// chip it is. This gives each row its own two-line delegate (port name +
+// description) plus the recognized chip name ("CH340", "CP210x", ...) for
 // whichever port matches one of UbiBot's known USB-serial chips (see
-// SerialManager::availablePorts), closer to what a dedicated serial
-// terminal's port picker usually looks like -- the closed control itself
-// stays a plain "COM4", only the open dropdown gets the richer per-row detail.
+// SerialManager::availablePorts) -- closer to what a dedicated serial
+// terminal's port picker usually looks like, and more useful than a bare
+// unexplained "Recommended" tag (an earlier version of this file had one;
+// it told you *that* a port looked right without saying *why*). The closed
+// control itself stays a plain "COM4", only the open dropdown gets the
+// richer per-row detail.
 ComboBox {
     id: control
 
@@ -40,6 +45,7 @@ ComboBox {
         required property string portName
         required property string description
         required property bool recommended
+        required property string chipLabel
         width: control.popup.width
         highlighted: control.highlightedIndex === index
         // ItemDelegate's own implicit height ignores whatever's stuffed
@@ -66,9 +72,9 @@ ComboBox {
             anchors.rightMargin: 10
             spacing: 8
 
-            // Recommended ports get a slim accent bar instead of repeating
-            // the "Recommended" text on every single row's left edge --
-            // the tag on the right already spells that out.
+            // Recognized-chip ports get a slim accent bar instead of
+            // repeating the chip name on every single row's left edge --
+            // the label on the right already spells that out.
             Rectangle {
                 Layout.preferredWidth: 3
                 Layout.fillHeight: true
@@ -101,9 +107,15 @@ ComboBox {
                 }
             }
 
+            // Was a plain "Recommended" tag -- true, but didn't say why, so
+            // it read as an unexplained value judgment. The chip name is
+            // the actual reason (this is one of UbiBot's own USB-serial
+            // bridge chips) and is useful on its own even without that
+            // framing.
             Label {
-                visible: portDelegate.recommended
-                text: qsTr("Recommended")
+                visible: portDelegate.chipLabel.length > 0
+                text: portDelegate.chipLabel
+                font.bold: true
                 color: portDelegate.rowAccent
                 font.pixelSize: 11
             }

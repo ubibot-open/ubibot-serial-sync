@@ -92,6 +92,7 @@ Dialog {
                     required property int index
                     required property string displayLabel
                     required property bool recommended
+                    required property string chipLabel
                     width: ListView.view.width
                     // ItemDelegate's own implicit height comes from its
                     // (unused) text/icon content, not from the RowLayout
@@ -103,15 +104,28 @@ Dialog {
                     highlighted: root.selectedPortRow === index
                     onClicked: root.selectedPortRow = index
 
+                    // Fusion paints a highlighted row's background in
+                    // Theme.accent -- see PortComboBox.qml's identical
+                    // rowText/rowAccent for why a plain Theme.text/.accent
+                    // label needs to switch to Theme.accentForeground once
+                    // its own row is selected, rather than nearly
+                    // disappearing into the highlight behind it.
+                    readonly property color rowText: highlighted ? Theme.accentForeground : Theme.text
+                    readonly property color rowAccent: highlighted ? Theme.accentForeground : Theme.accent
+
                     RowLayout {
                         id: portRow
                         anchors.fill: parent
                         anchors.margins: 10
-                        Label { text: portDelegate.displayLabel; Layout.fillWidth: true }
+                        Label { text: portDelegate.displayLabel; color: portDelegate.rowText; Layout.fillWidth: true }
+                        // Was a plain "Recommended" tag -- see
+                        // PortComboBox.qml for why this shows the actual
+                        // recognized bridge-chip name instead.
                         Label {
-                            visible: portDelegate.recommended
-                            text: qsTr("Recommended")
-                            color: Theme.accent
+                            visible: portDelegate.chipLabel.length > 0
+                            text: portDelegate.chipLabel
+                            font.bold: true
+                            color: portDelegate.rowAccent
                             font.pixelSize: 11
                         }
                     }

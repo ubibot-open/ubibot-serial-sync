@@ -29,6 +29,12 @@ public:
     struct PortInfo {
         QString portName;
         QString description;
+        // Human-readable bridge-chip name ("CH340", "CP210x") when the
+        // port's USB vendor ID matches one UbiBot devices actually ship
+        // with, empty otherwise. Windows' own `description` is often just
+        // a generic "USB Serial Device" that doesn't say which chip it is
+        // -- this is what actually tells the two apart in the picker.
+        QString chipLabel;
         PortHint hint = PortHint::Available;
     };
 

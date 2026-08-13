@@ -13,7 +13,7 @@ class PortListModel : public QAbstractListModel {
     QML_UNCREATABLE("Created by AppController")
 
 public:
-    enum Roles { PortNameRole = Qt::UserRole + 1, DescriptionRole, RecommendedRole, DisplayLabelRole };
+    enum Roles { PortNameRole = Qt::UserRole + 1, DescriptionRole, RecommendedRole, DisplayLabelRole, ChipLabelRole };
 
     explicit PortListModel(QObject *parent = nullptr);
 

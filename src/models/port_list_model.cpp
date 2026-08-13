@@ -18,6 +18,7 @@ QVariant PortListModel::data(const QModelIndex &index, int role) const {
     case DisplayLabelRole:
         return info.description.isEmpty() ? info.portName
                                            : QStringLiteral("%1 (%2)").arg(info.portName, info.description);
+    case ChipLabelRole: return info.chipLabel;
     }
     return {};
 }
@@ -28,6 +29,7 @@ QHash<int, QByteArray> PortListModel::roleNames() const {
         {DescriptionRole, "description"},
         {RecommendedRole, "recommended"},
         {DisplayLabelRole, "displayLabel"},
+        {ChipLabelRole, "chipLabel"},
     };
 }
 

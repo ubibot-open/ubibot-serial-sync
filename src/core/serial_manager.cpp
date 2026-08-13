@@ -22,13 +22,17 @@ QVector<SerialManager::PortInfo> SerialManager::availablePorts() {
 
         // UbiBot's USB-serial adapters are built around the WCH CH340
         // (VID 0x1A86) and Silicon Labs CP210x (VID 0x10C4) bridge chips;
-        // flag those as the likely-correct pick in the wizard. (QtSerialPort
-        // has no cross-platform "is this port already open elsewhere" query
-        // -- the only way to find out is to attempt open(), which has side
-        // effects -- so there's no "Busy" detection here.)
-        const bool knownChip = info.hasVendorIdentifier() &&
-                                (info.vendorIdentifier() == 0x1A86 || info.vendorIdentifier() == 0x10C4);
-        pi.hint = knownChip ? PortHint::Recommended : PortHint::Available;
+        // flag those as the likely-correct pick in the wizard/port picker.
+        // (QtSerialPort has no cross-platform "is this port already open
+        // elsewhere" query -- the only way to find out is to attempt
+        // open(), which has side effects -- so there's no "Busy" detection
+        // here.)
+        if (info.hasVendorIdentifier() && info.vendorIdentifier() == 0x1A86) {
+            pi.chipLabel = QStringLiteral("CH340");
+        } else if (info.hasVendorIdentifier() && info.vendorIdentifier() == 0x10C4) {
+            pi.chipLabel = QStringLiteral("CP210x");
+        }
+        pi.hint = pi.chipLabel.isEmpty() ? PortHint::Available : PortHint::Recommended;
         result.push_back(pi);
     }
     return result;
