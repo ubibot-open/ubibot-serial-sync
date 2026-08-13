@@ -35,7 +35,11 @@ ApplicationWindow {
 
     Connections {
         target: AppController
-        function onWizardFinished() { modeBar.currentIndex = 0 }
+        // Was index 0 back when Device commands was the first tab -- still
+        // means "land on Device commands after the wizard sets up a
+        // model/port", just at its new index now that Serial swapped ahead
+        // of it.
+        function onWizardFinished() { modeBar.currentIndex = 1 }
         function onPortOpenFailed(error) { portErrorDialog.text = error; portErrorDialog.open() }
         function onStatusMessage(text) { statusToast.show(text) }
     }
@@ -367,8 +371,15 @@ ApplicationWindow {
                             id: modeBar
                             anchors.centerIn: parent
                             width: parent.width - 28
+                            // Serial comes first (and is the tab shown on
+                            // launch, via currentIndex's own default below)
+                            // -- this is first and foremost a generic
+                            // serial terminal, not a UbiBot-specific tool,
+                            // so the port/baud/framing settings anyone with
+                            // any serial device needs take priority over
+                            // the UbiBot device command library.
                             property int currentIndex: 0
-                            readonly property var labels: [qsTr("Device commands"), qsTr("Serial")]
+                            readonly property var labels: [qsTr("Serial"), qsTr("Device commands")]
 
                             Repeater {
                                 model: modeBar.labels
@@ -409,10 +420,12 @@ ApplicationWindow {
                             anchors.fill: parent
                             currentIndex: modeBar.currentIndex
 
+                            // Order matches modeBar.labels above: Serial,
+                            // then Device commands, then Remote support.
+                            SerialSettingsPanel { id: serialPanel }
                             CommandLibraryPanel {
                                 onOpenParams: (row) => paramsPanel.openForRow(row)
                             }
-                            SerialSettingsPanel { id: serialPanel }
                             RemoteAssistPanel { }
                         }
                     }
