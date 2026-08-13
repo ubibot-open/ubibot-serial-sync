@@ -53,8 +53,9 @@ public:
     void setLogFontSize(int pixelSize);
 
     // "light" or "dark" -- anything else stored (shouldn't happen outside a
-    // hand-edited settings file) falls back to "light". Drives Theme.qml's
-    // whole color palette.
+    // hand-edited settings file), including nothing stored at all yet (a
+    // fresh install), falls back to "dark". Drives Theme.qml's whole color
+    // palette.
     QString themeMode() const;
     void setThemeMode(const QString &mode);
 

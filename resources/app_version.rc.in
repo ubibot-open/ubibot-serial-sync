@@ -10,7 +10,16 @@
 // tools) -- without this, a Windows build has no version info baked into
 // the binary at all, unlike the macOS bundle (MACOSX_BUNDLE_BUNDLE_VERSION
 // in CMakeLists.txt) which already got one.
+//
+// Also embeds the app's icon (resources/icons/app.ico, a multi-resolution
+// icon generated from the UbiBot logo) as the .exe's own PE icon resource --
+// this is what Explorer, the taskbar (pinned/not-yet-running), and Alt+Tab
+// show for the file itself, independent of QGuiApplication::setWindowIcon()
+// in main.cpp (which only controls the icon of actually-running windows).
+// Resource ID 1 is used so it's picked as the exe's default icon.
 #include <winver.h>
+
+1 ICON "@PROJECT_SOURCE_DIR@/resources/icons/app.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@

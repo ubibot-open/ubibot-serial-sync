@@ -138,12 +138,12 @@ void SettingsStore::setLogFontSize(int pixelSize) {
 }
 
 QString SettingsStore::themeMode() const {
-    const QString mode = QSettings().value(kThemeMode, QStringLiteral("light")).toString();
-    return mode == QStringLiteral("dark") ? mode : QStringLiteral("light");
+    const QString mode = QSettings().value(kThemeMode, QStringLiteral("dark")).toString();
+    return mode == QStringLiteral("light") ? mode : QStringLiteral("dark");
 }
 
 void SettingsStore::setThemeMode(const QString &mode) {
-    QSettings().setValue(kThemeMode, mode == QStringLiteral("dark") ? QStringLiteral("dark") : QStringLiteral("light"));
+    QSettings().setValue(kThemeMode, mode == QStringLiteral("light") ? QStringLiteral("light") : QStringLiteral("dark"));
 }
 
 void SettingsStore::resetDisplayPreferences() {

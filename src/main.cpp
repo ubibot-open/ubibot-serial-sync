@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     // there's exactly one place to bump per release rather than several
     // that can drift out of sync.
     QGuiApplication::setApplicationVersion(QStringLiteral(APP_VERSION));
-    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/app.svg")));
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
     // Nothing here ever named an explicit default font, so every Text/
     // Label/Control that doesn't set its own font.family falls back to
