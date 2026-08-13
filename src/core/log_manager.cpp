@@ -36,6 +36,7 @@ void LogManager::appendBatch(LogKind kind, const QList<QByteArray> &lines) {
 
     if (kind == LogKind::Rx) rxBytes_ += addedBytes;
     else if (kind == LogKind::Tx) txBytes_ += addedBytes;
+    totalLines_ += batch.size();
 
     // Continuous file logging mirrors every line actually received,
     // regardless of how many of them go on to be kept in the in-memory
@@ -66,13 +67,11 @@ void LogManager::appendBatch(LogKind kind, const QList<QByteArray> &lines) {
     // count is already large (the OS having buffered a lot before this got
     // a chance to read it, say, or a very high baud rate): the data
     // monitor's TextEdit still has to insert/remove that many lines, and
-    // that cost scales with lines touched, not number of calls, even now
-    // that the document is plain text rather than per-line HTML (see
-    // DataMonitorView.qml/LogHighlighter for why it's plain text at all).
-    // Past this many touched lines in one go, rebuilding the whole
-    // (capacity_-capped, so bounded regardless of batch size) document
-    // from scratch is cheaper than editing it incrementally -- see
-    // LogListModel's bulkChanged handling.
+    // that cost scales with lines touched, not number of calls, even for
+    // plain (uncolored) text. Past this many touched lines in one go,
+    // rebuilding the whole (capacity_-capped, so bounded regardless of
+    // batch size) document from scratch is cheaper than editing it
+    // incrementally -- see LogListModel's bulkChanged handling.
     static constexpr int kBulkThreshold = 300;
     const bool bulk = (evictCount + toKeep) > kBulkThreshold;
 
@@ -94,6 +93,7 @@ void LogManager::clear() {
     entries_.clear();
     rxBytes_ = 0;
     txBytes_ = 0;
+    totalLines_ = 0;
     emit cleared();
     emit countersChanged(rxBytes_, txBytes_);
 }

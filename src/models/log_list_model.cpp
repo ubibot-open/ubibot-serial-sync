@@ -137,6 +137,7 @@ void LogListModel::setShowTimestamp(bool show) {
 }
 
 int LogListModel::lineCount() const { return manager_->entries().size(); }
+qint64 LogListModel::totalLineCount() const { return manager_->totalLineCount(); }
 qint64 LogListModel::rxBytes() const { return manager_->rxBytes(); }
 qint64 LogListModel::txBytes() const { return manager_->txBytes(); }
 
@@ -146,9 +147,7 @@ void LogListModel::clear() { manager_->clear(); }
 // timestamp + the dir tag, padded to 3 characters so every line's content
 // starts at the same column regardless of TX/RX vs SYS/ERR) plus the
 // content with ANSI escape codes and other control-byte noise stripped --
-// see ansi_text.h. LogHighlighter recognizes this exact shape to color the
-// prefix/content live rather than the color being baked in here the way it
-// used to be as embedded HTML.
+// see ansi_text.h.
 QString LogListModel::linePlainText(const LogEntry &e) const {
     QString prefix;
     if (showTimestamp_) {

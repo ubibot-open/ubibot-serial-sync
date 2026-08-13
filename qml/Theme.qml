@@ -90,16 +90,6 @@ QtObject {
     readonly property color consoleMuted: dark ? "#6b7280" : textMuted
     readonly property color consoleBorder: dark ? "#33383f" : divider
 
-    // Per-line-kind data monitor colors -- bound directly to LogHighlighter
-    // (see DataMonitorView.qml) rather than hardcoded/mirrored in C++ the
-    // way they used to be in LogListModel's old colorForKind(). Changing
-    // any of these re-highlights the data monitor's whole document once,
-    // the same as any other live theme change elsewhere in the app.
-    readonly property color consoleTx: dark ? "#e0a458" : "#986801"
-    readonly property color consoleRx: dark ? "#d8dce0" : "#2b2d31"
-    readonly property color consoleSys: dark ? "#7fa8c9" : "#3a6ea8"
-    readonly property color consoleErr: dark ? "#f07178" : "#c5372b"
-
     readonly property string monoFont: "Consolas"
 
     readonly property int spacingSmall: 6

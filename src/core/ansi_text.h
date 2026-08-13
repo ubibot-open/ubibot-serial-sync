@@ -9,16 +9,13 @@
 //
 // This used to also *preserve* the color information, turning it into
 // embedded HTML <span> runs so a device's own ANSI-colored output kept its
-// own colors in the data monitor. That went away when the data monitor
-// itself switched from one continuous rich-text document to a
-// syntax-highlighted plain-text one (see LogHighlighter) -- rendering
-// hundreds of thousands of lines of embedded per-line HTML doesn't scale;
-// each line's <span> runs made every insert/remove on the document
-// meaningfully more expensive, and a device dumping a large stored log
-// made that add up to a UI freeze/stutter no amount of batching the
-// inserts/removes themselves fully fixed. A line with ANSI codes in it now
-// just renders in its TX/RX/SYS/ERR kind color like any other line, rather
-// than whatever custom colors the device itself requested mid-line.
+// own colors in the data monitor (and later, after that stopped scaling,
+// a QSyntaxHighlighter that at least kept per-line TX/RX/SYS/ERR coloring
+// without the HTML). The data monitor is plain, uncolored text now --
+// simpler and lighter on memory for a data volume that can run into
+// hundreds of thousands of lines, at the cost of losing that coloring
+// entirely. A line with ANSI codes in it just has them stripped like any
+// other control-byte noise; nothing renders them anymore.
 namespace AnsiText {
 QString stripToPlain(const QString &raw);
 }

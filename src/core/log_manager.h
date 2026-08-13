@@ -34,6 +34,12 @@ public:
     const QVector<LogEntry> &entries() const { return entries_; }
     qint64 rxBytes() const { return rxBytes_; }
     qint64 txBytes() const { return txBytes_; }
+    // Total lines ever appended, regardless of kind -- unlike entries().
+    // size() (what the data monitor actually keeps/renders), this never
+    // stops climbing once the scrollback fills up to capacity_, the same
+    // way rxBytes()/txBytes() already count everything ever received/sent
+    // rather than just what's currently in memory.
+    qint64 totalLineCount() const { return totalLines_; }
 
     // One-shot export of everything currently in memory.
     bool exportToFile(const QString &path, LogFileFormat format, QString *error = nullptr) const;
@@ -98,6 +104,7 @@ private:
     int capacity_ = 5000;
     qint64 rxBytes_ = 0;
     qint64 txBytes_ = 0;
+    qint64 totalLines_ = 0;
 
     bool continuousEnabled_ = false;
     QString continuousDir_;

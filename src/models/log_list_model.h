@@ -13,12 +13,11 @@
 // way -- a ListView of one row per entry only ever lets the user select
 // text within a single row at a time, not drag a selection across lines
 // like a real terminal. Instead it renders the whole scrollback as ONE
-// continuous plain-text document (single TextEdit, colored by
-// LogHighlighter rather than pre-built per-line HTML -- see its own header
-// comment for why) built from lineAppended()/lineEvicted()/rebuildNeeded()
-// below, which is also why those exist alongside the per-row API: appending
-// is O(1) (a TextEdit.insert at the end) rather than re-binding the whole
-// document's text on every new line.
+// continuous plain-text document (single TextEdit) built from
+// lineAppended()/lineEvicted()/rebuildNeeded() below, which is also why
+// those exist alongside the per-row API: appending is O(1) (a
+// TextEdit.insert at the end) rather than re-binding the whole document's
+// text on every new line.
 class LogListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT
@@ -27,6 +26,7 @@ class LogListModel : public QAbstractListModel {
     Q_PROPERTY(bool hexMode READ hexMode WRITE setHexMode NOTIFY hexModeChanged)
     Q_PROPERTY(bool showTimestamp READ showTimestamp WRITE setShowTimestamp NOTIFY showTimestampChanged)
     Q_PROPERTY(int lineCount READ lineCount NOTIFY lineCountChanged)
+    Q_PROPERTY(qint64 totalLineCount READ totalLineCount NOTIFY countersChanged)
     Q_PROPERTY(qint64 rxBytes READ rxBytes NOTIFY countersChanged)
     Q_PROPERTY(qint64 txBytes READ txBytes NOTIFY countersChanged)
 
@@ -43,7 +43,14 @@ public:
     void setHexMode(bool hex);
     bool showTimestamp() const { return showTimestamp_; }
     void setShowTimestamp(bool show);
+    // Rows actually in the model right now -- capped at LogManager's
+    // capacity_ (5000), so this stops climbing once the scrollback fills
+    // up. totalLineCount below is what the data monitor's own "N lines"
+    // label displays instead, precisely because that freezing-at-5000
+    // behavior reads as broken to anyone watching a live, still-growing
+    // stream.
     int lineCount() const;
+    qint64 totalLineCount() const;
     qint64 rxBytes() const;
     qint64 txBytes() const;
 

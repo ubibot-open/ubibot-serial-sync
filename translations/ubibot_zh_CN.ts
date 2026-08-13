@@ -332,12 +332,12 @@
         <translation>%1 行</translation>
     </message>
     <message>
-        <source>Rx %1 B</source>
-        <translation>接收 %1 B</translation>
+        <source>Rx %1</source>
+        <translation>接收 %1</translation>
     </message>
     <message>
-        <source>Tx %1 B</source>
-        <translation>发送 %1 B</translation>
+        <source>Tx %1</source>
+        <translation>发送 %1</translation>
     </message>
 </context>
 <context>

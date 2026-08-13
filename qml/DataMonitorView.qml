@@ -4,27 +4,24 @@ import QtQuick.Controls.impl
 import QtQuick.Layouts
 import UbiBot
 
-// Right-hand "data monitor" pane: a scrolling, color-coded view of every
+// Right-hand "data monitor" pane: a scrolling, uncolored view of every
 // TX/RX/SYS/ERR line, with a small header showing line count and byte
 // counters. Pauses purely at the view level -- AppController.logModel keeps
 // recording regardless, so unpausing shows everything that happened while
 // paused.
 //
-// Styled as a real terminal, following AppController.themeMode like
-// everything else (Theme.console* below). Coloring is done live by
-// LogHighlighter (a QSyntaxHighlighter attached to contentEdit.textDocument
-// just below) rather than pre-built into each line's own text -- this used
+// Follows AppController.themeMode like everything else (Theme.console*
+// below) for its background/text/border, but every line now renders in the
+// same plain Theme.consoleText color rather than being colored per-kind
+// (TX/RX/SYS/ERR) or reproducing a device's own ANSI color codes. This used
 // to be one continuous *rich-text* document, each line arriving as
-// self-colored HTML (including reproducing a device's own ANSI color
-// escape codes as its own <span> runs -- see ansi_text.h's history). That
-// stopped scaling: hundreds of thousands of lines of embedded HTML (a
-// device dumping a large stored log over serial) made even a handful of
-// characters' worth of insert/remove meaningfully expensive, multiplied
-// across enough lines to stutter or freeze the UI outright, batching those
-// operations only helped so much. Plain text is far cheaper for
-// QTextDocument to lay out, at the cost of a device's own ANSI colors no
-// longer surviving -- a line just renders in its TX/RX/SYS/ERR kind color
-// now, same as any line without color codes always did.
+// self-colored HTML, then briefly a plain-text document with a
+// QSyntaxHighlighter (LogHighlighter) recoloring it live -- both added
+// meaningful per-line memory overhead (rich-text spans, then per-block
+// format ranges) that mattered once a device dumped a large stored log over
+// serial. Plain, uncolored text is the cheapest a QTextDocument can be laid
+// out and held in memory, and color coding wasn't essential to the data
+// monitor's actual job of showing what came over the wire.
 //
 // The whole scrollback still renders as ONE continuous document (a single
 // read-only TextEdit) rather than a ListView of one row per entry: a
@@ -65,8 +62,27 @@ Item {
     // started past the prefix already) is left untouched rather than
     // risking eating real content that happens to look similar.
     function stripLineColumns(text) {
-        const prefix = /^(?:\d{2}:\d{2}:\d{2}  )?(?:(?:TX|RX)   |(?:SYS|ERR)  )/gm
+        const prefix = /^(?:\d{2}:\d{2}:\d{2}  )?(?:(?:TX|RX)   |(?:SYS|ERR)  )/gm
         return text.replace(prefix, "")
+    }
+
+    // String.arg() (QML's addition to JS strings, used by the header
+    // counters below) formats a plain numeric argument using a general/
+    // exponential-leaning conversion once it gets into the millions --
+    // "1.00e+6" instead of "1000000" -- since it can't tell a genuinely
+    // huge value from one that's just a big integer. Pre-converting to a
+    // string ourselves (String() uses plain notation up to 1e21, far past
+    // anything a byte/line counter will ever reach) sidesteps that, and
+    // formatBytes below is also just more readable than a long run of raw
+    // digits once a stream's been running a while.
+    function formatCount(n) {
+        return String(n)
+    }
+    function formatBytes(n) {
+        if (n < 1024) return n + " B"
+        if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB"
+        if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + " MB"
+        return (n / (1024 * 1024 * 1024)).toFixed(1) + " GB"
     }
 
     // Copies the active selection (with its timestamp/tag columns
@@ -210,19 +226,19 @@ Item {
                 }
                 Item { Layout.fillWidth: true }
                 Label {
-                    text: qsTr("%1 lines").arg(AppController.logModel.lineCount)
+                    text: qsTr("%1 lines").arg(root.formatCount(AppController.logModel.totalLineCount))
                     font.family: Theme.monoFont
                     font.pixelSize: 11
                     color: Theme.consoleMuted
                 }
                 Label {
-                    text: qsTr("Rx %1 B").arg(AppController.logModel.rxBytes)
+                    text: qsTr("Rx %1").arg(root.formatBytes(AppController.logModel.rxBytes))
                     font.family: Theme.monoFont
                     font.pixelSize: 11
                     color: Theme.consoleMuted
                 }
                 Label {
-                    text: qsTr("Tx %1 B").arg(AppController.logModel.txBytes)
+                    text: qsTr("Tx %1").arg(root.formatBytes(AppController.logModel.txBytes))
                     font.family: Theme.monoFont
                     font.pixelSize: 11
                     color: Theme.consoleMuted
@@ -275,22 +291,6 @@ Item {
                         function onLineAppended(text) { contentEdit.insert(contentEdit.length, text) }
                         function onLineEvicted(docLength) { contentEdit.remove(0, docLength) }
                         function onRebuildNeeded() { contentEdit.rebuild() }
-                    }
-
-                    // Colors each line live by recognizing its
-                    // "HH:mm:ss  TAG  content" shape (see LogListModel::
-                    // linePlainText) rather than the text itself carrying
-                    // color -- see the file-level comment above for why.
-                    // Bound straight to Theme.qml's tokens, so a light/dark
-                    // switch re-highlights the whole document the same way
-                    // every other themed color in the app updates live.
-                    LogHighlighter {
-                        document: contentEdit.textDocument
-                        timestampColor: Theme.consoleMuted
-                        txColor: Theme.consoleTx
-                        rxColor: Theme.consoleRx
-                        sysColor: Theme.consoleSys
-                        errColor: Theme.consoleErr
                     }
                 }
             }
