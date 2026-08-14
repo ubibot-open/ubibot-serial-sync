@@ -293,3 +293,63 @@ A few implementation choices worth knowing about before you dig in:
   device.
 - **Command-library "check for updates"** only reports the bundled JSON's
   version string; there's no update server in this build.
+
+## License
+
+This project is licensed under the **GNU Lesser General Public License v3.0
+(LGPLv3)** — see [LICENSE](LICENSE). Because LGPLv3 incorporates GPLv3 by
+reference, the GPLv3 text it points to is also included verbatim in
+[COPYING](COPYING) (with [COPYING.LESSER](COPYING.LESSER) holding the same
+LGPLv3 terms as `LICENSE`, per the FSF's own convention for projects that
+use this license pair).
+
+### Qt 6 module licensing (commercial-use check)
+
+This project links against Qt 6 (`Quick`, `QuickControls2`, `SerialPort` at
+runtime; `LinguistTools` is a build-time-only dependency — `lupdate`/
+`lrelease` are never linked into or shipped with the built app). Qt is
+dual-licensed; a handful of *add-on* modules (e.g. Qt Quick 3D, Qt Quick
+Timeline, Qt Virtual Keyboard, Qt Wayland Compositor, Qt MQTT, Qt CoAP, Qt
+HTTP Server, Qt Network Authorization, Qt Lottie Animation, Qt Graphs, Qt
+GRPC, Qt Canvas Painter, and the Qt Qml ahead-of-time type compiler) are
+**GPLv3-only** for open-source users — combining those into a project under
+any license other than GPL would not be permitted. None of those are used
+here. Checked against Qt's own module documentation (Qt 6.11):
+
+| Module | Open-source license(s) | GPL-only? |
+|---|---|---|
+| Qt Quick (`Quick`) | LGPLv3 or GPLv2 | No |
+| Qt Quick Controls (`QuickControls2`) | LGPLv3 or GPLv2 | No |
+| Qt Serial Port (`SerialPort`) | LGPLv3 or GPLv2 | No |
+| Qt Linguist Tools (`LinguistTools`) | build-time tool only, not linked/shipped | N/A |
+
+Every runtime Qt module this app uses is available under LGPLv3, the same
+license this project itself is released under, so the combination is
+license-compatible — **including commercial use**: a business may use,
+modify, resell, or embed this software (or ship it internally) without
+needing a Qt commercial license, provided the LGPLv3 obligations toward Qt
+are met. This project already satisfies them the standard, low-friction
+way:
+
+- **Dynamic linking, not static.** The release process
+  ([Releasing a Windows build](#releasing-a-windows-build-mingw) above) runs
+  `windeployqt`, which drops Qt's own `.dll`s next to the `.exe` rather than
+  statically linking them in. End users can replace any of those DLLs with
+  a compatible build of Qt, which is what LGPLv3 §4(d) ("Combined Works")
+  requires in exchange for not having to LGPL/GPL the whole application.
+- **Unmodified Qt.** This project makes no source changes to Qt itself, so
+  the LGPLv3-licensed Qt source anyone would need is simply upstream Qt —
+  freely available from <https://www.qt.io/download-open-source> or
+  <https://code.qt.io> — no separate written offer is needed.
+- **This section** documents the Qt version floor (6.7+, validated against
+  6.11) and license (LGPLv3) in use, satisfying LGPLv3's "give prominent
+  notice" expectation.
+
+If this project (or a fork of it) is ever changed to **statically** link
+Qt, or to ship a build where end users cannot replace the Qt libraries,
+these LGPLv3 terms would no longer be satisfied automatically and either a
+switch back to dynamic linking or a Qt commercial license would be needed
+instead.
+
+This is an engineering-level license/compatibility check, not legal advice
+— for a business-critical determination, run it past a licensed attorney.
