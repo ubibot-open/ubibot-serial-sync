@@ -228,6 +228,10 @@
         <translation>发送设置</translation>
     </message>
     <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>附加 CRC 校验（CRC16/MODBUS）</translation>
+    </message>
+    <message>
         <source>Repeat send</source>
         <translation>重复发送</translation>
     </message>

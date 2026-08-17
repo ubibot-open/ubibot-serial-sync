@@ -203,6 +203,11 @@ Flickable {
             RadioButton { text: "ASCII"; checked: !AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = false }
             RadioButton { text: "HEX"; checked: AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = true }
         }
+        CheckBox {
+            text: qsTr("Append CRC (CRC16/MODBUS)")
+            checked: AppController.crcEnabled
+            onToggled: AppController.crcEnabled = checked
+        }
         RowLayout {
             CheckBox {
                 text: qsTr("Repeat send")

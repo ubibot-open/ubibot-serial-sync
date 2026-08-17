@@ -72,6 +72,12 @@ class AppController : public QObject {
     Q_PROPERTY(QString draftText READ draftText WRITE setDraftText NOTIFY draftTextChanged)
     Q_PROPERTY(bool echoTx READ echoTx WRITE setEchoTx NOTIFY echoTxChanged)
     Q_PROPERTY(bool sendAsHex READ sendAsHex WRITE setSendAsHex NOTIFY sendAsHexChanged)
+    // When on, every outgoing send -- the manual box (ASCII or HEX) and
+    // one-click device-library commands alike -- gets a CRC16/MODBUS
+    // checksum appended to its payload before it goes out. See
+    // composeAsciiPayload()/composeHexPayload() for where that actually
+    // happens and core/crc16.h for the algorithm.
+    Q_PROPERTY(bool crcEnabled READ crcEnabled WRITE setCrcEnabled NOTIFY crcEnabledChanged)
     Q_PROPERTY(bool repeatSendEnabled READ repeatSendEnabled WRITE setRepeatSendEnabled NOTIFY repeatSendChanged)
     Q_PROPERTY(int repeatIntervalMs READ repeatIntervalMs WRITE setRepeatIntervalMs NOTIFY repeatSendChanged)
 
@@ -128,6 +134,8 @@ public:
     void setEchoTx(bool on);
     bool sendAsHex() const { return sendAsHex_; }
     void setSendAsHex(bool on);
+    bool crcEnabled() const { return crcEnabled_; }
+    void setCrcEnabled(bool on);
     bool repeatSendEnabled() const { return repeatEnabled_; }
     void setRepeatSendEnabled(bool on);
     int repeatIntervalMs() const { return repeatIntervalMs_; }
@@ -209,6 +217,7 @@ signals:
     void draftTextChanged();
     void echoTxChanged();
     void sendAsHexChanged();
+    void crcEnabledChanged();
     void repeatSendChanged();
     void portOpenFailed(const QString &error);
     void wizardFinished();
@@ -217,6 +226,13 @@ signals:
 private:
     QByteArray composeAsciiPayload(const QString &text) const;
     QByteArray composeHexPayload(const QString &text) const;
+    // " [CRC XX XX]" (the exact bytes composeAsciiPayload()/composeHexPayload()
+    // append for this same data) when crcEnabled_ is on, else empty --
+    // appended to the TX echo log line so an ASCII-mode send's log entry
+    // still shows what actually went out, since (unlike the HEX-mode echo,
+    // which already logs the final CRC-included payload as hex) the ASCII
+    // echo logs the human-typed text, not raw wire bytes.
+    QString crcEchoSuffix(const QByteArray &data) const;
     void sendLiteral(const QString &text);
     // The model's serial defaults if it has any (DeviceModel::
     // hasSerialDefaults), else a default-constructed SerialConfig (115200
@@ -260,6 +276,7 @@ private:
     QString draftText_;
     bool echoTx_ = true;
     bool sendAsHex_ = false;
+    bool crcEnabled_ = false;
     bool repeatEnabled_ = false;
     int repeatIntervalMs_ = 1000;
 };

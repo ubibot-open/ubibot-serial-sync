@@ -1,5 +1,6 @@
 #include "app/app_controller.h"
 
+#include "core/crc16.h"
 #include "core/language_manager.h"
 #include "models/command_history_model.h"
 #include "models/command_list_model.h"
@@ -188,6 +189,12 @@ void AppController::setSendAsHex(bool on) {
     emit sendAsHexChanged();
 }
 
+void AppController::setCrcEnabled(bool on) {
+    if (crcEnabled_ == on) return;
+    crcEnabled_ = on;
+    emit crcEnabledChanged();
+}
+
 void AppController::setRepeatSendEnabled(bool on) {
     if (repeatEnabled_ == on) return;
     repeatEnabled_ = on;
@@ -207,7 +214,13 @@ void AppController::setRepeatIntervalMs(int ms) {
 
 QByteArray AppController::composeAsciiPayload(const QString &text) const {
     QByteArray bytes = text.toUtf8();
-    if (!bytes.endsWith('\n')) bytes += "\r\n";
+    // Captured before any CRC bytes are appended below -- otherwise a CRC
+    // byte that happens to equal '\n' (0x0A) would make this wrongly think
+    // the user's own text already ended in a newline and skip adding the
+    // real "\r\n" terminator.
+    const bool hasTerminator = bytes.endsWith('\n');
+    if (crcEnabled_) bytes += Crc16::modbusBytes(bytes);
+    if (!hasTerminator) bytes += "\r\n";
     return bytes;
 }
 
@@ -217,7 +230,14 @@ QByteArray AppController::composeHexPayload(const QString &text) const {
     cleaned.remove(QLatin1Char('\n'));
     cleaned.remove(QLatin1Char('\r'));
     cleaned.remove(QLatin1Char('\t'));
-    return QByteArray::fromHex(cleaned.toUtf8());
+    QByteArray bytes = QByteArray::fromHex(cleaned.toUtf8());
+    if (crcEnabled_) bytes += Crc16::modbusBytes(bytes);
+    return bytes;
+}
+
+QString AppController::crcEchoSuffix(const QByteArray &data) const {
+    if (!crcEnabled_) return QString();
+    return QStringLiteral(" [CRC %1]").arg(QString::fromLatin1(Crc16::modbusBytes(data).toHex(' ').toUpper()));
 }
 
 void AppController::handleIncomingData(const QByteArray &data) {
@@ -275,7 +295,7 @@ void AppController::sendLiteral(const QString &text) {
         return;
     }
     serial_.write(composeAsciiPayload(text));
-    if (echoTx_) logManager_.append(LogKind::Tx, text.toUtf8());
+    if (echoTx_) logManager_.append(LogKind::Tx, (text + crcEchoSuffix(text.toUtf8())).toUtf8());
 }
 
 bool AppController::openPort(const QString &portName, int baudRate, int dataBits, int parity, int stopBits,
@@ -326,7 +346,7 @@ void AppController::sendManualText() {
         if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
     } else {
         serial_.write(composeAsciiPayload(text));
-        if (echoTx_) logManager_.append(LogKind::Tx, text.toUtf8());
+        if (echoTx_) logManager_.append(LogKind::Tx, (text + crcEchoSuffix(text.toUtf8())).toUtf8());
     }
 
     // Repeat-send calls this on every timer tick with the same draftText_ --
