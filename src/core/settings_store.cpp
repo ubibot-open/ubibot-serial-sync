@@ -148,7 +148,25 @@ QString SettingsStore::systemFontFamily() const {
     // platform's true original default even after the user picks a custom
     // family and later hits "Restore defaults", at which point
     // QGuiApplication::font() itself no longer holds that original value.
-    static const QString kPlatformDefault = QGuiApplication::font().family();
+    static const QString kPlatformDefault = [] {
+#ifdef Q_OS_WIN
+        // Windows' own default UI font (Segoe UI, whatever the locale)
+        // doesn't actually contain Chinese glyphs -- every Chinese label
+        // falls back to the OS's own implicit CJK substitution instead,
+        // which reads noticeably thinner/lower-contrast than Microsoft
+        // YaHei UI. That's the same family already used as the first CJK
+        // fallback in AppController::buildApplicationFont(), and has
+        // shipped with Windows as its own "Chinese UI font" since Vista --
+        // just never as the *default* default -- so defaulting straight to
+        // it here fixes Chinese rendering without needing a fallback at
+        // all. Other platforms keep querying their own default: macOS's
+        // San Francisco/PingFang pairing and most Linux desktop themes'
+        // Noto set both handle Chinese fine already.
+        return QStringLiteral("Microsoft YaHei UI");
+#else
+        return QGuiApplication::font().family();
+#endif
+    }();
     return QSettings().value(kSystemFontFamily, kPlatformDefault).toString();
 }
 
