@@ -46,4 +46,58 @@ Fusion.ComboBox {
     // property on this popup/background pair since Fusion's own ComboBox.qml
     // creates them itself, not this file.
     Binding { target: control.popup.background; property: "border.color"; value: Theme.dialogBorder }
+
+    // The popup's ListView drives its own currentIndex from
+    // control.highlightedIndex (Fusion's own binding, in its ComboBox.qml),
+    // which starts at 0 on open and only moves via mouse-hover/keyboard from
+    // there -- it does *not* follow control.currentIndex, so without this, a
+    // combo box scrolled to (say) row 30 of 40 opens still scrolled to the
+    // top, with row 0 misleadingly lit up blue instead of the actual current
+    // value. An HTML <select> opens already scrolled to, and marking, its
+    // current value -- this one-time positionViewAtIndex() on open (not a
+    // binding -- that would permanently fight the ListView's own currentIndex
+    // binding above instead of just nudging it once) gets the same result.
+    Connections {
+        target: control.popup
+        function onOpened() {
+            control.popup.contentItem.positionViewAtIndex(control.currentIndex, ListView.Center)
+        }
+    }
+
+    // Fusion's own popup delegate (reproduced below, only the `background:`
+    // is new) only ever bolds the text of the row matching currentIndex --
+    // easy to miss at a glance in a longer list (baud rate, font family,
+    // ...), and *not* the same row the blue hover highlight sits on unless
+    // the mouse happens to already be over it. An HTML <select> marks its
+    // currently-chosen option clearly the moment it opens, hover or not --
+    // per user feedback, this should too. Theme.accentTint (already used
+    // elsewhere as a quiet "this one" marker) gives the selected row its own
+    // persistent tint, distinct from the stronger accent-colored hover/press
+    // highlight, which still wins where the two would otherwise overlap.
+    delegate: Fusion.MenuItem {
+        id: menuItem
+        required property var model
+        required property int index
+
+        width: ListView.view.width
+        text: model[control.textRole]
+        font.weight: control.currentIndex === index ? Font.DemiBold : Font.Normal
+        highlighted: control.highlightedIndex === index
+        hoverEnabled: control.hoverEnabled
+
+        background: Rectangle {
+            implicitWidth: 200
+            implicitHeight: 20
+            // Fusion.Fusion, not Fusion.highlight() -- "Fusion" up at the top
+            // of this file is a *namespace* alias for the whole
+            // QtQuick.Controls.Fusion module (that's what makes
+            // Fusion.MenuItem/Fusion.ComboBox below resolve), and the actual
+            // helper singleton with .highlight()/.highlightedText() is a
+            // type named "Fusion" *inside* that module -- one more level of
+            // nesting than it looks like at first glance.
+            color: menuItem.down || menuItem.highlighted
+                   ? Fusion.Fusion.highlight(control.palette)
+                   : (control.currentIndex === menuItem.index ? Theme.accentTint : "transparent")
+        }
+    }
 }
