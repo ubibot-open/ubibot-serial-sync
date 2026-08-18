@@ -3,8 +3,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import UbiBot
 
-// Left-hand panel for "Device commands" mode: model picker, search, favorite
-// /group filter chips, and the grouped, scrollable command list itself.
+// Left-hand panel for "Device commands" mode: model picker, search, and the
+// flat, scrollable command list itself (plus the user's own "My templates",
+// merged into the same list -- see CommandListModel). No grouping/
+// favorites/filter chips -- removed per user feedback that a handful of
+// commands per model didn't need organizing; CommandListModel sorts
+// whichever row was clicked most recently to the top instead.
 Item {
     id: root
 
@@ -53,43 +57,6 @@ Item {
             onTextChanged: AppController.commandModel.searchText = text
         }
 
-        // Design renders these as flat, square-cornered chips (24px tall,
-        // 12px label) rather than standard buttons -- hand-rolled rather
-        // than Button since checkable Button pulls in the style's full
-        // pill-shaped chrome and padding. The checked chip already stands
-        // out via its inverted accent background, so the label itself
-        // stays normal weight rather than every chip being bold regardless
-        // of state.
-        Flow {
-            Layout.fillWidth: true
-            spacing: 8
-
-            Repeater {
-                model: AppController.commandModel.filterChips
-                delegate: Rectangle {
-                    id: chip
-                    required property var modelData
-                    height: 24
-                    width: chipLabel.implicitWidth + 18
-                    color: modelData.checked ? Theme.accent : "transparent"
-                    border.color: modelData.checked ? Theme.accent : Theme.divider
-                    border.width: 1
-
-                    Label {
-                        id: chipLabel
-                        anchors.centerIn: parent
-                        text: chip.modelData.label
-                        font.pixelSize: Theme.baseFontSize
-                        color: chip.modelData.checked ? Theme.accentForeground : Theme.text
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: AppController.commandModel.filterKey = chip.modelData.key
-                    }
-                }
-            }
-        }
-
         ListView {
             id: listView
             Layout.fillWidth: true
@@ -97,41 +64,21 @@ Item {
             clip: true
             model: AppController.commandModel
 
-            section.property: "group"
-            section.criteria: ViewSection.FullString
-            section.delegate: Rectangle {
-                width: listView.width
-                height: 29
-                color: Qt.rgba(0, 0, 0, 0.04)
-                Label {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 12
-                    text: section.toUpperCase()
-                    font.pixelSize: Theme.baseFontSize - 2
-                    font.letterSpacing: 1
-                    color: Theme.accent700
-                }
-            }
-
             delegate: Rectangle {
                 id: delegateRoot
                 required property int index
                 required property string name
                 required property string cmd
                 required property bool hasParams
-                required property bool favorite
                 required property bool isCustom
 
                 width: listView.width
                 height: 56
                 color: rowMouse.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent"
 
-                // Declared before the row content below, so it paints
-                // underneath it: the star's own MouseArea (nested inside the
-                // RowLayout, declared later/on top) hit-tests first and
-                // consumes clicks aimed at it, leaving this one to handle
-                // clicks anywhere else on the row.
+                // Declared before the right-click MouseArea/context menu
+                // below, so those take priority for their own button/area
+                // over this one's left-click handling.
                 MouseArea {
                     id: rowMouse
                     anchors.fill: parent
@@ -182,33 +129,10 @@ Item {
                     anchors.bottomMargin: 10
                     spacing: 11
 
-                    // Bundled devices.json commands get the usual favorite
-                    // star; "My templates" rows aren't favoritable (see
-                    // CommandListModel::toggleFavorite), so this just stays
-                    // hidden for them -- edit/delete live in the right-click
-                    // menu above instead of taking up a permanent slot here.
-                    Label {
-                        id: starLabel
-                        visible: !delegateRoot.isCustom
-                        text: "★"
-                        color: delegateRoot.favorite ? Theme.accent : "#b7b7ba"
-                        font.pixelSize: Theme.baseFontSize + 2
-
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -6
-                            onClicked: AppController.toggleFavorite(delegateRoot.index)
-                        }
-                    }
-
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 1
-                        // Bold only for favorited commands -- with every
-                        // row's name bold regardless, the whole list read as
-                        // uniformly heavy with no real hierarchy; this way
-                        // bold actually signals something (starred).
-                        Label { text: delegateRoot.name; font.bold: delegateRoot.favorite }
+                        Label { text: delegateRoot.name }
                         Label {
                             text: delegateRoot.cmd
                             font.family: Theme.monoFont

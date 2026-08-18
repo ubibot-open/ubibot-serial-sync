@@ -41,21 +41,6 @@
     </message>
 </context>
 <context>
-    <name>CommandListModel</name>
-    <message>
-        <source>All</source>
-        <translation>全部</translation>
-    </message>
-    <message>
-        <source>Favorites</source>
-        <translation>收藏</translation>
-    </message>
-    <message>
-        <source>My templates</source>
-        <translation>我的模板</translation>
-    </message>
-</context>
-<context>
     <name>SerialOptions</name>
     <message>
         <source>None</source>

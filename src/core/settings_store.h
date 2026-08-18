@@ -4,6 +4,7 @@
 #include "core/serial_manager.h"
 
 #include <QByteArray>
+#include <QHash>
 #include <QSet>
 #include <QString>
 #include <QVector>
@@ -38,10 +39,15 @@ public:
     QString lastModelId() const;
     void setLastModelId(const QString &id);
 
-    // Favorites are keyed "<modelId>/<commandName>" so two models can each
-    // have a same-named favorite without colliding.
-    bool isFavorite(const QString &modelId, const QString &commandName) const;
-    void setFavorite(const QString &modelId, const QString &commandName, bool fav);
+    // When a device command / custom template row was last clicked (Unix
+    // epoch seconds), keyed the same way favorites used to be
+    // (DeviceCommand::id if present, else name.zh) -- CommandListModel
+    // sorts its merged row list by this, most recent first, replacing the
+    // old favorite-star/group-chip organization. The full map (rather than
+    // one QSettings value per key) is what CommandListModel needs to sort
+    // every row against, so it's the natural shape here too.
+    QHash<QString, qint64> commandLastUsedTimestamps() const;
+    void recordCommandUsed(const QString &commandKey);
 
     QByteArray windowGeometry() const;
     void setWindowGeometry(const QByteArray &geometry);

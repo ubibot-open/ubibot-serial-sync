@@ -1,5 +1,6 @@
 #include "core/settings_store.h"
 
+#include <QDateTime>
 #include <QFont>
 #include <QGuiApplication>
 #include <QJsonArray>
@@ -17,7 +18,7 @@ constexpr auto kParity = "serial/parity";
 constexpr auto kStopBits = "serial/stopBits";
 constexpr auto kFlowControl = "serial/flowControl";
 constexpr auto kLastModel = "device/lastModel";
-constexpr auto kFavoritesGroup = "favorites";
+constexpr auto kCommandUsageGroup = "commandUsage";
 constexpr auto kWindowGeometry = "window/geometry";
 constexpr auto kLastLogDir = "log/lastDirectory";
 constexpr auto kCommandHistory = "send/history";
@@ -79,21 +80,20 @@ void SettingsStore::setLastModelId(const QString &id) {
     QSettings().setValue(kLastModel, id);
 }
 
-bool SettingsStore::isFavorite(const QString &modelId, const QString &commandName) const {
+QHash<QString, qint64> SettingsStore::commandLastUsedTimestamps() const {
+    QHash<QString, qint64> result;
     QSettings s;
-    s.beginGroup(kFavoritesGroup);
-    const bool fav = s.value(modelId + QLatin1Char('/') + commandName, false).toBool();
+    s.beginGroup(kCommandUsageGroup);
+    for (const QString &key : s.childKeys()) result.insert(key, s.value(key).toLongLong());
     s.endGroup();
-    return fav;
+    return result;
 }
 
-void SettingsStore::setFavorite(const QString &modelId, const QString &commandName, bool fav) {
+void SettingsStore::recordCommandUsed(const QString &commandKey) {
+    if (commandKey.isEmpty()) return;
     QSettings s;
-    s.beginGroup(kFavoritesGroup);
-    if (fav)
-        s.setValue(modelId + QLatin1Char('/') + commandName, true);
-    else
-        s.remove(modelId + QLatin1Char('/') + commandName);
+    s.beginGroup(kCommandUsageGroup);
+    s.setValue(commandKey, QDateTime::currentSecsSinceEpoch());
     s.endGroup();
 }
 

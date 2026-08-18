@@ -388,6 +388,10 @@ void AppController::loadCommandIntoDraft(int row) {
     const DeviceCommand *cmd = commandModel_->commandAt(row);
     if (!cmd) return;
     setDraftText(cmd->wirePayload());
+    // recordUsed() re-sorts commandModel_'s row list (see
+    // CommandListModel::rebuild()), which would invalidate `cmd` above --
+    // called last, once nothing else here still needs it.
+    commandModel_->recordUsed(row);
 }
 
 QString AppController::commandNameForRow(int row) const {
@@ -419,9 +423,9 @@ void AppController::loadCommandWithParamsIntoDraft(int row, const QVariantMap &v
     const DeviceCommand *cmd = commandModel_->commandAt(row);
     if (!cmd) return;
     setDraftText(cmd->resolve(toHash(values)));
+    // See loadCommandIntoDraft() above -- same reason this comes last.
+    commandModel_->recordUsed(row);
 }
-
-void AppController::toggleFavorite(int row) { commandModel_->toggleFavorite(row); }
 
 void AppController::addCustomTemplate(const QString &name, const QString &content) {
     commandModel_->addCustomTemplate(name, content);

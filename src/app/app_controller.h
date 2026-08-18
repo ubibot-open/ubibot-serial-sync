@@ -202,14 +202,12 @@ public:
     Q_INVOKABLE QVariantList paramsForRow(int row) const;
     Q_INVOKABLE QString previewCommand(int row, const QVariantMap &values) const;
     Q_INVOKABLE void loadCommandWithParamsIntoDraft(int row, const QVariantMap &values);
-    Q_INVOKABLE void toggleFavorite(int row);
 
     // "My templates" -- user-authored quick-send text, unrelated to any
     // device model, edited/deleted from CommandLibraryPanel.qml's own
-    // "+ New template"/row action buttons rather than shipped in
+    // "+ New template" button/row context menu rather than shipped in
     // devices.json. See CommandListModel::addCustomTemplate() and friends
-    // for the actual storage; these three just forward to commandModel_,
-    // same as toggleFavorite() above.
+    // for the actual storage; these three just forward to commandModel_.
     Q_INVOKABLE void addCustomTemplate(const QString &name, const QString &content);
     Q_INVOKABLE void updateCustomTemplate(int row, const QString &name, const QString &content);
     Q_INVOKABLE void removeCustomTemplate(int row);

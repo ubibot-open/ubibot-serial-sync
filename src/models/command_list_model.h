@@ -8,36 +8,26 @@
 
 class SettingsStore;
 
-// Flat, searched/filtered view over one device model's command list, meant
-// to back a QML ListView whose delegate groups consecutive rows by the
-// "group" role via ListView's built-in `section.property` -- no separate
-// header rows to manage by hand, unlike the old QTreeWidget version.
+// Flat, searched view over one device model's command list plus the user's
+// own "My templates" -- no grouping, no favorites/chips (removed per user
+// feedback that a handful of commands per model didn't need organizing);
+// sorted by CommandListModel::rebuild() so whichever row was clicked most
+// recently (across either source) always sorts first, back to a QML
+// ListView with no section headers of its own.
 class CommandListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("Created by AppController")
 
-    Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY filterChanged)
-    Q_PROPERTY(QString filterKey READ filterKey WRITE setFilterKey NOTIFY filterChanged)
-    Q_PROPERTY(QVariantList filterChips READ filterChips NOTIFY chipsChanged)
+    Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchChanged)
 
 public:
     enum Roles {
-        GroupRole = Qt::UserRole + 1,
-        NameRole,
+        NameRole = Qt::UserRole + 1,
         CmdRole,
         HasParamsRole,
-        FavoriteRole,
         IsCustomRole,
     };
-
-    // filterKey sentinels selecting the favorites-only / custom-templates-
-    // only view. Any other non-empty value is a literal group name
-    // (LocalizedText::zh); empty means "all" -- which, unlike every other
-    // non-empty filterKey, still includes the custom templates (see
-    // rebuild()).
-    static const QString kFavoritesFilterKey;
-    static const QString kCustomTemplatesFilterKey;
 
     CommandListModel(DeviceLibrary *library, SettingsStore *settings, QObject *parent = nullptr);
 
@@ -50,11 +40,13 @@ public:
 
     QString searchText() const { return search_; }
     void setSearchText(const QString &text);
-    QString filterKey() const { return filterKey_; }
-    void setFilterKey(const QString &key);
-    QVariantList filterChips() const { return chips_; }
 
-    Q_INVOKABLE void toggleFavorite(int row);
+    // Records "now" as this row's last-used time (see
+    // SettingsStore::recordCommandUsed()) and re-sorts so it moves to the
+    // top -- called once per row click from AppController::
+    // loadCommandIntoDraft()/loadCommandWithParamsIntoDraft(), whichever
+    // source the row came from.
+    Q_INVOKABLE void recordUsed(int row);
 
     // "My templates" CRUD -- see SettingsStore::customTemplates(). Adding
     // ignores an empty (post-trim) name or content rather than storing a
@@ -70,25 +62,20 @@ public:
     const DeviceCommand *commandAt(int row) const;
 
 signals:
-    void filterChanged();
-    void chipsChanged();
+    void searchChanged();
 
 private:
     void rebuild();
-    void rebuildChips();
     void reloadCustomTemplates();
-    bool isFavorite(const DeviceCommand &cmd) const;
 
     DeviceLibrary *library_;
     SettingsStore *settings_;
     QString modelId_;
     QString search_;
-    QString filterKey_;
     QVector<DeviceCommand> rows_;
     // The user's "My templates" list, converted to DeviceCommand once here
     // (isCustom: true, cmdTemplate: the template's content) and re-merged
     // into rows_ on every rebuild() regardless of modelId_ -- reloaded from
     // SettingsStore whenever add/update/removeCustomTemplate changes it.
     QVector<DeviceCommand> customRows_;
-    QVariantList chips_;
 };
