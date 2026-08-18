@@ -15,5 +15,6 @@ import QtQuick.Controls.Fusion as Fusion
 // implicitHeight formula, so bumping it is enough to grow the box without
 // reimplementing any of Fusion's own drawing.
 Fusion.ComboBox {
-    padding: 6
+    leftPadding: 8
+    padding: 4
 }
