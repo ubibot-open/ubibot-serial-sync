@@ -70,18 +70,16 @@ Fusion.ComboBox {
     // ...), and *not* the same row the blue hover highlight sits on unless
     // the mouse happens to already be over it. An HTML <select> marks its
     // currently-chosen option clearly the moment it opens, hover or not --
-    // per user feedback, this should too. Theme.accentTint (already used
-    // elsewhere as a quiet "this one" marker) gives the selected row its own
-    // persistent tint, distinct from the stronger accent-colored hover/press
-    // highlight, which still wins where the two would otherwise overlap.
+    // per user feedback, this should too.
     delegate: Fusion.MenuItem {
         id: menuItem
         required property var model
         required property int index
+        readonly property bool isCurrent: control.currentIndex === index
 
         width: ListView.view.width
         text: model[control.textRole]
-        font.weight: control.currentIndex === index ? Font.DemiBold : Font.Normal
+        font.weight: isCurrent ? Font.DemiBold : Font.Normal
         highlighted: control.highlightedIndex === index
         hoverEnabled: control.hoverEnabled
 
@@ -97,7 +95,22 @@ Fusion.ComboBox {
             // nesting than it looks like at first glance.
             color: menuItem.down || menuItem.highlighted
                    ? Fusion.Fusion.highlight(control.palette)
-                   : (control.currentIndex === menuItem.index ? Theme.accentTint : "transparent")
+                   : (menuItem.isCurrent ? Theme.accentTint : "transparent")
+
+            // Theme.accentTint alone (a light background wash) read too
+            // close to the popup's own background color to notice at a
+            // glance, per user feedback -- this solid accent-colored bar is
+            // a stronger, unambiguous "this one" marker regardless of theme,
+            // and (being a sibling on top of the fill above, not the fill
+            // itself) still shows even when this same row is also hovered.
+            Rectangle {
+                visible: menuItem.isCurrent
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: 3
+                color: Theme.accent
+            }
         }
     }
 }
