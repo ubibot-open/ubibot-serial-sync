@@ -128,11 +128,10 @@ Item {
                 color: rowMouse.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent"
 
                 // Declared before the row content below, so it paints
-                // underneath it: the star's/edit-delete's own MouseArea/
-                // clicks (nested inside the RowLayout, declared later/on
-                // top) hit-test first and consume clicks aimed at them,
-                // leaving this one to handle clicks anywhere else on the
-                // row.
+                // underneath it: the star's own MouseArea (nested inside the
+                // RowLayout, declared later/on top) hit-tests first and
+                // consumes clicks aimed at it, leaving this one to handle
+                // clicks anywhere else on the row.
                 MouseArea {
                     id: rowMouse
                     anchors.fill: parent
@@ -150,6 +149,31 @@ Item {
                     }
                 }
 
+                // "My templates" rows only -- edit/delete used to be a
+                // permanent pair of buttons on every custom row, which read
+                // as cluttered; a right-click menu (same pattern as
+                // DataMonitorView.qml's own context menu) keeps the row
+                // itself identical to a bundled command until you actually
+                // want to manage it.
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    enabled: delegateRoot.isCustom
+                    onClicked: contextMenu.popup()
+                }
+
+                Menu {
+                    id: contextMenu
+                    MenuItem {
+                        text: qsTr("Edit")
+                        onTriggered: templateDialog.openForEdit(delegateRoot.index, delegateRoot.name, delegateRoot.cmd)
+                    }
+                    MenuItem {
+                        text: qsTr("Delete")
+                        onTriggered: AppController.removeCustomTemplate(delegateRoot.index)
+                    }
+                }
+
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 16
@@ -160,8 +184,9 @@ Item {
 
                     // Bundled devices.json commands get the usual favorite
                     // star; "My templates" rows aren't favoritable (see
-                    // CommandListModel::toggleFavorite) -- they get edit/
-                    // delete buttons in this same slot instead.
+                    // CommandListModel::toggleFavorite), so this just stays
+                    // hidden for them -- edit/delete live in the right-click
+                    // menu above instead of taking up a permanent slot here.
                     Label {
                         id: starLabel
                         visible: !delegateRoot.isCustom
@@ -173,22 +198,6 @@ Item {
                             anchors.fill: parent
                             anchors.margins: -6
                             onClicked: AppController.toggleFavorite(delegateRoot.index)
-                        }
-                    }
-
-                    RowLayout {
-                        visible: delegateRoot.isCustom
-                        spacing: 2
-
-                        ToolButton {
-                            text: qsTr("Edit")
-                            flat: true
-                            onClicked: templateDialog.openForEdit(delegateRoot.index, delegateRoot.name, delegateRoot.cmd)
-                        }
-                        ToolButton {
-                            text: qsTr("Delete")
-                            flat: true
-                            onClicked: AppController.removeCustomTemplate(delegateRoot.index)
                         }
                     }
 
