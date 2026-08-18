@@ -1,5 +1,7 @@
 #include "core/settings_store.h"
 
+#include <QFont>
+#include <QGuiApplication>
 #include <QLocale>
 #include <QSettings>
 
@@ -19,6 +21,8 @@ constexpr auto kCommandHistory = "send/history";
 constexpr auto kContinuousLogging = "log/continuousEnabled";
 constexpr auto kLogFontFamily = "log/fontFamily";
 constexpr auto kLogFontSize = "log/fontSize";
+constexpr auto kSystemFontFamily = "app/fontFamily";
+constexpr auto kSystemFontSize = "app/fontSize";
 constexpr auto kThemeMode = "app/themeMode";
 }  // namespace
 
@@ -137,6 +141,29 @@ void SettingsStore::setLogFontSize(int pixelSize) {
     QSettings().setValue(kLogFontSize, pixelSize);
 }
 
+QString SettingsStore::systemFontFamily() const {
+    // Captured once, the first time anything asks -- which happens in
+    // main.cpp before QGuiApplication::setFont() is ever called (see
+    // AppController::buildApplicationFont()) -- so this stays the
+    // platform's true original default even after the user picks a custom
+    // family and later hits "Restore defaults", at which point
+    // QGuiApplication::font() itself no longer holds that original value.
+    static const QString kPlatformDefault = QGuiApplication::font().family();
+    return QSettings().value(kSystemFontFamily, kPlatformDefault).toString();
+}
+
+void SettingsStore::setSystemFontFamily(const QString &family) {
+    QSettings().setValue(kSystemFontFamily, family);
+}
+
+int SettingsStore::systemFontSize() const {
+    return QSettings().value(kSystemFontSize, 13).toInt();
+}
+
+void SettingsStore::setSystemFontSize(int pixelSize) {
+    QSettings().setValue(kSystemFontSize, pixelSize);
+}
+
 QString SettingsStore::themeMode() const {
     const QString mode = QSettings().value(kThemeMode, QStringLiteral("dark")).toString();
     return mode == QStringLiteral("light") ? mode : QStringLiteral("dark");
@@ -151,5 +178,7 @@ void SettingsStore::resetDisplayPreferences() {
     s.remove(kLanguage);
     s.remove(kLogFontFamily);
     s.remove(kLogFontSize);
+    s.remove(kSystemFontFamily);
+    s.remove(kSystemFontSize);
     s.remove(kThemeMode);
 }

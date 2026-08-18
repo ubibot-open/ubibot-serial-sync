@@ -46,11 +46,11 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            Label { text: root.commandName; font.bold: true; font.pixelSize: 15 }
+            Label { text: root.commandName; font.bold: true; font.pixelSize: Theme.baseFontSize + 3 }
             Label {
                 text: qsTr("Needs parameters")
                 color: Theme.accent
-                font.pixelSize: 11
+                font.pixelSize: Theme.baseFontSize - 1
                 padding: 4
                 background: Rectangle { border.color: Theme.accent; border.width: 1; color: "transparent" }
             }
@@ -70,7 +70,7 @@ Rectangle {
                     spacing: 2
                     Layout.fillWidth: true
 
-                    Label { text: modelData.label; font.pixelSize: 11; color: Theme.textMuted }
+                    Label { text: modelData.label; font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
                     TextField {
                         Layout.fillWidth: true
                         placeholderText: modelData.hint
@@ -91,7 +91,7 @@ Rectangle {
             Label {
                 text: root.preview
                 font.family: Theme.monoFont
-                font.pixelSize: 12
+                font.pixelSize: Theme.baseFontSize
                 color: Theme.accent700
                 elide: Text.ElideRight
                 Layout.fillWidth: true

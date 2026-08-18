@@ -42,7 +42,7 @@ Flickable {
             text: qsTr("Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: 12
+            font.pixelSize: Theme.baseFontSize
             color: Theme.textMuted
         }
 
@@ -62,7 +62,7 @@ Flickable {
                 Label {
                     text: qsTr("Your code")
                     Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: 10
+                    font.pixelSize: Theme.baseFontSize - 2
                     font.letterSpacing: 1
                     color: Theme.textMuted
                 }
@@ -70,14 +70,14 @@ Flickable {
                     text: root.code
                     Layout.alignment: Qt.AlignHCenter
                     font.family: Theme.monoFont
-                    font.pixelSize: 26
+                    font.pixelSize: Theme.baseFontSize + 14
                     font.letterSpacing: 3
                     color: Theme.accent800
                 }
                 Label {
                     text: qsTr("Valid for 10 minutes · this session only")
                     Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.baseFontSize - 1
                     color: Theme.textMuted
                 }
                 RowLayout {
@@ -96,7 +96,7 @@ Flickable {
         // hidden TextEdit's copy() does the job without any C++.
         TextEdit { id: clipboardHelper; visible: false }
 
-        Label { text: qsTr("One-time password"); font.pixelSize: 12; color: Theme.textMuted }
+        Label { text: qsTr("One-time password"); font.pixelSize: Theme.baseFontSize; color: Theme.textMuted }
         TextField {
             Layout.fillWidth: true
             text: root.otp
@@ -117,7 +117,7 @@ Flickable {
             onClicked: notImplementedDialog.open()
         }
 
-        Label { text: qsTr("Not connected"); font.pixelSize: 11; color: Theme.textMuted }
+        Label { text: qsTr("Not connected"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
     }
 
     Dialog {
@@ -126,6 +126,8 @@ Flickable {
         modal: true
         anchors.centerIn: Overlay.overlay
         palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
         // See DialogCard.qml for why this dialog needs its own elevated
         // surface + border + shadow instead of a plain Theme.background fill.
         background: DialogCard {}

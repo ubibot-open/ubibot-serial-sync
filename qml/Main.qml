@@ -40,6 +40,13 @@ ApplicationWindow {
     // reliably inherit this from the ApplicationWindow, though -- each one
     // sets `palette: Theme.palette` itself too (see Theme.qml).
     palette: Theme.palette
+    // Same story as `palette` above -- every plain Label/Control below that
+    // doesn't set its own font.* inherits this, but historyPopup/
+    // portErrorDialog further down (and every standalone Dialog in the
+    // other qml files) get the same explicit assignment for the same
+    // not-a-reliable-live-inherit reason.
+    font.family: Theme.baseFontFamily
+    font.pixelSize: Theme.baseFontSize
 
     Connections {
         target: AppController
@@ -142,7 +149,7 @@ ApplicationWindow {
             anchors.leftMargin: 10
             spacing: 8
             Image { source: "qrc:/icons/app.png"; sourceSize: Qt.size(20, 20); width: 16; height: 16 }
-            Label { text: window.title; color: Theme.text; font.pixelSize: 12 }
+            Label { text: window.title; color: Theme.text; font.pixelSize: Theme.baseFontSize }
             // Version shown here (not appended to window.title itself) so
             // the OS-facing title -- taskbar button tooltip, alt-tab, etc.
             // -- stays just the plain app name; only this custom title
@@ -152,7 +159,7 @@ ApplicationWindow {
             Label {
                 text: "v" + AppController.appVersion
                 color: Theme.textMuted
-                font.pixelSize: 11
+                font.pixelSize: Theme.baseFontSize - 1
             }
         }
 
@@ -328,7 +335,7 @@ ApplicationWindow {
                     }
                     Label {
                         text: qsTr("Current device")
-                        font.pixelSize: 10
+                        font.pixelSize: Theme.baseFontSize - 2
                         color: Theme.textMuted
                         Layout.alignment: Qt.AlignRight
                     }
@@ -439,7 +446,7 @@ ApplicationWindow {
                                     Label {
                                         anchors.centerIn: parent
                                         text: segment.modelData
-                                        font.pixelSize: 13
+                                        font.pixelSize: Theme.baseFontSize + 1
                                         color: modeBar.currentIndex === index ? Theme.accentForeground : Theme.text
                                     }
                                     MouseArea {
@@ -575,6 +582,8 @@ ApplicationWindow {
                     modal: false
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
                     palette: Theme.palette
+                    font.family: Theme.baseFontFamily
+                    font.pixelSize: Theme.baseFontSize
 
                     // See DialogCard.qml for why this needs its own
                     // elevated surface + border + shadow instead of a
@@ -601,7 +610,7 @@ ApplicationWindow {
                             visible: historyList.count === 0
                             text: qsTr("No history yet")
                             color: Theme.textMuted
-                            font.pixelSize: 12
+                            font.pixelSize: Theme.baseFontSize
                             Layout.margins: 14
                             Layout.alignment: Qt.AlignHCenter
                         }
@@ -642,13 +651,13 @@ ApplicationWindow {
                                         elide: Text.ElideRight
                                         Layout.fillWidth: true
                                         font.family: Theme.monoFont
-                                        font.pixelSize: 12
+                                        font.pixelSize: Theme.baseFontSize
                                     }
                                     Label {
                                         text: historyDelegate.timeText
                                         visible: historyDelegate.timeText.length > 0
                                         color: Theme.textMuted
-                                        font.pixelSize: 10
+                                        font.pixelSize: Theme.baseFontSize - 2
                                     }
                                 }
                             }
@@ -672,13 +681,13 @@ ApplicationWindow {
                             text: AppController.portStatusText
                             color: AppController.portOpen ? Theme.accent700 : Theme.error
                             font.family: Theme.monoFont
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.baseFontSize - 1
                         }
-                        Label { text: AppController.portSummary; font.family: Theme.monoFont; font.pixelSize: 11 }
+                        Label { text: AppController.portSummary; font.family: Theme.monoFont; font.pixelSize: Theme.baseFontSize - 1 }
                         Item { Layout.fillWidth: true }
                         Label {
                             text: statusToast.visibleText
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.baseFontSize - 1
                             color: Theme.textMuted
                         }
                     }
@@ -772,6 +781,8 @@ ApplicationWindow {
         modal: true
         anchors.centerIn: Overlay.overlay
         palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
         // See DialogCard.qml for why this dialog needs its own elevated
         // surface + border + shadow instead of a plain Theme.background fill.
         background: DialogCard {}

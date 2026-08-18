@@ -453,6 +453,10 @@
         <translation>界面语言</translation>
     </message>
     <message>
+        <source>System font</source>
+        <translation>系统字体</translation>
+    </message>
+    <message>
         <source>Data monitor font</source>
         <translation>数据监视字体</translation>
     </message>

@@ -19,6 +19,8 @@ Dialog {
     // `palette.window` live, so the canvas itself needs an explicit
     // override too.
     palette: Theme.palette
+    font.family: Theme.baseFontFamily
+    font.pixelSize: Theme.baseFontSize
     // See DialogCard.qml for why this dialog needs its own elevated
     // surface + border + shadow instead of a plain Theme.background fill.
     background: DialogCard {}

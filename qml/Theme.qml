@@ -92,6 +92,19 @@ QtObject {
 
     readonly property string monoFont: "Consolas"
 
+    // App-wide UI font -- everything *except* the data monitor pane (which
+    // keeps its own AppController.logFontFamily/logFontSize), configurable
+    // from Settings & About's "System font" section. Main.qml binds the
+    // root ApplicationWindow's own `font` to these, which is enough for
+    // every plain Label/Control that doesn't set its own font.* to inherit
+    // it live. The handful of places that *do* set an explicit
+    // font.pixelSize literal are written as an offset from baseFontSize
+    // instead of a fixed number, so they keep their original size
+    // *relationship* to body text (a small caption label stays a couple of
+    // px smaller, say) while still scaling with it.
+    readonly property string baseFontFamily: AppController.systemFontFamily
+    readonly property int baseFontSize: AppController.systemFontSize
+
     readonly property int spacingSmall: 6
     readonly property int spacingMedium: 10
     readonly property int spacingLarge: 16

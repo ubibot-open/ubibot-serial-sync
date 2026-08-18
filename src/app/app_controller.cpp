@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFontDatabase>
+#include <QGuiApplication>
 #include <QStandardPaths>
 #include <QTimer>
 
@@ -123,6 +124,35 @@ void AppController::setLogFontSize(int pixelSize) {
     emit logFontChanged();
 }
 
+QString AppController::systemFontFamily() const { return settings_.systemFontFamily(); }
+
+void AppController::setSystemFontFamily(const QString &family) {
+    if (settings_.systemFontFamily() == family) return;
+    settings_.setSystemFontFamily(family);
+    QGuiApplication::setFont(buildApplicationFont(family, settings_.systemFontSize()));
+    emit systemFontChanged();
+}
+
+int AppController::systemFontSize() const { return settings_.systemFontSize(); }
+
+void AppController::setSystemFontSize(int pixelSize) {
+    if (settings_.systemFontSize() == pixelSize) return;
+    settings_.setSystemFontSize(pixelSize);
+    QGuiApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), pixelSize));
+    emit systemFontChanged();
+}
+
+QFont AppController::buildApplicationFont(const QString &family, int pixelSize) {
+    QFont font = QGuiApplication::font();
+    QStringList families;
+    if (!family.isEmpty()) families << family;
+    families << QStringLiteral("Microsoft YaHei UI") << QStringLiteral("Microsoft YaHei")
+             << QStringLiteral("PingFang SC") << QStringLiteral("Noto Sans CJK SC");
+    font.setFamilies(families);
+    if (pixelSize > 0) font.setPixelSize(pixelSize);
+    return font;
+}
+
 QStringList AppController::availableFontFamilies() const { return QFontDatabase::families(); }
 
 QString AppController::themeMode() const { return settings_.themeMode(); }
@@ -148,7 +178,14 @@ void AppController::restoreDefaultSettings() {
     emit currentLanguageChanged();
     emit currentModelChanged();
 
+    // Visually restore the process-wide default too, not just the persisted
+    // value -- otherwise the app keeps rendering the customized font until
+    // restart even though settings_.systemFontFamily()/systemFontSize() now
+    // report the built-in default again.
+    QGuiApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), settings_.systemFontSize()));
+
     emit logFontChanged();
+    emit systemFontChanged();
     emit themeModeChanged();
 }
 

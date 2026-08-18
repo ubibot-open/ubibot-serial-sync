@@ -20,6 +20,8 @@ Dialog {
     // Dialog background apparently doesn't rebind to `palette.window`
     // live, so the canvas itself needs an explicit override too.
     palette: Theme.palette
+    font.family: Theme.baseFontFamily
+    font.pixelSize: Theme.baseFontSize
     // See DialogCard.qml for why this dialog needs its own elevated
     // surface + border + shadow instead of a plain Theme.background fill.
     background: DialogCard {}
@@ -51,16 +53,17 @@ Dialog {
         }
     }
 
-    // Keeps languageCombo/fontFamilyCombo in sync when the underlying
-    // AppController properties change from outside a user pick on those
-    // combos themselves -- namely restoreDefaults() below. Both combos only
-    // set their currentIndex imperatively (Component.onCompleted/onActivated)
-    // rather than via a live binding, since an editable ComboBox's
-    // currentIndex is otherwise clobbered by the user's own typing; that
-    // means a change originating on the C++ side needs an explicit nudge to
-    // show up here. fontSizeSpin needs no equivalent handler -- its `value`
-    // is a genuine declarative binding to AppController.logFontSize, so it
-    // already re-reads on change.
+    // Keeps languageCombo/fontFamilyCombo/systemFontFamilyCombo in sync when
+    // the underlying AppController properties change from outside a user
+    // pick on those combos themselves -- namely restoreDefaults() below. All
+    // three combos only set their currentIndex imperatively
+    // (Component.onCompleted/onActivated) rather than via a live binding,
+    // since an editable ComboBox's currentIndex is otherwise clobbered by
+    // the user's own typing; that means a change originating on the C++
+    // side needs an explicit nudge to show up here. fontSizeSpin/
+    // systemFontSizeSpin need no equivalent handler -- their `value` is a
+    // genuine declarative binding to AppController.logFontSize/
+    // systemFontSize, so they already re-read on change.
     Connections {
         target: AppController
         function onCurrentLanguageChanged() {
@@ -68,6 +71,9 @@ Dialog {
         }
         function onLogFontChanged() {
             fontFamilyCombo.currentIndex = fontFamilyCombo.find(AppController.logFontFamily)
+        }
+        function onSystemFontChanged() {
+            systemFontFamilyCombo.currentIndex = systemFontFamilyCombo.find(AppController.systemFontFamily)
         }
         // RadioButton.checked is reassigned internally the instant it's
         // clicked, same hazard as TextArea.text (see Main.qml's inputField
@@ -105,6 +111,39 @@ Dialog {
                 model: AppController.availableLanguages()
                 Component.onCompleted: currentIndex = indexOfValue(AppController.currentLanguage)
                 onActivated: AppController.currentLanguage = currentValue
+            }
+        }
+
+        GroupBox {
+            title: qsTr("System font")
+            Layout.fillWidth: true
+            palette: Theme.palette
+
+            RowLayout {
+                anchors.fill: parent
+                spacing: 10
+
+                ComboBox {
+                    id: systemFontFamilyCombo
+                    Layout.fillWidth: true
+                    palette: Theme.palette
+                    editable: true
+                    model: AppController.availableFontFamilies()
+                    Component.onCompleted: currentIndex = find(AppController.systemFontFamily)
+                    onActivated: AppController.systemFontFamily = currentText
+                    onAccepted: AppController.systemFontFamily = editText
+                }
+
+                Label { text: qsTr("Size") }
+
+                SpinBox {
+                    id: systemFontSizeSpin
+                    palette: Theme.palette
+                    from: 8
+                    to: 32
+                    value: AppController.systemFontSize
+                    onValueModified: AppController.systemFontSize = value
+                }
             }
         }
 
@@ -197,13 +236,13 @@ Dialog {
             columnSpacing: 16
             rowSpacing: 4
 
-            Label { text: qsTr("Version"); font.pixelSize: 11; color: Theme.textMuted }
-            Label { text: qsTr("Platform"); font.pixelSize: 11; color: Theme.textMuted }
+            Label { text: qsTr("Version"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+            Label { text: qsTr("Platform"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
             Label { text: qsTr("%1 (Qt %2)").arg(AppController.appVersion).arg(AppController.qtVersion) }
             Label { text: "Windows · macOS · Linux" }
 
-            Label { text: qsTr("Support"); font.pixelSize: 11; color: Theme.textMuted }
-            Label { text: qsTr("Devices"); font.pixelSize: 11; color: Theme.textMuted }
+            Label { text: qsTr("Support"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+            Label { text: qsTr("Devices"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
             Label { text: "support@ubibot.com" }
             Label { text: qsTr("%1 models · %2 commands").arg(AppController.modelCount).arg(AppController.commandCount) }
         }
@@ -227,6 +266,8 @@ Dialog {
         modal: true
         anchors.centerIn: Overlay.overlay
         palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
         header: Label {
             text: updateResultDialog.title

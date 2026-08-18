@@ -31,7 +31,7 @@ Item {
             Layout.fillWidth: true
             text: AppController.currentModelDescription
             wrapMode: Text.WordWrap
-            font.pixelSize: 12
+            font.pixelSize: Theme.baseFontSize
             color: Theme.textMuted
         }
 
@@ -94,7 +94,7 @@ Item {
                         id: chipLabel
                         anchors.centerIn: parent
                         text: chip.modelData.label
-                        font.pixelSize: 12
+                        font.pixelSize: Theme.baseFontSize
                         color: chip.modelData.checked ? Theme.accentForeground : Theme.text
                     }
                     MouseArea {
@@ -123,7 +123,7 @@ Item {
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     text: section.toUpperCase()
-                    font.pixelSize: 10
+                    font.pixelSize: Theme.baseFontSize - 2
                     font.letterSpacing: 1
                     color: Theme.accent700
                 }
@@ -174,7 +174,7 @@ Item {
                         id: starLabel
                         text: "★"
                         color: delegateRoot.favorite ? Theme.accent : "#b7b7ba"
-                        font.pixelSize: 14
+                        font.pixelSize: Theme.baseFontSize + 2
 
                         MouseArea {
                             anchors.fill: parent
@@ -194,7 +194,7 @@ Item {
                         Label {
                             text: delegateRoot.cmd
                             font.family: Theme.monoFont
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.baseFontSize - 1
                             color: Theme.accent700
                             elide: Text.ElideRight
                             Layout.fillWidth: true

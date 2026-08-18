@@ -1,7 +1,8 @@
+#include "app/app_controller.h"
 #include "core/language_manager.h"
+#include "core/settings_store.h"
 
 #include <QCoreApplication>
-#include <QFont>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
@@ -20,28 +21,21 @@ int main(int argc, char *argv[]) {
     QGuiApplication::setApplicationVersion(QStringLiteral(APP_VERSION));
     QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
-    // Nothing here ever named an explicit default font, so every Text/
-    // Label/Control that doesn't set its own font.family falls back to
-    // whatever the platform's *implicit* CJK substitution happens to pick
-    // whenever it hits a Chinese glyph -- and unlike the Latin UI font,
-    // that pick isn't guaranteed to be the same actual font file (or to
-    // even have a real bold weight rather than a synthesized/emboldened
-    // one) at every pixel size used across the app. That's what made
-    // Chinese text render inconsistently heavy in some labels and light in
-    // others while English never showed the problem: Latin glyphs are
-    // covered by the UI font itself and never trigger that fallback path.
-    // Querying the platform's own default first and only *appending* CJK
-    // candidates (rather than replacing it outright) keeps every other
-    // script's rendering exactly as it already was on every platform --
-    // this only changes what happens once Qt reaches a glyph the platform
-    // default can't cover itself.
-    QFont defaultFont = QGuiApplication::font();
-    QStringList fontFamilies = defaultFont.families();
-    if (fontFamilies.isEmpty()) fontFamilies << defaultFont.family();
-    fontFamilies << QStringLiteral("Microsoft YaHei UI") << QStringLiteral("Microsoft YaHei")
-                 << QStringLiteral("PingFang SC") << QStringLiteral("Noto Sans CJK SC");
-    defaultFont.setFamilies(fontFamilies);
-    QGuiApplication::setFont(defaultFont);
+    // Applies the persisted "System font" setting (Settings & About) as the
+    // actual process-wide default, read here -- before the QML engine (and
+    // its AppController singleton) exist -- so it's the default from the
+    // very first frame rather than a later live update. See
+    // AppController::buildApplicationFont() for why CJK fallback families
+    // get appended rather than substituted outright (Chinese text used to
+    // render inconsistently heavy/light across labels since Latin glyphs
+    // never triggered the platform's own implicit fallback, but the app's
+    // default family never named one explicitly either); the family/size
+    // themselves come from SettingsStore, defaulting to the platform's own
+    // original font family and one notch above this app's previous ~12px
+    // body text.
+    SettingsStore settings;
+    QGuiApplication::setFont(
+        AppController::buildApplicationFont(settings.systemFontFamily(), settings.systemFontSize()));
 
     // "Fusion" reads as a native desktop control set rather than a mobile
     // one -- closer to the original Widgets version's look than the

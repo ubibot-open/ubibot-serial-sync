@@ -100,7 +100,7 @@ ComboBox {
                     // description -- falls back to something better than
                     // a blank second line.
                     text: portDelegate.description.length > 0 ? portDelegate.description : qsTr("Unknown device")
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.baseFontSize - 1
                     color: portDelegate.rowMuted
                     elide: Text.ElideRight
                     Layout.fillWidth: true
@@ -117,7 +117,7 @@ ComboBox {
                 text: portDelegate.chipLabel
                 font.bold: true
                 color: portDelegate.rowAccent
-                font.pixelSize: 11
+                font.pixelSize: Theme.baseFontSize - 1
             }
         }
     }

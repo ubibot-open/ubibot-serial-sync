@@ -9,6 +9,7 @@
 #include "models/log_list_model.h"
 #include "models/port_list_model.h"
 
+#include <QFont>
 #include <QObject>
 #include <QQmlEngine>
 #include <QVariantList>
@@ -56,6 +57,14 @@ class AppController : public QObject {
     // SettingsAboutDialog.qml and persisted via SettingsStore.
     Q_PROPERTY(QString logFontFamily READ logFontFamily WRITE setLogFontFamily NOTIFY logFontChanged)
     Q_PROPERTY(int logFontSize READ logFontSize WRITE setLogFontSize NOTIFY logFontChanged)
+
+    // App-wide UI font -- everything *except* the data monitor pane above.
+    // Configurable from SettingsAboutDialog.qml's "System font" section;
+    // Theme.qml exposes it as baseFontFamily/baseFontSize for QML to bind
+    // against, and the setters below also re-apply it as the actual process
+    // default via QGuiApplication::setFont() (see buildApplicationFont()).
+    Q_PROPERTY(QString systemFontFamily READ systemFontFamily WRITE setSystemFontFamily NOTIFY systemFontChanged)
+    Q_PROPERTY(int systemFontSize READ systemFontSize WRITE setSystemFontSize NOTIFY systemFontChanged)
 
     // "light" or "dark" -- Theme.qml (the app-wide color palette singleton)
     // reads this to decide which set of colors every Theme.* property
@@ -115,9 +124,22 @@ public:
     void setLogFontFamily(const QString &family);
     int logFontSize() const;
     void setLogFontSize(int pixelSize);
+    QString systemFontFamily() const;
+    void setSystemFontFamily(const QString &family);
+    int systemFontSize() const;
+    void setSystemFontSize(int pixelSize);
+    // Builds the process-wide default QFont for (family, pixelSize) --
+    // `family` empty keeps whatever QGuiApplication::font() already has.
+    // Either way, CJK fallback families get appended (never substituted
+    // outright) so Chinese glyphs render consistently regardless of
+    // platform/user pick; see main.cpp's original comment for why. Shared
+    // between main.cpp's startup call and setSystemFontFamily/
+    // setSystemFontSize above so the font is always built the same way
+    // whether it's applied before or after the QML engine starts.
+    static QFont buildApplicationFont(const QString &family, int pixelSize);
     QString themeMode() const;
     void setThemeMode(const QString &mode);
-    // Installed font families, for the data-monitor font picker in
+    // Installed font families, for the data-monitor/system font pickers in
     // SettingsAboutDialog.qml.
     Q_INVOKABLE QStringList availableFontFamilies() const;
     // "Restore defaults" on SettingsAboutDialog.qml -- resets every setting
@@ -213,6 +235,7 @@ signals:
     void selectedPortNameChanged();
     void currentLanguageChanged();
     void logFontChanged();
+    void systemFontChanged();
     void themeModeChanged();
     void draftTextChanged();
     void echoTxChanged();

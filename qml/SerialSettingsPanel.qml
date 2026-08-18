@@ -79,7 +79,7 @@ Flickable {
     component SectionHeading: Label {
         Layout.fillWidth: true
         Layout.topMargin: 6
-        font.pixelSize: 11
+        font.pixelSize: Theme.baseFontSize - 1
         font.letterSpacing: 1
         color: Theme.textMuted
     }

@@ -19,6 +19,8 @@ Dialog {
     // apparently doesn't rebind to `palette.window` live, so the canvas
     // itself needs an explicit override too.
     palette: Theme.palette
+    font.family: Theme.baseFontFamily
+    font.pixelSize: Theme.baseFontSize
     // See DialogCard.qml for why this dialog needs its own elevated
     // surface + border + shadow instead of a plain Theme.background fill.
     background: DialogCard {}
@@ -65,7 +67,7 @@ Dialog {
                     Label {
                         anchors.centerIn: parent
                         text: modelData
-                        font.pixelSize: 12
+                        font.pixelSize: Theme.baseFontSize
                         color: swipe.currentIndex === index ? Theme.accentForeground : Theme.text
                     }
                 }
@@ -126,7 +128,7 @@ Dialog {
                             text: portDelegate.chipLabel
                             font.bold: true
                             color: portDelegate.rowAccent
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.baseFontSize - 1
                         }
                     }
                 }
@@ -157,7 +159,7 @@ Dialog {
                         Label { text: modelDelegate.modelData; font.bold: true }
                         Label {
                             text: AppController.modelDescriptionFor(modelDelegate.modelData)
-                            font.pixelSize: 11
+                            font.pixelSize: Theme.baseFontSize - 1
                             color: Theme.textMuted
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
