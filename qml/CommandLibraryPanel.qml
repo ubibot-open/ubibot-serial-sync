@@ -121,16 +121,18 @@ Item {
                 required property string cmd
                 required property bool hasParams
                 required property bool favorite
+                required property bool isCustom
 
                 width: listView.width
                 height: 56
                 color: rowMouse.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent"
 
                 // Declared before the row content below, so it paints
-                // underneath it: the star's own MouseArea (nested inside the
-                // RowLayout, declared later/on top) hit-tests first and
-                // consumes clicks aimed at the star, leaving this one to
-                // handle clicks anywhere else on the row.
+                // underneath it: the star's/edit-delete's own MouseArea/
+                // clicks (nested inside the RowLayout, declared later/on
+                // top) hit-test first and consume clicks aimed at them,
+                // leaving this one to handle clicks anywhere else on the
+                // row.
                 MouseArea {
                     id: rowMouse
                     anchors.fill: parent
@@ -156,8 +158,13 @@ Item {
                     anchors.bottomMargin: 10
                     spacing: 11
 
+                    // Bundled devices.json commands get the usual favorite
+                    // star; "My templates" rows aren't favoritable (see
+                    // CommandListModel::toggleFavorite) -- they get edit/
+                    // delete buttons in this same slot instead.
                     Label {
                         id: starLabel
+                        visible: !delegateRoot.isCustom
                         text: "★"
                         color: delegateRoot.favorite ? Theme.accent : "#b7b7ba"
                         font.pixelSize: Theme.baseFontSize + 2
@@ -166,6 +173,22 @@ Item {
                             anchors.fill: parent
                             anchors.margins: -6
                             onClicked: AppController.toggleFavorite(delegateRoot.index)
+                        }
+                    }
+
+                    RowLayout {
+                        visible: delegateRoot.isCustom
+                        spacing: 2
+
+                        ToolButton {
+                            text: qsTr("Edit")
+                            flat: true
+                            onClicked: templateDialog.openForEdit(delegateRoot.index, delegateRoot.name, delegateRoot.cmd)
+                        }
+                        ToolButton {
+                            text: qsTr("Delete")
+                            flat: true
+                            onClicked: AppController.removeCustomTemplate(delegateRoot.index)
                         }
                     }
 
@@ -187,6 +210,104 @@ Item {
                         }
                     }
                 }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Item { Layout.fillWidth: true }
+            Button {
+                text: qsTr("New template")
+                onClicked: templateDialog.openForNew()
+            }
+        }
+    }
+
+    // Add/edit form for "My templates" -- a plain {name, content} pair with
+    // no protocol/params concept (see CommandListModel::addCustomTemplate).
+    // Nested here rather than a separate file/registered top-level dialog
+    // like ConnectionWizardDialog etc., since only this panel ever opens
+    // it -- same reasoning as SettingsAboutDialog's own nested
+    // updateResultDialog.
+    Dialog {
+        id: templateDialog
+        title: editRow >= 0 ? qsTr("Edit template") : qsTr("New template")
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        width: 380
+        palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
+        background: DialogCard {}
+        header: Label {
+            text: templateDialog.title
+            font.bold: true
+            padding: 14
+            color: Theme.text
+        }
+        footer: DialogButtonBox {
+            palette: Theme.palette
+            Button {
+                text: qsTr("Cancel")
+                palette: Theme.palette
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+            }
+            Button {
+                text: qsTr("Save")
+                palette: Theme.palette
+                enabled: nameField.text.trim().length > 0 && contentField.text.trim().length > 0
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+                onClicked: {
+                    if (templateDialog.editRow >= 0)
+                        AppController.updateCustomTemplate(templateDialog.editRow, nameField.text, contentField.text)
+                    else
+                        AppController.addCustomTemplate(nameField.text, contentField.text)
+                    templateDialog.close()
+                }
+            }
+        }
+
+        // -1 means "creating a new template"; otherwise the row index
+        // (captured when "Edit" was clicked) to update on save. Safe to
+        // hold across the dialog's whole open/save lifetime since it's
+        // modal -- nothing in this panel can reorder/refilter the list
+        // while it has focus to invalidate that index.
+        property int editRow: -1
+
+        function openForNew() {
+            editRow = -1
+            nameField.text = ""
+            contentField.text = ""
+            open()
+        }
+        function openForEdit(row, name, content) {
+            editRow = row
+            nameField.text = name
+            contentField.text = content
+            open()
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 10
+
+            Label { text: qsTr("Name") }
+            TextField {
+                id: nameField
+                Layout.fillWidth: true
+                placeholderText: qsTr("e.g. Reset device")
+                placeholderTextColor: Theme.textMuted
+            }
+
+            Label { text: qsTr("Content") }
+            TextArea {
+                id: contentField
+                Layout.fillWidth: true
+                Layout.preferredHeight: 90
+                placeholderText: qsTr("The literal text to send")
+                placeholderTextColor: Theme.textMuted
+                wrapMode: TextArea.Wrap
+                font.family: Theme.monoFont
+                background: Rectangle { color: Theme.surface; border.color: Theme.divider; border.width: 1 }
             }
         }
     }

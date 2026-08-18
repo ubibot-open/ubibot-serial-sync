@@ -204,6 +204,16 @@ public:
     Q_INVOKABLE void loadCommandWithParamsIntoDraft(int row, const QVariantMap &values);
     Q_INVOKABLE void toggleFavorite(int row);
 
+    // "My templates" -- user-authored quick-send text, unrelated to any
+    // device model, edited/deleted from CommandLibraryPanel.qml's own
+    // "+ New template"/row action buttons rather than shipped in
+    // devices.json. See CommandListModel::addCustomTemplate() and friends
+    // for the actual storage; these three just forward to commandModel_,
+    // same as toggleFavorite() above.
+    Q_INVOKABLE void addCustomTemplate(const QString &name, const QString &content);
+    Q_INVOKABLE void updateCustomTemplate(int row, const QString &name, const QString &content);
+    Q_INVOKABLE void removeCustomTemplate(int row);
+
     // {present, baudRate, dataBits, parity, stopBits, flowControl} for the
     // given model id -- the last four are the raw QSerialPort enum ints, so
     // QML can feed them straight to a SerialOptions combo's indexOfValue().

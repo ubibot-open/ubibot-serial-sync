@@ -28,12 +28,16 @@ public:
         CmdRole,
         HasParamsRole,
         FavoriteRole,
+        IsCustomRole,
     };
 
-    // filterKey sentinel selecting the favorites-only view. Any other
-    // non-empty value is a literal group name (LocalizedText::zh); empty
-    // means "all".
+    // filterKey sentinels selecting the favorites-only / custom-templates-
+    // only view. Any other non-empty value is a literal group name
+    // (LocalizedText::zh); empty means "all" -- which, unlike every other
+    // non-empty filterKey, still includes the custom templates (see
+    // rebuild()).
     static const QString kFavoritesFilterKey;
+    static const QString kCustomTemplatesFilterKey;
 
     CommandListModel(DeviceLibrary *library, SettingsStore *settings, QObject *parent = nullptr);
 
@@ -52,6 +56,15 @@ public:
 
     Q_INVOKABLE void toggleFavorite(int row);
 
+    // "My templates" CRUD -- see SettingsStore::customTemplates(). Adding
+    // ignores an empty (post-trim) name or content rather than storing a
+    // useless row; update/remove ignore an out-of-range row or one that
+    // isn't actually a custom template (defensive -- CommandLibraryPanel.qml
+    // only ever offers edit/delete on rows with isCustom true).
+    Q_INVOKABLE void addCustomTemplate(const QString &name, const QString &content);
+    Q_INVOKABLE void updateCustomTemplate(int row, const QString &name, const QString &content);
+    Q_INVOKABLE void removeCustomTemplate(int row);
+
     // Not QML-invokable -- for AppController (same C++ binary) to reach the
     // actual DeviceCommand behind a row when sending/resolving parameters.
     const DeviceCommand *commandAt(int row) const;
@@ -63,6 +76,7 @@ signals:
 private:
     void rebuild();
     void rebuildChips();
+    void reloadCustomTemplates();
     bool isFavorite(const DeviceCommand &cmd) const;
 
     DeviceLibrary *library_;
@@ -71,5 +85,10 @@ private:
     QString search_;
     QString filterKey_;
     QVector<DeviceCommand> rows_;
+    // The user's "My templates" list, converted to DeviceCommand once here
+    // (isCustom: true, cmdTemplate: the template's content) and re-merged
+    // into rows_ on every rebuild() regardless of modelId_ -- reloaded from
+    // SettingsStore whenever add/update/removeCustomTemplate changes it.
+    QVector<DeviceCommand> customRows_;
     QVariantList chips_;
 };

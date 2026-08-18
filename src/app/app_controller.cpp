@@ -423,6 +423,16 @@ void AppController::loadCommandWithParamsIntoDraft(int row, const QVariantMap &v
 
 void AppController::toggleFavorite(int row) { commandModel_->toggleFavorite(row); }
 
+void AppController::addCustomTemplate(const QString &name, const QString &content) {
+    commandModel_->addCustomTemplate(name, content);
+}
+
+void AppController::updateCustomTemplate(int row, const QString &name, const QString &content) {
+    commandModel_->updateCustomTemplate(row, name, content);
+}
+
+void AppController::removeCustomTemplate(int row) { commandModel_->removeCustomTemplate(row); }
+
 SerialConfig AppController::effectiveSerialConfig(const QString &modelId) const {
     SerialConfig cfg;  // 115200 8-N-1 by default (SerialConfig's own defaults)
     if (const DeviceModel *m = library_.model(modelId); m && m->hasSerialDefaults) {

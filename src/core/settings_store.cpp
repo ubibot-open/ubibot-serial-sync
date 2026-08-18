@@ -2,6 +2,9 @@
 
 #include <QFont>
 #include <QGuiApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLocale>
 #include <QSettings>
 
@@ -24,6 +27,7 @@ constexpr auto kLogFontSize = "log/fontSize";
 constexpr auto kSystemFontFamily = "app/fontFamily";
 constexpr auto kSystemFontSize = "app/fontSize";
 constexpr auto kThemeMode = "app/themeMode";
+constexpr auto kCustomTemplates = "send/customTemplates";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -123,6 +127,32 @@ bool SettingsStore::continuousLoggingEnabled() const {
 
 void SettingsStore::setContinuousLoggingEnabled(bool enabled) {
     QSettings().setValue(kContinuousLogging, enabled);
+}
+
+QVector<CustomCommandTemplate> SettingsStore::customTemplates() const {
+    QVector<CustomCommandTemplate> result;
+    const QJsonDocument doc = QJsonDocument::fromJson(QSettings().value(kCustomTemplates).toByteArray());
+    for (const QJsonValue &v : doc.array()) {
+        const QJsonObject o = v.toObject();
+        CustomCommandTemplate t;
+        t.id = o.value(QStringLiteral("id")).toString();
+        t.name = o.value(QStringLiteral("name")).toString();
+        t.content = o.value(QStringLiteral("content")).toString();
+        result.push_back(t);
+    }
+    return result;
+}
+
+void SettingsStore::setCustomTemplates(const QVector<CustomCommandTemplate> &templates) {
+    QJsonArray arr;
+    for (const CustomCommandTemplate &t : templates) {
+        QJsonObject o;
+        o[QStringLiteral("id")] = t.id;
+        o[QStringLiteral("name")] = t.name;
+        o[QStringLiteral("content")] = t.content;
+        arr.push_back(o);
+    }
+    QSettings().setValue(kCustomTemplates, QJsonDocument(arr).toJson(QJsonDocument::Compact));
 }
 
 QString SettingsStore::logFontFamily() const {

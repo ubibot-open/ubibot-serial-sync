@@ -6,6 +6,20 @@
 #include <QByteArray>
 #include <QSet>
 #include <QString>
+#include <QVector>
+
+// A user-authored quick-send template from the "Device commands" panel's
+// "My templates" filter -- a plain {name, content} pair with no
+// protocol/params concept and no per-device-model association (see
+// CommandListModel, which merges these into the same row list as the
+// bundled devices.json commands regardless of which model is selected).
+// `id` is a QUuid-derived stable key so renaming a template doesn't lose
+// track of which stored entry it corresponds to.
+struct CustomCommandTemplate {
+    QString id;
+    QString name;
+    QString content;
+};
 
 // Thin, typed façade over QSettings (INI/registry-backed via
 // QApplication's organization/application name set in main.cpp). Keeps
@@ -43,6 +57,16 @@ public:
 
     bool continuousLoggingEnabled() const;
     void setContinuousLoggingEnabled(bool enabled);
+
+    // The full "My templates" list, in display order. Small, user-curated
+    // (a handful to a few dozen entries at most) -- stored as one JSON
+    // array under a single QSettings key rather than its own file, same
+    // reasoning as commandHistory() above. CommandListModel is the only
+    // reader/writer (via AppController's addCustomTemplate/
+    // updateCustomTemplate/removeCustomTemplate), always read-modify-write
+    // of the whole list.
+    QVector<CustomCommandTemplate> customTemplates() const;
+    void setCustomTemplates(const QVector<CustomCommandTemplate> &templates);
 
     // Data monitor (right-hand log pane) font -- defaults match the
     // hardcoded values DataMonitorView.qml used before this was

@@ -59,6 +59,16 @@ struct DeviceCommand {
     bool needsInput = false;
     QString jsonPayload;     // JSON protocol only: the UTF-8 text decoded from payloadBase64
 
+    // True for a user-authored "My templates" row (CommandListModel merges
+    // these in from SettingsStore::customTemplates(), converting each
+    // {id, name, content} into one of these with cmdTemplate = content and
+    // everything protocol/param-related left at its default) rather than
+    // one read from the bundled devices.json. Drives the "edit"/"delete"
+    // affordances in CommandLibraryPanel.qml's row delegate in place of the
+    // favorite star -- custom templates aren't favoritable, just a flat,
+    // searchable list of the user's own quick-send text.
+    bool isCustom = false;
+
     bool hasParams() const { return !params.isEmpty(); }
 
     // The literal bytes-to-be (as text) for this command, whichever

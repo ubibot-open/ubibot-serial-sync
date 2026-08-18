@@ -50,6 +50,10 @@
         <source>Favorites</source>
         <translation>收藏</translation>
     </message>
+    <message>
+        <source>My templates</source>
+        <translation>我的模板</translation>
+    </message>
 </context>
 <context>
     <name>SerialOptions</name>
@@ -249,6 +253,46 @@
     <message>
         <source>Search commands</source>
         <translation>搜索指令</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>编辑</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新建模板</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>编辑模板</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>例如：重启设备</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>要发送的原始文本</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
     </message>
 </context>
 <context>
