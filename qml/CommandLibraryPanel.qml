@@ -35,27 +35,12 @@ Item {
             color: Theme.textMuted
         }
 
-        Label { text: qsTr("Port · PORT") }
-
-        PortComboBox {
-            id: portCombo
-            Layout.fillWidth: true
-            // Shared with the port picker on the "Serial" panel -- whichever
-            // one the user picks a port in, both should agree on it (and
-            // it's what "Open port" in the toolbar actually opens). Falls
-            // back to the first detected port when nothing's been picked
-            // yet or the previously-picked port is no longer present.
-            currentIndex: {
-                const byName = AppController.portListModel.indexOfPortName(AppController.selectedPortName)
-                return byName >= 0 ? byName : (count > 0 ? 0 : -1)
-            }
-            onActivated: AppController.selectedPortName = AppController.portListModel.portNameAt(currentIndex)
-            // Re-scan available ports right as the dropdown opens, so a
-            // device plugged in after the app started shows up here without
-            // having to switch to the Serial tab's separate refresh button.
-            onPressedChanged: if (pressed) AppController.portListModel.refresh()
-        }
-
+        // Was a "Port · PORT" picker (PortComboBox) here too, shared with
+        // the "Serial" panel's own one -- this panel doesn't drive the port
+        // connection at all anymore (see the row-click handler below), so
+        // a port picker here just implied a connection this tab has
+        // nothing to do with. Pick/open the port from the "Serial" panel;
+        // this one is purely for finding a command's text.
         TextField {
             id: searchField
             Layout.fillWidth: true
