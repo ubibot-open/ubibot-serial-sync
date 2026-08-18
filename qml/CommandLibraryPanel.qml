@@ -14,8 +14,8 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: 16
+        spacing: 12
 
         Label { text: qsTr("Device model · Model") }
 
@@ -77,7 +77,7 @@ Item {
         // of state.
         Flow {
             Layout.fillWidth: true
-            spacing: 6
+            spacing: 8
 
             Repeater {
                 model: AppController.commandModel.filterChips
@@ -121,7 +121,7 @@ Item {
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: 10
+                    anchors.leftMargin: 12
                     text: section.toUpperCase()
                     font.pixelSize: Theme.baseFontSize - 2
                     font.letterSpacing: 1
@@ -164,11 +164,11 @@ Item {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 14
-                    anchors.rightMargin: 14
-                    anchors.topMargin: 8
-                    anchors.bottomMargin: 8
-                    spacing: 9
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    anchors.topMargin: 10
+                    anchors.bottomMargin: 10
+                    spacing: 11
 
                     Label {
                         id: starLabel

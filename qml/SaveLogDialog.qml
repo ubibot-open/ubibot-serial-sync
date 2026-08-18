@@ -31,7 +31,7 @@ Dialog {
     header: Label {
         text: root.title
         font.bold: true
-        padding: 12
+        padding: 14
         color: Theme.text
         background: Rectangle { color: Theme.surface }
     }
@@ -47,7 +47,7 @@ Dialog {
     }
 
     contentItem: ColumnLayout {
-        spacing: 12
+        spacing: 14
 
         GridLayout {
             Layout.fillWidth: true

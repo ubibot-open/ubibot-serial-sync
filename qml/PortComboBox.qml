@@ -68,9 +68,9 @@ ComboBox {
         RowLayout {
             id: portRow
             anchors.fill: parent
-            anchors.leftMargin: 10
-            anchors.rightMargin: 10
-            spacing: 8
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            spacing: 10
 
             // Recognized-chip ports get a slim accent bar instead of
             // repeating the chip name on every single row's left edge --

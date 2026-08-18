@@ -105,9 +105,14 @@ QtObject {
     readonly property string baseFontFamily: AppController.systemFontFamily
     readonly property int baseFontSize: AppController.systemFontSize
 
-    readonly property int spacingSmall: 6
-    readonly property int spacingMedium: 10
-    readonly property int spacingLarge: 16
+    // Bumped +2px across the board per user feedback that the gaps between
+    // buttons/combo boxes/sections read as too tight -- most spacing/padding/
+    // margin literals across the qml files follow this same flat +2 (see
+    // each file's own values), so this only matters for the handful of
+    // spots that already referenced these tokens rather than a literal.
+    readonly property int spacingSmall: 8
+    readonly property int spacingMedium: 12
+    readonly property int spacingLarge: 18
 
     // See the file-level comment above -- assign this to every top-level
     // Window/Dialog/Popup's own `palette` property (not just the main

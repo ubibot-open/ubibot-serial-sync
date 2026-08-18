@@ -32,7 +32,7 @@ Dialog {
     header: Label {
         text: root.title
         font.bold: true
-        padding: 12
+        padding: 14
         color: Theme.text
         background: Rectangle { color: Theme.surface }
     }
@@ -89,7 +89,7 @@ Dialog {
     }
 
     contentItem: ColumnLayout {
-        spacing: 14
+        spacing: 16
 
         // Every GroupBox/ComboBox/RadioButton/Button below gets its own
         // explicit `palette: Theme.palette` for the same reason the footer
@@ -121,7 +121,7 @@ Dialog {
 
             RowLayout {
                 anchors.fill: parent
-                spacing: 10
+                spacing: 12
 
                 ComboBox {
                     id: systemFontFamilyCombo
@@ -154,7 +154,7 @@ Dialog {
 
             RowLayout {
                 anchors.fill: parent
-                spacing: 10
+                spacing: 12
 
                 ComboBox {
                     id: fontFamilyCombo
@@ -249,7 +249,7 @@ Dialog {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: 4
+            Layout.topMargin: 6
 
             Button {
                 text: qsTr("Restore defaults")
@@ -272,7 +272,7 @@ Dialog {
         header: Label {
             text: updateResultDialog.title
             font.bold: true
-            padding: 12
+            padding: 14
             color: Theme.text
             background: Rectangle { color: Theme.surface }
         }

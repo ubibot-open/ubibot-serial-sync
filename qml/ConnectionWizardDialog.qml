@@ -31,7 +31,7 @@ Dialog {
     header: Label {
         text: root.title
         font.bold: true
-        padding: 12
+        padding: 14
         color: Theme.text
         background: Rectangle { color: Theme.surface }
     }
@@ -49,7 +49,7 @@ Dialog {
     }
 
     contentItem: ColumnLayout {
-        spacing: 12
+        spacing: 14
 
         RowLayout {
             Layout.fillWidth: true
@@ -118,7 +118,7 @@ Dialog {
                     RowLayout {
                         id: portRow
                         anchors.fill: parent
-                        anchors.margins: 10
+                        anchors.margins: 12
                         Label { text: portDelegate.displayLabel; color: portDelegate.rowText; Layout.fillWidth: true }
                         // Was a plain "Recommended" tag -- see
                         // PortComboBox.qml for why this shows the actual
@@ -154,7 +154,7 @@ Dialog {
                     ColumnLayout {
                         id: modelColumn
                         anchors.fill: parent
-                        anchors.margins: 10
+                        anchors.margins: 12
                         spacing: 4
                         Label { text: modelDelegate.modelData; font.bold: true }
                         Label {
@@ -170,7 +170,7 @@ Dialog {
 
             // --- Page 3: summary ----------------------------------------------
             ColumnLayout {
-                spacing: 10
+                spacing: 12
                 Label {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap

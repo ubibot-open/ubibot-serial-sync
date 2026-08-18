@@ -78,7 +78,7 @@ Flickable {
     // to match instead of relying on GroupBox.title.
     component SectionHeading: Label {
         Layout.fillWidth: true
-        Layout.topMargin: 6
+        Layout.topMargin: 8
         font.pixelSize: Theme.baseFontSize - 1
         font.letterSpacing: 1
         color: Theme.textMuted
@@ -86,10 +86,10 @@ Flickable {
 
     ColumnLayout {
         id: column
-        x: 14
-        y: 14
-        width: root.width - 28
-        spacing: 18
+        x: 16
+        y: 16
+        width: root.width - 32
+        spacing: 8
 
         SectionHeading { text: qsTr("Port · PORT") }
 

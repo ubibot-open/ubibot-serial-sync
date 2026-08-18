@@ -34,8 +34,8 @@ Flickable {
     ColumnLayout {
         id: column
         width: root.width
-        anchors.margins: 16
-        spacing: 14
+        anchors.margins: 18
+        spacing: 16
 
         Label { text: qsTr("Remote support"); font.bold: true }
         Label {
@@ -57,7 +57,7 @@ Flickable {
                 id: codeColumn
                 anchors.centerIn: parent
                 width: parent.width - 32
-                spacing: 8
+                spacing: 10
 
                 Label {
                     text: qsTr("Your code")
@@ -134,7 +134,7 @@ Flickable {
         header: Label {
             text: notImplementedDialog.title
             font.bold: true
-            padding: 12
+            padding: 14
             color: Theme.text
             background: Rectangle { color: Theme.surface }
         }

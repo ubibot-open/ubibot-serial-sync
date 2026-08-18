@@ -146,8 +146,8 @@ ApplicationWindow {
         RowLayout {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            anchors.leftMargin: 10
-            spacing: 8
+            anchors.leftMargin: 12
+            spacing: 10
             Image { source: "qrc:/icons/app.png"; sourceSize: Qt.size(20, 20); width: 16; height: 16 }
             Label { text: window.title; color: Theme.text; font.pixelSize: Theme.baseFontSize }
             // Version shown here (not appended to window.title itself) so
@@ -285,9 +285,15 @@ ApplicationWindow {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 6
-                anchors.rightMargin: 10
-                spacing: 0
+                anchors.leftMargin: 8
+                anchors.rightMargin: 12
+                // Was 0 (touching icon squares, by design -- see
+                // CompactToolButton's own comment) -- per user feedback that
+                // the toolbar buttons read as too cramped together, a small
+                // gap now separates them without losing the compact-toolbar
+                // look (still much tighter than the rest of the app's
+                // control spacing).
+                spacing: 4
 
                 CompactToolButton {
                     icon.source: "qrc:/icons/wizard.svg"
@@ -345,7 +351,7 @@ ApplicationWindow {
                     text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
                     highlighted: true
                     Layout.preferredWidth: 112
-                    Layout.leftMargin: 10
+                    Layout.leftMargin: 12
                     onClicked: {
                         if (AppController.portOpen) {
                             AppController.closePort()
@@ -498,13 +504,13 @@ ApplicationWindow {
                 CommandParamsPanel {
                     id: paramsPanel
                     Layout.fillWidth: true
-                    Layout.margins: visible ? 14 : 0
+                    Layout.margins: visible ? 16 : 0
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.margins: 12
-                    spacing: 10
+                    Layout.margins: 14
+                    spacing: 12
 
                     ScrollView {
                         id: inputScroll
@@ -595,7 +601,7 @@ ApplicationWindow {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            Layout.margins: 8
+                            Layout.margins: 10
                             Label { text: qsTr("Send history"); font.bold: true; Layout.fillWidth: true }
                             ToolButton {
                                 text: qsTr("Clear history")
@@ -611,7 +617,7 @@ ApplicationWindow {
                             text: qsTr("No history yet")
                             color: Theme.textMuted
                             font.pixelSize: Theme.baseFontSize
-                            Layout.margins: 14
+                            Layout.margins: 16
                             Layout.alignment: Qt.AlignHCenter
                         }
 
@@ -645,7 +651,7 @@ ApplicationWindow {
                                 RowLayout {
                                     id: historyRow
                                     anchors.fill: parent
-                                    anchors.margins: 7
+                                    anchors.margins: 9
                                     Label {
                                         text: historyDelegate.commandText
                                         elide: Text.ElideRight
@@ -673,9 +679,9 @@ ApplicationWindow {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 14
-                        anchors.rightMargin: 14
-                        spacing: 16
+                        anchors.leftMargin: 16
+                        anchors.rightMargin: 16
+                        spacing: 18
 
                         Label {
                             text: AppController.portStatusText
@@ -789,7 +795,7 @@ ApplicationWindow {
         header: Label {
             text: portErrorDialog.title
             font.bold: true
-            padding: 12
+            padding: 14
             color: Theme.text
             background: Rectangle { color: Theme.surface }
         }

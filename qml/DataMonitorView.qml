@@ -134,20 +134,20 @@ Item {
         icon.height: 15
         icon.color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
         contentItem: RowLayout {
-            spacing: 10
+            spacing: 12
             IconImage {
                 source: darkItem.icon.source
                 color: darkItem.icon.color
                 Layout.preferredWidth: darkItem.icon.width
                 Layout.preferredHeight: darkItem.icon.height
-                Layout.leftMargin: 14
+                Layout.leftMargin: 16
             }
             Label {
                 text: darkItem.text
                 font.pixelSize: 13
                 color: darkItem.enabled ? Theme.consoleText : Theme.consoleMuted
                 verticalAlignment: Text.AlignVCenter
-                Layout.rightMargin: 14
+                Layout.rightMargin: 16
                 Layout.fillWidth: true
             }
         }
@@ -165,8 +165,8 @@ Item {
             implicitHeight: 3
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: 10
-            anchors.rightMargin: 10
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.consoleBorder
         }
@@ -215,8 +215,8 @@ Item {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 14
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
 
                 Label {
                     text: qsTr("Data monitor")
@@ -254,10 +254,10 @@ Item {
             Flickable {
                 id: flick
                 anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 14
-                anchors.topMargin: 10
-                anchors.bottomMargin: 10
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                anchors.topMargin: 12
+                anchors.bottomMargin: 12
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
                 contentWidth: root.wrapLines ? width : Math.max(width, contentEdit.paintedWidth)
