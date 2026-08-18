@@ -146,7 +146,18 @@ void SettingsStore::setCustomTemplates(const QVector<CustomCommandTemplate> &tem
 }
 
 QString SettingsStore::logFontFamily() const {
-    return QSettings().value(kLogFontFamily, QStringLiteral("Consolas")).toString();
+#ifdef Q_OS_WIN
+    // Same reasoning (and same family) as systemFontFamily()'s own Windows
+    // default below -- Consolas's monospace alignment is nice for a
+    // terminal-like hex dump, but Windows' own implicit CJK substitution
+    // for it reads noticeably thinner than Microsoft YaHei UI, per user
+    // feedback that this pane's Chinese text should match the rest of the
+    // app's own default rather than standing out.
+    static const QString kPlatformDefault = QStringLiteral("Microsoft YaHei UI");
+#else
+    static const QString kPlatformDefault = QStringLiteral("Consolas");
+#endif
+    return QSettings().value(kLogFontFamily, kPlatformDefault).toString();
 }
 
 void SettingsStore::setLogFontFamily(const QString &family) {
@@ -154,7 +165,7 @@ void SettingsStore::setLogFontFamily(const QString &family) {
 }
 
 int SettingsStore::logFontSize() const {
-    return QSettings().value(kLogFontSize, 12).toInt();
+    return QSettings().value(kLogFontSize, 13).toInt();
 }
 
 void SettingsStore::setLogFontSize(int pixelSize) {

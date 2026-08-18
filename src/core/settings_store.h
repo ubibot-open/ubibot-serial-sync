@@ -77,9 +77,14 @@ public:
     QVector<CustomCommandTemplate> customTemplates() const;
     void setCustomTemplates(const QVector<CustomCommandTemplate> &templates);
 
-    // Data monitor (right-hand log pane) font -- defaults match the
-    // hardcoded values DataMonitorView.qml used before this was
-    // configurable ("Consolas", 12px).
+    // Data monitor (right-hand log pane) font. Size defaults to 13px
+    // (originally the hardcoded value DataMonitorView.qml used before this
+    // was configurable, 12px, then bumped a notch per user feedback,
+    // matching systemFontSize's own default below). Family defaults to
+    // "Consolas" -- a monospace face, deliberately chosen for a
+    // terminal-like console -- except on Windows, where it's Microsoft
+    // YaHei UI instead (see the .cpp for why), per user feedback that this
+    // pane's Chinese text should match the rest of the app's own default.
     QString logFontFamily() const;
     void setLogFontFamily(const QString &family);
     int logFontSize() const;
@@ -87,13 +92,13 @@ public:
 
     // App-wide UI font -- everything *except* the data monitor pane above,
     // which keeps its own logFontFamily/logFontSize. Configurable from
-    // SettingsAboutDialog.qml's "System font" section. logFontFamily's
-    // default is a fixed literal ("Consolas"); this one instead defaults to
+    // SettingsAboutDialog.qml's "System font" section. This one defaults to
     // the platform's own default family (captured once -- see the .cpp) so
-    // a fresh install matches whatever the OS already looked like. The
-    // default size is one notch above the ~12px body text this app's own
-    // QML used everywhere before this setting existed, per user feedback
-    // that the stock UI read too small.
+    // a fresh install matches whatever the OS already looked like -- except
+    // on Windows, where (like logFontFamily above) it's Microsoft YaHei UI.
+    // The default size is one notch above the ~12px body text this app's
+    // own QML used everywhere before this setting existed, per user
+    // feedback that the stock UI read too small.
     QString systemFontFamily() const;
     void setSystemFontFamily(const QString &family);
     int systemFontSize() const;
@@ -109,9 +114,10 @@ public:
     // Clears the persisted language/font overrides above (the "Settings &
     // About" dialog's own settings) so the next read of each falls back to
     // its built-in default -- system-locale detection for language(),
-    // "Consolas"/12 for the data monitor font, the platform default family
-    // and 13px for the system font. Leaves everything else (serial config,
-    // favorites, window geometry, log preferences) untouched, since those
-    // aren't surfaced on that dialog.
+    // "Consolas" (Microsoft YaHei UI on Windows) at 13px for the data
+    // monitor font, and the platform default family (also Microsoft YaHei
+    // UI on Windows) at 13px for the system font. Leaves everything else
+    // (serial config, favorites, window geometry, log preferences)
+    // untouched, since those aren't surfaced on that dialog.
     void resetDisplayPreferences();
 };
