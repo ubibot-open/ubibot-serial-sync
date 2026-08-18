@@ -85,6 +85,20 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/SaveLogDialog.qml
         qml/SettingsAboutDialog.qml
         qml/AboutDialog.qml
+        # These six shadow QtQuick.Controls' own same-named types app-wide
+        # (every .qml file above imports UbiBot last, after QtQuick.Controls,
+        # so QML's "last import wins" rule for an ambiguous unqualified type
+        # name routes every plain ComboBox{}/TextField{}/etc. through these
+        # instead) -- see ComboBox.qml's own comment for the full reasoning.
+        # Purely a sizing tweak (Fusion's own controls read too short to
+        # click per user feedback); everything else about them is still
+        # exactly Fusion's own drawing.
+        qml/ComboBox.qml
+        qml/TextField.qml
+        qml/TextArea.qml
+        qml/CheckBox.qml
+        qml/RadioButton.qml
+        qml/SpinBox.qml
     SOURCES
         src/core/language_manager.h
         src/core/language_manager.cpp
