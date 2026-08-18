@@ -11,10 +11,23 @@ import QtQuick.Controls.Fusion as Fusion
 // default of 0), so its height comes almost entirely from its editable
 // text field's own hardcoded 4px top/bottom padding -- noticeably shorter
 // than VSCode's own dropdowns and, per user feedback, uncomfortably small
-// to click. Padding feeds directly into Control's own (untouched here)
-// implicitHeight formula, so bumping it is enough to grow the box without
-// reimplementing any of Fusion's own drawing.
+// to click.
 Fusion.ComboBox {
     leftPadding: 8
-    padding: 4
+
+    // Deliberately NOT a `padding: N` / `topPadding: N` shorthand -- the
+    // editable text field's built-in focus-ring rectangle (a child of that
+    // field, sized to cover the *whole* outer control) only compensates for
+    // a nonzero control.leftPadding in its own position math ("x: 1 -
+    // control.leftPadding", cancelling the field's own left inset so the
+    // ring still lands at the control's true left edge); it has no matching
+    // compensation for topPadding. A nonzero topPadding shifts that field
+    // (and the ring drawn inside it) down without one, so the ring's fixed
+    // height ends up overflowing past the bottom of the now-shorter
+    // available space -- the stray white border reported after picking a
+    // value. Growing implicitHeight directly instead (Fusion's own formula,
+    // just floored higher) gets a taller box without disturbing that.
+    implicitHeight: Math.max(34, implicitBackgroundHeight + topInset + bottomInset,
+                              implicitContentHeight + topPadding + bottomPadding,
+                              implicitIndicatorHeight + topPadding + bottomPadding)
 }
