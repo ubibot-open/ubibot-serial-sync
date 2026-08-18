@@ -212,6 +212,10 @@ public:
     Q_INVOKABLE void updateCustomTemplate(int row, const QString &name, const QString &content);
     Q_INVOKABLE void removeCustomTemplate(int row);
 
+    // Drag-to-reorder the command list (CommandLibraryPanel.qml's delegate)
+    // -- forwards to CommandListModel::moveRow(), which persists the result.
+    Q_INVOKABLE void moveCommandRow(int from, int to);
+
     // {present, baudRate, dataBits, parity, stopBits, flowControl} for the
     // given model id -- the last four are the raw QSerialPort enum ints, so
     // QML can feed them straight to a SerialOptions combo's indexOfValue().

@@ -1,6 +1,5 @@
 #include "core/settings_store.h"
 
-#include <QDateTime>
 #include <QFont>
 #include <QGuiApplication>
 #include <QJsonArray>
@@ -18,7 +17,7 @@ constexpr auto kParity = "serial/parity";
 constexpr auto kStopBits = "serial/stopBits";
 constexpr auto kFlowControl = "serial/flowControl";
 constexpr auto kLastModel = "device/lastModel";
-constexpr auto kCommandUsageGroup = "commandUsage";
+constexpr auto kCommandOrder = "send/commandOrder";
 constexpr auto kWindowGeometry = "window/geometry";
 constexpr auto kLastLogDir = "log/lastDirectory";
 constexpr auto kCommandHistory = "send/history";
@@ -80,21 +79,12 @@ void SettingsStore::setLastModelId(const QString &id) {
     QSettings().setValue(kLastModel, id);
 }
 
-QHash<QString, qint64> SettingsStore::commandLastUsedTimestamps() const {
-    QHash<QString, qint64> result;
-    QSettings s;
-    s.beginGroup(kCommandUsageGroup);
-    for (const QString &key : s.childKeys()) result.insert(key, s.value(key).toLongLong());
-    s.endGroup();
-    return result;
+QStringList SettingsStore::commandOrder() const {
+    return QSettings().value(kCommandOrder).toStringList();
 }
 
-void SettingsStore::recordCommandUsed(const QString &commandKey) {
-    if (commandKey.isEmpty()) return;
-    QSettings s;
-    s.beginGroup(kCommandUsageGroup);
-    s.setValue(commandKey, QDateTime::currentSecsSinceEpoch());
-    s.endGroup();
+void SettingsStore::setCommandOrder(const QStringList &order) {
+    QSettings().setValue(kCommandOrder, order);
 }
 
 QByteArray SettingsStore::windowGeometry() const {

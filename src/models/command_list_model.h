@@ -10,10 +10,14 @@ class SettingsStore;
 
 // Flat, searched view over one device model's command list plus the user's
 // own "My templates" -- no grouping, no favorites/chips (removed per user
-// feedback that a handful of commands per model didn't need organizing);
-// sorted by CommandListModel::rebuild() so whichever row was clicked most
-// recently (across either source) always sorts first, back to a QML
-// ListView with no section headers of its own.
+// feedback that a handful of commands per model didn't need organizing).
+// Default order is custom templates first, then the bundled devices.json
+// commands; the user can drag any row to reorder the whole list by hand
+// (CommandLibraryPanel.qml's delegate calls moveRow() below), which
+// persists via SettingsStore::commandOrder() and takes over from the
+// default from then on. An earlier revision auto-sorted by most-recent-use
+// instead -- removed per user feedback that it made the list feel
+// unpredictable.
 class CommandListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT
@@ -41,12 +45,14 @@ public:
     QString searchText() const { return search_; }
     void setSearchText(const QString &text);
 
-    // Records "now" as this row's last-used time (see
-    // SettingsStore::recordCommandUsed()) and re-sorts so it moves to the
-    // top -- called once per row click from AppController::
-    // loadCommandIntoDraft()/loadCommandWithParamsIntoDraft(), whichever
-    // source the row came from.
-    Q_INVOKABLE void recordUsed(int row);
+    // Moves the row at `from` to `to` (drag-and-drop reorder -- see
+    // CommandLibraryPanel.qml's delegate) and persists the resulting
+    // *complete* order via SettingsStore::setCommandOrder(). Uses
+    // beginMoveRows()/endMoveRows() rather than a full model reset
+    // specifically so the dragged delegate's own Item identity (and the
+    // MouseArea grab driving the drag) survives every intermediate swap,
+    // not just the final drop.
+    Q_INVOKABLE void moveRow(int from, int to);
 
     // "My templates" CRUD -- see SettingsStore::customTemplates(). Adding
     // ignores an empty (post-trim) name or content rather than storing a

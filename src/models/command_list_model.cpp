@@ -2,6 +2,7 @@
 #include "core/language_manager.h"
 #include "core/settings_store.h"
 
+#include <QHash>
 #include <QUuid>
 #include <algorithm>
 
@@ -68,16 +69,34 @@ namespace {
 // Commands added under the new JSON-protocol schema (and custom templates,
 // whose id is always a QUuid -- see addCustomTemplate()) carry a stable
 // `id`; legacy AT commands don't, so those keep using name.zh like
-// favorites used to (and still lose their usage history if renamed --
-// same pre-existing caveat that key had). See
+// favorites used to (and still lose their place in the manual order if
+// renamed -- same pre-existing caveat that key had). See
 // docs/device-json-protocol-schema.md#11.
 QString commandKey(const DeviceCommand &cmd) { return cmd.id.isEmpty() ? cmd.name.zh : cmd.id; }
 }  // namespace
 
-void CommandListModel::recordUsed(int row) {
-    if (row < 0 || row >= rows_.size()) return;
-    settings_->recordCommandUsed(commandKey(rows_.at(row)));
-    rebuild();
+void CommandListModel::moveRow(int from, int to) {
+    if (from < 0 || from >= rows_.size() || to < 0 || to >= rows_.size() || from == to) return;
+
+    // QAbstractItemModel's own move-rows convention: the destination is
+    // expressed as an insert-before position in the *pre-move* index space,
+    // which is `to + 1` when moving forward (the item currently at `to`
+    // hasn't shifted left yet from this call's point of view) and just `to`
+    // when moving backward.
+    const int destinationRow = to > from ? to + 1 : to;
+    beginMoveRows(QModelIndex(), from, from, QModelIndex(), destinationRow);
+    rows_.move(from, to);
+    endMoveRows();
+
+    // Persist the *complete* resulting order (every row, not just the two
+    // that swapped) so a future rebuild() -- a search, a model switch, or
+    // just relaunching the app -- reproduces it instead of reverting to
+    // the default. See rebuild() for how a row this list has never seen
+    // (no entry here at all) still gets a sensible fallback position.
+    QStringList order;
+    order.reserve(rows_.size());
+    for (const DeviceCommand &cmd : rows_) order.push_back(commandKey(cmd));
+    settings_->setCommandOrder(order);
 }
 
 void CommandListModel::addCustomTemplate(const QString &name, const QString &content) {
@@ -167,25 +186,38 @@ void CommandListModel::rebuild() {
     rows_.clear();
     const QString q = search_.trimmed().toLower();
 
-    // No more group/favorites filtering -- a device model's whole command
-    // list plus every custom template, just matched against the search box.
+    // Default order: custom templates first, then the current model's
+    // bundled commands -- no more group/favorites filtering, just matched
+    // against the search box. moveRow()'s saved order (below) overrides
+    // this for anything it has an explicit position for.
+    for (const DeviceCommand &cmd : customRows_) {
+        if (matchesSearch(cmd, q)) rows_.push_back(cmd);
+    }
     if (const DeviceModel *model = library_->model(modelId_)) {
         for (const DeviceCommand &cmd : model->commands) {
             if (matchesSearch(cmd, q)) rows_.push_back(cmd);
         }
     }
-    for (const DeviceCommand &cmd : customRows_) {
-        if (matchesSearch(cmd, q)) rows_.push_back(cmd);
-    }
 
-    // Most-recently-used first (replaces the old favorite-star/group-chip
-    // organization) -- a row that's never been clicked sorts as if it were
-    // used at time 0, so stable_sort just leaves those in their original
-    // (devices.json, then custom-templates) order relative to each other.
-    const QHash<QString, qint64> usage = settings_->commandLastUsedTimestamps();
-    std::stable_sort(rows_.begin(), rows_.end(), [&](const DeviceCommand &a, const DeviceCommand &b) {
-        return usage.value(commandKey(a), 0) > usage.value(commandKey(b), 0);
-    });
+    // Apply the user's own manual order, if they've ever dragged a row --
+    // stable_sort so anything with no saved position (a different model's
+    // command the drag never touched, say) just keeps the default relative
+    // position it was pushed in above, sorting after everything that does
+    // have one.
+    const QStringList order = settings_->commandOrder();
+    if (!order.isEmpty()) {
+        QHash<QString, int> rank;
+        rank.reserve(order.size());
+        for (int i = 0; i < order.size(); ++i) rank.insert(order.at(i), i);
+        std::stable_sort(rows_.begin(), rows_.end(), [&](const DeviceCommand &a, const DeviceCommand &b) {
+            const auto ra = rank.constFind(commandKey(a));
+            const auto rb = rank.constFind(commandKey(b));
+            const bool foundA = ra != rank.constEnd();
+            const bool foundB = rb != rank.constEnd();
+            if (foundA && foundB) return ra.value() < rb.value();
+            return foundA && !foundB;
+        });
+    }
 
     endResetModel();
 }

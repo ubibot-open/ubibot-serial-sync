@@ -4,7 +4,6 @@
 #include "core/serial_manager.h"
 
 #include <QByteArray>
-#include <QHash>
 #include <QSet>
 #include <QString>
 #include <QVector>
@@ -39,15 +38,19 @@ public:
     QString lastModelId() const;
     void setLastModelId(const QString &id);
 
-    // When a device command / custom template row was last clicked (Unix
-    // epoch seconds), keyed the same way favorites used to be
-    // (DeviceCommand::id if present, else name.zh) -- CommandListModel
-    // sorts its merged row list by this, most recent first, replacing the
-    // old favorite-star/group-chip organization. The full map (rather than
-    // one QSettings value per key) is what CommandListModel needs to sort
-    // every row against, so it's the natural shape here too.
-    QHash<QString, qint64> commandLastUsedTimestamps() const;
-    void recordCommandUsed(const QString &commandKey);
+    // The user's own drag-to-reorder of the "Device commands" panel's
+    // merged command list (bundled devices.json commands + "My templates"),
+    // as a flat list of commandKeys (DeviceCommand::id if present, else
+    // name.zh -- same key favorites used to use) in display order. Empty
+    // until the user actually drags a row, at which point
+    // CommandListModel::moveRow() captures the *complete* current order
+    // here (not just the two rows that swapped), so every row -- reordered
+    // or not -- has an explicit position to fall back on. See
+    // CommandListModel::rebuild() for how a row with no entry here (a
+    // different device model's own commands, say, never touched by a drag)
+    // gets positioned once this is non-empty.
+    QStringList commandOrder() const;
+    void setCommandOrder(const QStringList &order);
 
     QByteArray windowGeometry() const;
     void setWindowGeometry(const QByteArray &geometry);
