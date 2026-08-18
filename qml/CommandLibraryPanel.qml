@@ -57,6 +57,13 @@ Item {
             onTextChanged: AppController.commandModel.searchText = text
         }
 
+        Label {
+            Layout.fillWidth: true
+            text: qsTr("Drag a row to reorder")
+            font.pixelSize: Theme.baseFontSize - 1
+            color: Theme.textMuted
+        }
+
         ListView {
             id: listView
             Layout.fillWidth: true

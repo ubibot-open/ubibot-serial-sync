@@ -240,6 +240,10 @@
         <translation>搜索指令</translation>
     </message>
     <message>
+        <source>Drag a row to reorder</source>
+        <translation>可拖拽行调整顺序</translation>
+    </message>
+    <message>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
