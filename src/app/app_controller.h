@@ -113,9 +113,6 @@ public:
     QString currentModelId() const;
     void setCurrentModelId(const QString &id);
     QString currentModelDescription() const;
-    // For the connection wizard's model-picker page, which needs to show
-    // every model's description without changing the globally-active one.
-    Q_INVOKABLE QString modelDescriptionFor(const QString &id) const;
     QStringList modelIds() const;
     QString libraryVersion() const;
     int modelCount() const;
@@ -223,15 +220,6 @@ public:
     // block in devices.json. Backs SerialSettingsPanel.qml's "selecting a
     // model overwrites the serial fields" behavior.
     Q_INVOKABLE QVariantMap serialDefaultsForModel(const QString &modelId) const;
-    // e.g. "115200 8-N-1" -- the model's serial defaults if it has any,
-    // else the same fallback finishWizard() uses. Used by
-    // ConnectionWizardDialog.qml's summary step instead of a hardcoded string.
-    Q_INVOKABLE QString serialSummaryForModel(const QString &modelId) const;
-
-    // Returns an error string on failure, empty on success. Opens at the
-    // model's serial defaults when it has any (see serialDefaultsForModel),
-    // else the historical fixed 115200 8-N-1.
-    Q_INVOKABLE QString finishWizard(const QString &portName, const QString &modelId);
 
     Q_INVOKABLE QString suggestedLogBaseName() const;
     Q_INVOKABLE QString suggestedLogDirectory() const;
@@ -256,7 +244,6 @@ signals:
     void crcEnabledChanged();
     void repeatSendChanged();
     void portOpenFailed(const QString &error);
-    void wizardFinished();
     void statusMessage(const QString &text);
 
 private:
@@ -269,12 +256,6 @@ private:
     // which already logs the final CRC-included payload as hex) the ASCII
     // echo logs the human-typed text, not raw wire bytes.
     QString crcEchoSuffix(const QByteArray &data) const;
-    // The model's serial defaults if it has any (DeviceModel::
-    // hasSerialDefaults), else a default-constructed SerialConfig (115200
-    // 8-N-1) -- the one place serialDefaultsForModel(), serialSummaryForModel(),
-    // and finishWizard() all resolve "what should this model's port open at"
-    // from, so the three stay consistent with each other.
-    SerialConfig effectiveSerialConfig(const QString &modelId) const;
 
     // Raw serial reads land in arbitrary, driver-chosen chunk sizes -- a
     // single logical line from the device routinely arrives as several

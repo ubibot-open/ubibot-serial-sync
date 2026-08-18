@@ -244,10 +244,9 @@ Item {
 
     // Add/edit form for "My templates" -- a plain {name, content} pair with
     // no protocol/params concept (see CommandListModel::addCustomTemplate).
-    // Nested here rather than a separate file/registered top-level dialog
-    // like ConnectionWizardDialog etc., since only this panel ever opens
-    // it -- same reasoning as SettingsAboutDialog's own nested
-    // updateResultDialog.
+    // Nested here rather than a separate file/registered top-level dialog,
+    // since only this panel ever opens it -- same reasoning as
+    // SettingsAboutDialog's own nested updateResultDialog.
     Dialog {
         id: templateDialog
         title: editRow >= 0 ? qsTr("Edit template") : qsTr("New template")

@@ -22,7 +22,7 @@ QVector<SerialManager::PortInfo> SerialManager::availablePorts() {
 
         // UbiBot's USB-serial adapters are built around the WCH CH340
         // (VID 0x1A86) and Silicon Labs CP210x (VID 0x10C4) bridge chips;
-        // flag those as the likely-correct pick in the wizard/port picker.
+        // flag those as the likely-correct pick in the port picker.
         // (QtSerialPort has no cross-platform "is this port already open
         // elsewhere" query -- the only way to find out is to attempt
         // open(), which has side effects -- so there's no "Busy" detection

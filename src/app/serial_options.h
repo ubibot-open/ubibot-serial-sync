@@ -4,9 +4,9 @@
 #include <QQmlEngine>
 #include <QVariantList>
 
-// Stateless source of the option lists SerialSettingsPanel.qml and
-// ConnectionWizardDialog.qml populate their dropdowns from. Keeping the
-// QSerialPort enum values behind these Q_INVOKABLE methods (rather than
+// Stateless source of the option lists SerialSettingsPanel.qml populates its
+// dropdowns from. Keeping the QSerialPort enum values behind these
+// Q_INVOKABLE methods (rather than
 // hardcoding ints in QML) means the enum's actual integer values are an
 // implementation detail QML never needs to know.
 //

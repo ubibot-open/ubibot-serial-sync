@@ -5,8 +5,7 @@
 
 // Direction/kind of a single line in the data monitor. Tx/Rx are actual wire
 // traffic; Sys is an informational line the app itself injects (port
-// opened/closed, wizard finished, ...); Err flags a local problem (e.g. "port
-// not open").
+// opened/closed, ...); Err flags a local problem (e.g. "port not open").
 enum class LogKind { Tx, Rx, Sys, Err };
 
 struct LogEntry {

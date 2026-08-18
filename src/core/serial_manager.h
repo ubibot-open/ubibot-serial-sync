@@ -19,8 +19,8 @@ struct SerialConfig {
 class SerialManager : public QObject {
     Q_OBJECT
 public:
-    // How a detected port should be presented in the connection wizard /
-    // port picker: "recommended" for chips UbiBot devices actually ship
+    // How a detected port should be presented in the port picker:
+    // "recommended" for chips UbiBot devices actually ship
     // with (CH340, CP210x), "available" otherwise. (QtSerialPort has no
     // cross-platform way to tell whether a port is already open elsewhere
     // without attempting open() itself, so there's no "busy" hint.)
@@ -56,7 +56,7 @@ public:
     // Same formatting as portSummary(), for an arbitrary config rather than
     // this manager's currently-open one -- e.g. previewing what a device
     // model's recommended serial settings would look like before the port
-    // is actually opened (AppController::serialSummaryForModel).
+    // is actually opened.
     static QString summaryFor(const SerialConfig &cfg);
 
 signals:

@@ -56,11 +56,6 @@ ApplicationWindow {
 
     Connections {
         target: AppController
-        // Was index 0 back when Device commands was the first tab -- still
-        // means "land on Device commands after the wizard sets up a
-        // model/port", just at its new index now that Serial swapped ahead
-        // of it.
-        function onWizardFinished() { modeBar.currentIndex = 1 }
         function onPortOpenFailed(error) { portErrorDialog.text = error; portErrorDialog.open() }
         function onStatusMessage(text) { statusToast.show(text) }
     }
@@ -249,7 +244,6 @@ ApplicationWindow {
             Layout.fillWidth: true
             Menu {
                 title: qsTr("&File")
-                MenuItem { text: qsTr("Connection wizard"); onTriggered: wizardDialog.open() }
                 MenuItem { text: qsTr("Save log"); onTriggered: saveLogDialog.open() }
                 MenuSeparator {}
                 MenuItem { text: qsTr("Exit"); onTriggered: Qt.quit() }
@@ -305,11 +299,6 @@ ApplicationWindow {
                 // control spacing).
                 spacing: 4
 
-                CompactToolButton {
-                    icon.source: "qrc:/icons/wizard.svg"
-                    ToolTip.text: qsTr("Connection wizard")
-                    onClicked: wizardDialog.open()
-                }
                 CompactToolButton {
                     icon.source: "qrc:/icons/save.svg"
                     ToolTip.text: qsTr("Save log")
@@ -635,7 +624,6 @@ ApplicationWindow {
                                 required property string commandText
                                 required property string timeText
                                 width: ListView.view.width
-                                // Same reasoning as the wizard's list delegates:
                                 // ItemDelegate's own implicit height ignores
                                 // whatever is stuffed into it below, so size off
                                 // the row's implicit height instead.
@@ -778,7 +766,6 @@ ApplicationWindow {
     }
 
     // --- dialogs ---------------------------------------------------------
-    ConnectionWizardDialog { id: wizardDialog }
     SaveLogDialog { id: saveLogDialog }
     SettingsAboutDialog { id: settingsDialog }
     AboutDialog { id: aboutDialog }

@@ -3,7 +3,6 @@
         <file>devices.json</file>
     </qresource>
     <qresource prefix="/icons">
-        <file alias="wizard.svg">icons/wizard.svg</file>
         <file alias="save.svg">icons/save.svg</file>
         <file alias="send.svg">icons/send.svg</file>
         <file alias="pause.svg">icons/pause.svg</file>

@@ -22,8 +22,6 @@ This project was scaffolded from a design mockup; see
 - **Data monitor** — color-coded TX/RX/SYS/ERR log with byte counters,
   pause/clear, and one-shot export to plain text / CSV / HEX dump, plus
   optional continuous, daily-rotating file logging.
-- **Connection wizard** — pick a detected port, pick a device model, connect
-  at 115200 8-N-1.
 - **Settings & About** — switch the interface language at runtime from a
   dropdown, see the bundled command-library version.
 - **Remote support panel** — UI only for now; see
@@ -156,7 +154,6 @@ qml/
   RemoteAssistPanel.qml
   CommandParamsPanel.qml
   DataMonitorView.qml
-  ConnectionWizardDialog.qml
   SaveLogDialog.qml
   SettingsAboutDialog.qml
 src/
@@ -195,7 +192,7 @@ Concretely:
 - `AppController` (`src/app/app_controller.*`) is a `QML_SINGLETON` that
   owns one instance of each `core/` class and is the *only* thing QML talks
   to for actions: opening/closing the port, sending data, resolving an AT
-  command's parameters, saving a log, finishing the wizard. Every
+  command's parameters, saving a log. Every
   `Q_INVOKABLE` on it is a real operation implemented in C++; QML never
   contains business logic like "how do I format a HEX payload" or "what's
   today's default log directory".
@@ -209,8 +206,8 @@ Concretely:
   detail QML never has to know.
 - The `.qml` files under `qml/` are purely presentational: layout, styling,
   and wiring user gestures to `AppController` calls or local, purely
-  cosmetic UI state (e.g. which wizard page is showing, the Remote Support
-  panel's placeholder code generator).
+  cosmetic UI state (e.g. the Remote Support panel's placeholder code
+  generator).
 
 C++ types are exposed to QML via the `QML_ELEMENT`/`QML_SINGLETON` macros
 declared directly on the classes (`core/language_manager.h` is the
@@ -286,7 +283,7 @@ A few implementation choices worth knowing about before you dig in:
   transport behind "Start session" yet — it explains that plainly instead
   of pretending to connect. Wiring up a real transport is future work, and
   would live in `AppController` like everything else that's real.
-- **"Recommended" port detection** in the connection wizard is a heuristic:
+- **"Recommended" port detection** in the port picker is a heuristic:
   it flags ports whose USB vendor ID matches the WCH CH340 (`0x1A86`) or
   Silicon Labs CP210x (`0x10C4`) bridge chips UbiBot's own USB-serial
   adapters use — not a guarantee that a given port is actually a UbiBot

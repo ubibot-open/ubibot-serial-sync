@@ -5,8 +5,8 @@
 #include <QAbstractListModel>
 #include <QQmlEngine>
 
-// Backs the serial-port picker (settings panel combo + wizard step 1 list).
-// Populated from SerialManager::availablePorts(); refresh() re-queries it.
+// Backs the serial-port picker (settings panel combo). Populated from
+// SerialManager::availablePorts(); refresh() re-queries it.
 class PortListModel : public QAbstractListModel {
     Q_OBJECT
     QML_ELEMENT

@@ -28,10 +28,6 @@
         <translation>串口已关闭</translation>
     </message>
     <message>
-        <source>Wizard finished · %1 opened · %2</source>
-        <translation>向导完成 · %1 已打开 · %2</translation>
-    </message>
-    <message>
         <source>Log saved to %1</source>
         <translation>日志已保存到 %1</translation>
     </message>
@@ -76,10 +72,6 @@
     <message>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Connection wizard</source>
-        <translation>连接向导</translation>
     </message>
     <message>
         <source>Save log</source>
@@ -375,49 +367,6 @@
     <message>
         <source>Tx %1</source>
         <translation>发送 %1</translation>
-    </message>
-</context>
-<context>
-    <name>ConnectionWizardDialog</name>
-    <message>
-        <source>Connection wizard</source>
-        <translation>连接设置向导</translation>
-    </message>
-    <message>
-        <source>1. Select a serial port</source>
-        <translation>1. 选择串口</translation>
-    </message>
-    <message>
-        <source>2. Select a device model</source>
-        <translation>2. 选择设备型号</translation>
-    </message>
-    <message>
-        <source>3. Finish</source>
-        <translation>3. 完成</translation>
-    </message>
-    <message>
-        <source>Recommended</source>
-        <translation>推荐</translation>
-    </message>
-    <message>
-        <source>Ready to open %1 at %2 and load the %3 command set.</source>
-        <translation>设置完成。点击「完成」后将以 %2 打开 %1 并加载 %3 指令集。</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>上一步</translation>
-    </message>
-    <message>
-        <source>Finish</source>
-        <translation>完成</translation>
-    </message>
-    <message>
-        <source>Next</source>
-        <translation>下一步</translation>
     </message>
 </context>
 <context>

@@ -49,8 +49,7 @@ ComboBox {
         width: control.popup.width
         highlighted: control.highlightedIndex === index
         // ItemDelegate's own implicit height ignores whatever's stuffed
-        // into it below (same reasoning as every other list delegate in
-        // this app -- see e.g. ConnectionWizardDialog's port/model lists).
+        // into it below -- size off the row's own implicit height instead.
         implicitHeight: portRow.implicitHeight + 16
 
         // Fusion draws the highlighted/hovered row's background in

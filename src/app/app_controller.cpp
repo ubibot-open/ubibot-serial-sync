@@ -95,11 +95,6 @@ QString AppController::currentModelDescription() const {
     return m ? m->description.text() : QString();
 }
 
-QString AppController::modelDescriptionFor(const QString &id) const {
-    const DeviceModel *m = library_.model(id);
-    return m ? m->description.text() : QString();
-}
-
 QStringList AppController::modelIds() const { return library_.modelIds(); }
 QString AppController::libraryVersion() const { return library_.version(); }
 int AppController::modelCount() const { return int(library_.models().size()); }
@@ -433,18 +428,6 @@ void AppController::updateCustomTemplate(int row, const QString &name, const QSt
 
 void AppController::removeCustomTemplate(int row) { commandModel_->removeCustomTemplate(row); }
 
-SerialConfig AppController::effectiveSerialConfig(const QString &modelId) const {
-    SerialConfig cfg;  // 115200 8-N-1 by default (SerialConfig's own defaults)
-    if (const DeviceModel *m = library_.model(modelId); m && m->hasSerialDefaults) {
-        cfg.baudRate = m->serial.baudRate;
-        cfg.dataBits = m->serial.dataBits;
-        cfg.parity = m->serial.parity;
-        cfg.stopBits = m->serial.stopBits;
-        cfg.flowControl = m->serial.flowControl;
-    }
-    return cfg;
-}
-
 QVariantMap AppController::serialDefaultsForModel(const QString &modelId) const {
     const DeviceModel *m = library_.model(modelId);
     QVariantMap result;
@@ -456,24 +439,6 @@ QVariantMap AppController::serialDefaultsForModel(const QString &modelId) const 
     result[QStringLiteral("stopBits")] = int(m->serial.stopBits);
     result[QStringLiteral("flowControl")] = int(m->serial.flowControl);
     return result;
-}
-
-QString AppController::serialSummaryForModel(const QString &modelId) const {
-    return SerialManager::summaryFor(effectiveSerialConfig(modelId));
-}
-
-QString AppController::finishWizard(const QString &portName, const QString &modelId) {
-    SerialConfig cfg = effectiveSerialConfig(modelId);
-    cfg.portName = portName;
-
-    QString error;
-    if (!serial_.open(cfg, &error)) return error;
-
-    setCurrentModelId(modelId);
-    settings_.setLastSerialConfig(cfg);
-    logManager_.append(LogKind::Sys, tr("Wizard finished · %1 opened · %2").arg(portName, modelId).toUtf8());
-    emit wizardFinished();
-    return QString();
 }
 
 QString AppController::suggestedLogBaseName() const {

@@ -19,8 +19,8 @@ import UbiBot
 // Window/Dialog/Popup needs to set explicitly (`palette: Theme.palette`).
 // Popups do NOT reliably inherit ApplicationWindow's own palette, so
 // anything declared as its own Dialog/Popup (SettingsAboutDialog,
-// SaveLogDialog, ConnectionWizardDialog, the history Popup, every
-// standalone confirmation Dialog, ...) needs the explicit assignment or its
+// SaveLogDialog, the history Popup, every standalone confirmation
+// Dialog, ...) needs the explicit assignment or its
 // plain Labels/Buttons stay stuck on Qt's system-default light colors even
 // while the rest of the app is dark.
 QtObject {
@@ -143,7 +143,7 @@ QtObject {
     // while a dialog is already open leaves every Fusion control's chrome
     // frozen on the old colors while plain `color: Theme.background`-style
     // bindings elsewhere update correctly -- exactly the bug reported
-    // against SettingsAboutDialog/ConnectionWizardDialog.
+    // against SettingsAboutDialog.
     //
     // Fix: keep two fully-static Palette instances instead of one mutable
     // shared one, and have `palette` switch which object it points to via

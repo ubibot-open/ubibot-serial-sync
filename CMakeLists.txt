@@ -81,7 +81,6 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/RemoteAssistPanel.qml
         qml/CommandParamsPanel.qml
         qml/DataMonitorView.qml
-        qml/ConnectionWizardDialog.qml
         qml/SaveLogDialog.qml
         qml/SettingsAboutDialog.qml
         qml/AboutDialog.qml
