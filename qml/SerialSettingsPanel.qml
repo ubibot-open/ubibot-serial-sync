@@ -14,7 +14,7 @@ Flickable {
 
     readonly property string selectedPort: portCombo.currentIndex >= 0
         ? AppController.portListModel.portNameAt(portCombo.currentIndex) : ""
-    readonly property int selectedBaud: parseInt(baudCombo.editText || baudCombo.currentText || "115200")
+    readonly property int selectedBaud: parseInt(baudCombo.currentText || "115200")
     readonly property int selectedDataBits: dataBitsCombo.currentValue
     readonly property int selectedParity: parityCombo.currentValue
     readonly property int selectedStopBits: stopBitsCombo.currentValue
@@ -53,7 +53,13 @@ Flickable {
     function applyModelSerialDefaults() {
         const d = AppController.serialDefaultsForModel(AppController.currentModelId)
         if (!d.present) return
-        baudCombo.editText = String(d.baudRate)
+        // baudCombo is selection-only (see its own comment below) -- find()
+        // returns -1 (a blank/unselected box) for a rate that isn't one of
+        // SerialOptions.baudRateOptions()'s fixed choices. Every model
+        // shipped in devices.json today recommends 115200, which is one of
+        // them; a future model recommending something else would need that
+        // rate added to the fixed list too, or it'd show up unselected here.
+        baudCombo.currentIndex = baudCombo.find(String(d.baudRate))
         dataBitsCombo.currentIndex = dataBitsCombo.indexOfValue(d.dataBits)
         parityCombo.currentIndex = parityCombo.indexOfValue(d.parity)
         stopBitsCombo.currentIndex = stopBitsCombo.indexOfValue(d.stopBits)
@@ -130,13 +136,16 @@ Flickable {
             }
 
             Label { Layout.preferredWidth: 70; text: qsTr("Baud rate") }
+            // Was editable (free-text entry, validated against a plain
+            // 50-4000000 numeric range) -- selection-only now, per user
+            // feedback that a baud rate isn't something to type in by hand.
+            // SerialOptions.baudRateOptions() was expanded with more of the
+            // standard rates to compensate (1200 up to 921600).
             ComboBox {
                 id: baudCombo
                 Layout.fillWidth: true
-                editable: true
                 model: SerialOptions.baudRateOptions()
-                currentIndex: 3 // 115200
-                validator: IntValidator { bottom: 50; top: 4000000 }
+                currentIndex: 8 // 115200
             }
 
             Label { Layout.preferredWidth: 70; text: qsTr("Data bits") }
