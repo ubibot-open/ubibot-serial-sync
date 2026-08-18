@@ -32,9 +32,9 @@ Dialog {
     header: Label {
         text: root.title
         font.bold: true
-        padding: 14
+        padding: 16
         color: Theme.text
-        background: Rectangle { color: Theme.surface }
+        // background: Rectangle { color: Theme.surface }
     }
     // A Popup's children apparently don't reliably pick up a *live* change
     // to an inherited palette either (only their own direct assignment
@@ -45,7 +45,7 @@ Dialog {
     footer: DialogButtonBox {
         palette: Theme.palette
         // Theme.surface again, matching DialogCard/header above.
-        background: Rectangle { color: Theme.surface }
+        // background: Rectangle { color: Theme.surface }
         Button {
             text: qsTr("Close")
             palette: Theme.palette
@@ -87,179 +87,186 @@ Dialog {
             darkThemeRadio.checked = AppController.themeMode === "dark"
         }
     }
+    Pane {
+        anchors.fill: parent
+        padding: 16
+        contentItem: ColumnLayout {
+            spacing: 16
 
-    contentItem: ColumnLayout {
-        spacing: 16
-
-        // Every GroupBox/ComboBox/RadioButton/Button below gets its own
-        // explicit `palette: Theme.palette` for the same reason the footer
-        // buttons above do -- these are Fusion-styled controls that read
-        // `control.palette.xxx` for their own chrome (frame, fill, ...);
-        // relying on inheriting it from `root` above doesn't reliably
-        // survive a *live* theme switch, only a fresh one at open time.
-        GroupBox {
-            title: qsTr("Interface language")
-            Layout.fillWidth: true
-            palette: Theme.palette
-
-            ComboBox {
-                id: languageCombo
-                anchors.fill: parent
+            // Every GroupBox/ComboBox/RadioButton/Button below gets its own
+            // explicit `palette: Theme.palette` for the same reason the footer
+            // buttons above do -- these are Fusion-styled controls that read
+            // `control.palette.xxx` for their own chrome (frame, fill, ...);
+            // relying on inheriting it from `root` above doesn't reliably
+            // survive a *live* theme switch, only a fresh one at open time.
+            GroupBox {
+                title: qsTr("Interface language")
+                Layout.fillWidth: true
                 palette: Theme.palette
-                textRole: "nativeName"
-                valueRole: "code"
-                model: AppController.availableLanguages()
-                Component.onCompleted: currentIndex = indexOfValue(AppController.currentLanguage)
-                onActivated: AppController.currentLanguage = currentValue
-            }
-        }
-
-        GroupBox {
-            title: qsTr("System font")
-            Layout.fillWidth: true
-            palette: Theme.palette
-
-            RowLayout {
-                anchors.fill: parent
-                spacing: 12
+                padding: 0
 
                 ComboBox {
-                    id: systemFontFamilyCombo
-                    Layout.fillWidth: true
+                    id: languageCombo
+                    anchors.fill: parent
                     palette: Theme.palette
-                    editable: true
-                    model: AppController.availableFontFamilies()
-                    Component.onCompleted: currentIndex = find(AppController.systemFontFamily)
-                    onActivated: AppController.systemFontFamily = currentText
-                    onAccepted: AppController.systemFontFamily = editText
-                }
-
-                Label { text: qsTr("Size") }
-
-                SpinBox {
-                    id: systemFontSizeSpin
-                    palette: Theme.palette
-                    from: 8
-                    to: 32
-                    value: AppController.systemFontSize
-                    onValueModified: AppController.systemFontSize = value
+                    textRole: "nativeName"
+                    valueRole: "code"
+                    model: AppController.availableLanguages()
+                    Component.onCompleted: currentIndex = indexOfValue(AppController.currentLanguage)
+                    onActivated: AppController.currentLanguage = currentValue
                 }
             }
-        }
 
-        GroupBox {
-            title: qsTr("Data monitor font")
-            Layout.fillWidth: true
-            palette: Theme.palette
+            GroupBox {
+                title: qsTr("System font")
+                Layout.fillWidth: true
+                palette: Theme.palette
+                padding: 0
 
-            RowLayout {
-                anchors.fill: parent
-                spacing: 12
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 12
 
-                ComboBox {
-                    id: fontFamilyCombo
-                    Layout.fillWidth: true
-                    palette: Theme.palette
-                    editable: true
-                    model: AppController.availableFontFamilies()
-                    Component.onCompleted: currentIndex = find(AppController.logFontFamily)
-                    onActivated: AppController.logFontFamily = currentText
-                    onAccepted: AppController.logFontFamily = editText
-                }
+                    ComboBox {
+                        id: systemFontFamilyCombo
+                        Layout.fillWidth: true
+                        palette: Theme.palette
+                        editable: true
+                        model: AppController.availableFontFamilies()
+                        Component.onCompleted: currentIndex = find(AppController.systemFontFamily)
+                        onActivated: AppController.systemFontFamily = currentText
+                        onAccepted: AppController.systemFontFamily = editText
+                    }
 
-                Label { text: qsTr("Size") }
+                    Label { text: qsTr("Size") }
 
-                SpinBox {
-                    id: fontSizeSpin
-                    palette: Theme.palette
-                    from: 8
-                    to: 32
-                    value: AppController.logFontSize
-                    onValueModified: AppController.logFontSize = value
-                }
-            }
-        }
-
-        GroupBox {
-            title: qsTr("Theme")
-            Layout.fillWidth: true
-            palette: Theme.palette
-
-            RowLayout {
-                anchors.fill: parent
-                ButtonGroup { id: themeGroup }
-                RadioButton {
-                    id: lightThemeRadio
-                    text: qsTr("Light")
-                    palette: Theme.palette
-                    checked: AppController.themeMode !== "dark"
-                    ButtonGroup.group: themeGroup
-                    onClicked: AppController.themeMode = "light"
-                }
-                RadioButton {
-                    id: darkThemeRadio
-                    text: qsTr("Dark")
-                    palette: Theme.palette
-                    checked: AppController.themeMode === "dark"
-                    ButtonGroup.group: themeGroup
-                    onClicked: AppController.themeMode = "dark"
+                    SpinBox {
+                        id: systemFontSizeSpin
+                        palette: Theme.palette
+                        from: 8
+                        to: 32
+                        value: AppController.systemFontSize
+                        onValueModified: AppController.systemFontSize = value
+                    }
                 }
             }
-        }
 
-        GroupBox {
-            title: qsTr("Command library")
-            Layout.fillWidth: true
-            palette: Theme.palette
+            GroupBox {
+                title: qsTr("Data monitor font")
+                Layout.fillWidth: true
+                palette: Theme.palette
+                padding: 0
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 12
+
+                    ComboBox {
+                        id: fontFamilyCombo
+                        Layout.fillWidth: true
+                        palette: Theme.palette
+                        editable: true
+                        model: AppController.availableFontFamilies()
+                        Component.onCompleted: currentIndex = find(AppController.logFontFamily)
+                        onActivated: AppController.logFontFamily = currentText
+                        onAccepted: AppController.logFontFamily = editText
+                    }
+
+                    Label { text: qsTr("Size") }
+
+                    SpinBox {
+                        id: fontSizeSpin
+                        palette: Theme.palette
+                        from: 8
+                        to: 32
+                        value: AppController.logFontSize
+                        onValueModified: AppController.logFontSize = value
+                    }
+                }
+            }
+
+            GroupBox {
+                title: qsTr("Theme")
+                Layout.fillWidth: true
+                palette: Theme.palette
+                padding: 0
+
+                RowLayout {
+                    anchors.fill: parent
+                    ButtonGroup { id: themeGroup }
+                    RadioButton {
+                        id: lightThemeRadio
+                        text: qsTr("Light")
+                        palette: Theme.palette
+                        checked: AppController.themeMode !== "dark"
+                        ButtonGroup.group: themeGroup
+                        onClicked: AppController.themeMode = "light"
+                    }
+                    RadioButton {
+                        id: darkThemeRadio
+                        text: qsTr("Dark")
+                        palette: Theme.palette
+                        checked: AppController.themeMode === "dark"
+                        ButtonGroup.group: themeGroup
+                        onClicked: AppController.themeMode = "dark"
+                    }
+                }
+            }
+
+            GroupBox {
+                title: qsTr("Command library")
+                Layout.fillWidth: true
+                palette: Theme.palette
+                padding: 0
+
+                RowLayout {
+                    anchors.fill: parent
+                    Label { text: AppController.libraryVersion; font.family: Theme.monoFont }
+                    Label {
+                        text: qsTr("Up to date")
+                        color: Theme.accent800
+                        padding: 2
+                        background: Rectangle { color: Theme.accentTint }
+                    }
+                    Item { Layout.fillWidth: true }
+                    Button {
+                        text: qsTr("Check for updates")
+                        palette: Theme.palette
+                        onClicked: updateResultDialog.open()
+                    }
+                }
+            }
+
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                columnSpacing: 16
+                rowSpacing: 4
+
+                Label { text: qsTr("Version"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+                Label { text: qsTr("Platform"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+                Label { text: qsTr("%1 (Qt %2)").arg(AppController.appVersion).arg(AppController.qtVersion) }
+                Label { text: "Windows · macOS · Linux" }
+
+                Label { text: qsTr("Support"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+                Label { text: qsTr("Devices"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
+                Label { text: "support@ubibot.com" }
+                Label { text: qsTr("%1 models · %2 commands").arg(AppController.modelCount).arg(AppController.commandCount) }
+            }
 
             RowLayout {
-                anchors.fill: parent
-                Label { text: AppController.libraryVersion; font.family: Theme.monoFont }
-                Label {
-                    text: qsTr("Up to date")
-                    color: Theme.accent800
-                    padding: 4
-                    background: Rectangle { color: Theme.accentTint }
+                Layout.fillWidth: true
+                Layout.topMargin: 6
+
+                Button {
+                    text: qsTr("Restore defaults")
+                    palette: Theme.palette
+                    onClicked: AppController.restoreDefaultSettings()
                 }
                 Item { Layout.fillWidth: true }
-                Button {
-                    text: qsTr("Check for updates")
-                    palette: Theme.palette
-                    onClicked: updateResultDialog.open()
-                }
             }
         }
-
-        GridLayout {
-            Layout.fillWidth: true
-            columns: 2
-            columnSpacing: 16
-            rowSpacing: 4
-
-            Label { text: qsTr("Version"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
-            Label { text: qsTr("Platform"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
-            Label { text: qsTr("%1 (Qt %2)").arg(AppController.appVersion).arg(AppController.qtVersion) }
-            Label { text: "Windows · macOS · Linux" }
-
-            Label { text: qsTr("Support"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
-            Label { text: qsTr("Devices"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
-            Label { text: "support@ubibot.com" }
-            Label { text: qsTr("%1 models · %2 commands").arg(AppController.modelCount).arg(AppController.commandCount) }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: 6
-
-            Button {
-                text: qsTr("Restore defaults")
-                palette: Theme.palette
-                onClicked: AppController.restoreDefaultSettings()
-            }
-            Item { Layout.fillWidth: true }
-        }
-    }
-
+}
     Dialog {
         id: updateResultDialog
         title: qsTr("Command library")
@@ -274,13 +281,13 @@ Dialog {
             font.bold: true
             padding: 14
             color: Theme.text
-            background: Rectangle { color: Theme.surface }
+            // background: Rectangle { color: Theme.surface }
         }
         // Was `standardButtons: Dialog.Ok` -- see root's footer above for why
         // that auto-generated button had to be spelled out explicitly instead.
         footer: DialogButtonBox {
             palette: Theme.palette
-            background: Rectangle { color: Theme.surface }
+            // background: Rectangle { color: Theme.surface }
             Button {
                 text: qsTr("OK")
                 palette: Theme.palette
