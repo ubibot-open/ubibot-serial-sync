@@ -48,20 +48,22 @@ struct DeviceCommand {
     CommandType type = CommandType::Query;
     // AT protocol: true whenever params is non-empty (kept in sync at load
     // time so callers can check this one flag regardless of protocol).
-    // JSON protocol: read from devices.json -- decides what clicking the
-    // command does (see AppController::activateCommandRow /
-    // loadCommandIntoDraft): false sends jsonPayload immediately, true
-    // loads it into the manual-send box (with any blank fields/placeholders
-    // left as-is) for the user to fill in and send themselves -- there is
-    // deliberately no template-substitution step for JSON commands.
+    // JSON protocol: read from devices.json -- originally decided whether a
+    // click sent the command immediately (false) or staged it for manual
+    // editing (true); the device command library no longer sends anything
+    // itself (see AppController::loadCommandIntoDraft), so every command
+    // now stages into the manual-send box regardless of this flag. Left in
+    // place as documentation for devices.json authors -- a `true` command's
+    // payload still carries unresolved `<key>` placeholders that need
+    // filling in by hand before sending, `false` doesn't.
     bool needsInput = false;
     QString jsonPayload;     // JSON protocol only: the UTF-8 text decoded from payloadBase64
 
     bool hasParams() const { return !params.isEmpty(); }
 
     // The literal bytes-to-be (as text) for this command, whichever
-    // protocol it is -- what activateCommandRow()/loadCommandIntoDraft()
-    // send or stage, respectively.
+    // protocol it is -- what AppController::loadCommandIntoDraft() stages
+    // into the manual-send box.
     QString wirePayload() const { return isJsonProtocol ? jsonPayload : cmdTemplate; }
 
     // AT protocol only. Substitutes each <key> token with the matching

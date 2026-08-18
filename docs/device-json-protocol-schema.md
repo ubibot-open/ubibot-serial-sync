@@ -227,18 +227,30 @@ echo 'eyJDb21tYW5kIjoiUmVhZFByb2R1Y3QifQ==' | base64 -d
 完的那一串文本（是否合法 JSON、`<sec>` 有没有替换干净，都由用户自己保证，
 App 不做校验）。
 
-## 9. 发送流程（已确认）
+## 9. 发送流程（已确认，但见下方后续修订）
 
-`protocol: "json"` 的指令，点击列表里的一行后分两种情况：
+> **后续修订**：设备指令库现在定位为"快速找指令"，本身不再负责发送、也不
+> 关心串口是否已打开——点击列表里任何一行（不管是不是 JSON 协议、不管
+> `needsInput` 是 `true` 还是 `false`）都只是把指令文本放进手动发送框
+> （`AppController.loadCommandIntoDraft` / 带参数的走
+> `AppController.loadCommandWithParamsIntoDraft`），从不自动发送；真正发送
+> 永远只能通过手动发送框自己的「发送」（`sendManualText()`，会检查串口是否
+> 打开）。下面 `needsInput: false` 直接发送的描述、以及本文档其余处提到的
+> "自动替换、直接发送"，都是这次改动之前的旧行为，仅作历史设计记录保留；
+> `needsInput` 这个字段本身还在，含义不变（`true` 表示 payload 里还留着未
+> 替换的 `<key>` 占位符，需要用户自己填），只是不再驱动"要不要立刻发送"。
+
+`protocol: "json"` 的指令，点击列表里的一行后分两种情况（**历史记录，当前
+实际行为见上方后续修订**）：
 
 ### `needsInput: false`（典型：`query`、`action`）—— 直接发送
 
 1. 从 `payloadBase64` 用 `QByteArray::fromBase64()` 解码，`QString::fromUtf8()`
    得到 JSON 文本（这类指令本身不含占位符）。
-2. 和现有无参 AT 指令（[AppController::activateCommandRow](../src/app/app_controller.cpp:308)
-   → `sendLiteral`）一样的路径：直接把这段文本发出去，**自动追加 `\r\n`**
-   （复用现有 [composeAsciiPayload](../src/app/app_controller.cpp:191)，两种
-   协议的指令统一走同一套 framing，不单独定制）。
+2. （历史设计，已被上方"后续修订"取代）当时和无参 AT 指令一样的路径：直接
+   把这段文本发出去，**自动追加 `\r\n`**（复用现有
+   [composeAsciiPayload](../src/app/app_controller.cpp:191)，两种协议的指令
+   统一走同一套 framing，不单独定制）。
 3. 按 `echoTx` 设置决定是否回显到数据监视区，行为和现有指令一致。
 
 ### `needsInput: true`（典型：`set`）—— 放进手动发送框，用户自己完成

@@ -336,21 +336,13 @@ ApplicationWindow {
 
                 Item { Layout.fillWidth: true }
 
-                ColumnLayout {
-                    spacing: 0
-                    Label {
-                        text: AppController.currentModelId
-                        font.family: Theme.monoFont
-                        Layout.alignment: Qt.AlignRight
-                    }
-                    Label {
-                        text: qsTr("Current device")
-                        font.pixelSize: Theme.baseFontSize - 2
-                        color: Theme.textMuted
-                        Layout.alignment: Qt.AlignRight
-                    }
-                }
-
+                // Was a "Current device"/model-id badge shown here, right
+                // next to the port button -- misleading now that the device
+                // command library doesn't drive the port connection at all
+                // (see CommandLibraryPanel.qml); the currently-picked model
+                // is still visible in the "Device commands" panel's own
+                // combo box, it just doesn't need repeating next to a
+                // button it has nothing to do with.
                 Button {
                     text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
                     highlighted: true

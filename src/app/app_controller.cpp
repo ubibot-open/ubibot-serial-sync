@@ -327,15 +327,6 @@ void AppController::flushRxLineBuffer() {
     rxLineBuffer_.clear();
 }
 
-void AppController::sendLiteral(const QString &text) {
-    if (!serial_.isOpen()) {
-        logManager_.append(LogKind::Err, tr("Port is not open — click \"Open port\" first.").toUtf8());
-        return;
-    }
-    serial_.write(composeAsciiPayload(text));
-    if (echoTx_) logManager_.append(LogKind::Tx, (text + crcEchoSuffix(text.toUtf8())).toUtf8());
-}
-
 bool AppController::openPort(const QString &portName, int baudRate, int dataBits, int parity, int stopBits,
                               int flowControl) {
     if (portName.isEmpty()) {
@@ -393,15 +384,9 @@ void AppController::sendManualText() {
     commandHistoryModel_->push(text);
 }
 
-void AppController::activateCommandRow(int row) {
-    const DeviceCommand *cmd = commandModel_->commandAt(row);
-    if (!cmd || cmd->needsInput) return;
-    sendLiteral(cmd->wirePayload());
-}
-
 void AppController::loadCommandIntoDraft(int row) {
     const DeviceCommand *cmd = commandModel_->commandAt(row);
-    if (!cmd || !cmd->isJsonProtocol || !cmd->needsInput) return;
+    if (!cmd) return;
     setDraftText(cmd->wirePayload());
 }
 
@@ -430,10 +415,10 @@ QString AppController::previewCommand(int row, const QVariantMap &values) const 
     return cmd ? cmd->resolve(toHash(values)) : QString();
 }
 
-void AppController::sendCommandWithParams(int row, const QVariantMap &values) {
+void AppController::loadCommandWithParamsIntoDraft(int row, const QVariantMap &values) {
     const DeviceCommand *cmd = commandModel_->commandAt(row);
     if (!cmd) return;
-    sendLiteral(cmd->resolve(toHash(values)));
+    setDraftText(cmd->resolve(toHash(values)));
 }
 
 void AppController::toggleFavorite(int row) { commandModel_->toggleFavorite(row); }

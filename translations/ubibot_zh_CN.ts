@@ -149,10 +149,6 @@
         <translation>远程协助</translation>
     </message>
     <message>
-        <source>Current device</source>
-        <translation>当前设备</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>关闭串口</translation>
     </message>
@@ -325,8 +321,8 @@
         <translation>取消</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>发送</translation>
+        <source>Insert</source>
+        <translation>填入</translation>
     </message>
 </context>
 <context>

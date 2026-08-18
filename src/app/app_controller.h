@@ -188,24 +188,21 @@ public:
     Q_INVOKABLE void sendManualText();
     Q_INVOKABLE void clearDraft();
 
-    // AT protocol: parameter-less commands send immediately; ones with
-    // parameters do nothing here -- QML reads hasParams from commandModel
-    // and opens the params panel itself, then calls sendCommandWithParams().
-    // JSON protocol (see docs/device-json-protocol-schema.md#9): commands
-    // with needsInput also do nothing here -- QML reads needsManualEdit and
-    // calls loadCommandIntoDraft() instead. Guarded by needsInput either
-    // way, so this is a no-op if QML calls it on a row it shouldn't have.
-    Q_INVOKABLE void activateCommandRow(int row);
+    // The device command library is a quick way to *find* a command, not to
+    // fire it straight at the port -- it doesn't know or care whether a port
+    // is even open. Every row click stages the command's literal text into
+    // the manual-send box (draftText) for the user to review/edit and send
+    // themselves from there; nothing here ever writes to the serial port.
+    // Params-bearing commands go through the params panel first (QML reads
+    // hasParams from commandModel and opens it, which then calls
+    // loadCommandWithParamsIntoDraft() below once the user fills in
+    // values); everything else calls this directly.
+    Q_INVOKABLE void loadCommandIntoDraft(int row);
     Q_INVOKABLE QString commandNameForRow(int row) const;
     Q_INVOKABLE QVariantList paramsForRow(int row) const;
     Q_INVOKABLE QString previewCommand(int row, const QVariantMap &values) const;
-    Q_INVOKABLE void sendCommandWithParams(int row, const QVariantMap &values);
+    Q_INVOKABLE void loadCommandWithParamsIntoDraft(int row, const QVariantMap &values);
     Q_INVOKABLE void toggleFavorite(int row);
-    // JSON-protocol commands with needsInput: true -- stages the command's
-    // (undecoded-placeholder) payload in the manual-send box for the user
-    // to finish and send themselves. No-op for anything else (AT commands,
-    // or JSON commands that don't need input).
-    Q_INVOKABLE void loadCommandIntoDraft(int row);
 
     // {present, baudRate, dataBits, parity, stopBits, flowControl} for the
     // given model id -- the last four are the raw QSerialPort enum ints, so
@@ -260,7 +257,6 @@ private:
     // which already logs the final CRC-included payload as hex) the ASCII
     // echo logs the human-typed text, not raw wire bytes.
     QString crcEchoSuffix(const QByteArray &data) const;
-    void sendLiteral(const QString &text);
     // The model's serial defaults if it has any (DeviceModel::
     // hasSerialDefaults), else a default-constructed SerialConfig (115200
     // 8-N-1) -- the one place serialDefaultsForModel(), serialSummaryForModel(),

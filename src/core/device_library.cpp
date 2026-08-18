@@ -145,9 +145,10 @@ bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
             } else {
                 cmd.cmdTemplate = cmdObj.value(QStringLiteral("cmd")).toString();
                 // AT protocol never had an explicit needsInput field --
-                // derive it from params so callers (AppController::
-                // activateCommandRow) can check the one flag regardless of
-                // protocol.
+                // derive it from params so this stays a meaningful,
+                // protocol-independent flag on DeviceCommand even though
+                // (see device_library.h) nothing branches on it at runtime
+                // anymore.
                 cmd.needsInput = cmd.hasParams();
             }
 

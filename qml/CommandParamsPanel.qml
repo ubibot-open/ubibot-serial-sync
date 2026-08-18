@@ -97,10 +97,14 @@ Rectangle {
                 Layout.fillWidth: true
             }
             Button {
-                text: qsTr("Send")
+                // Was "Send" -- this panel (like the rest of the device
+                // command library) only stages text into the manual-send
+                // box now, it doesn't write to the port itself. See
+                // AppController::loadCommandWithParamsIntoDraft.
+                text: qsTr("Insert")
                 highlighted: true
                 onClicked: {
-                    AppController.sendCommandWithParams(root.row, root.values)
+                    AppController.loadCommandWithParamsIntoDraft(root.row, root.values)
                     root.visible = false
                 }
             }

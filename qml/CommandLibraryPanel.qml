@@ -136,7 +136,6 @@ Item {
                 required property string cmd
                 required property bool hasParams
                 required property bool favorite
-                required property bool needsManualEdit
 
                 width: listView.width
                 height: 56
@@ -152,13 +151,15 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        // needsManualEdit checked first: a JSON-protocol
-                        // command may also carry (purely informational)
-                        // params, which would otherwise wrongly route it
-                        // into the AT-style params panel below.
-                        if (delegateRoot.needsManualEdit) AppController.loadCommandIntoDraft(delegateRoot.index)
-                        else if (delegateRoot.hasParams) root.openParams(delegateRoot.index)
-                        else AppController.activateCommandRow(delegateRoot.index)
+                        // The device command library is just a quick way to
+                        // find a command's text, not to fire it at the
+                        // port -- every row stages its text into the
+                        // manual-send box for the user to review/edit and
+                        // send themselves. Params-bearing commands go
+                        // through the params panel first so the user can
+                        // fill in <key> values before it lands in the box.
+                        if (delegateRoot.hasParams) root.openParams(delegateRoot.index)
+                        else AppController.loadCommandIntoDraft(delegateRoot.index)
                     }
                 }
 

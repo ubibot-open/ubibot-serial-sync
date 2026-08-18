@@ -35,9 +35,17 @@ QVariant CommandListModel::data(const QModelIndex &index, int role) const {
     case GroupRole: return cmd.group.text();
     case NameRole: return cmd.name.text();
     case CmdRole: return cmd.wirePayload();
-    case HasParamsRole: return cmd.hasParams();
+    // AT protocol only: JSON commands' own `params` is documentation-only
+    // (see docs/device-json-protocol-schema.md#6) -- it lists what
+    // placeholders the payload carries, but was never meant to open the
+    // AT-style structured params form, whose DeviceCommand::resolve() only
+    // substitutes into cmdTemplate (empty for JSON commands, which stage
+    // their raw wirePayload() -- placeholders and all -- into the
+    // manual-send box instead). Gating on isJsonProtocol here is what keeps
+    // CommandLibraryPanel.qml's row click routing correct for a JSON
+    // command that happens to carry a non-empty params array.
+    case HasParamsRole: return !cmd.isJsonProtocol && cmd.hasParams();
     case FavoriteRole: return isFavorite(cmd);
-    case NeedsManualEditRole: return cmd.isJsonProtocol && cmd.needsInput;
     }
     return {};
 }
@@ -49,7 +57,6 @@ QHash<int, QByteArray> CommandListModel::roleNames() const {
         {CmdRole, "cmd"},
         {HasParamsRole, "hasParams"},
         {FavoriteRole, "favorite"},
-        {NeedsManualEditRole, "needsManualEdit"},
     };
 }
 
