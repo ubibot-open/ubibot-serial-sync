@@ -103,13 +103,24 @@ Fusion.ComboBox {
             // a stronger, unambiguous "this one" marker regardless of theme,
             // and (being a sibling on top of the fill above, not the fill
             // itself) still shows even when this same row is also hovered.
+            //
+            // Theme.accent800, not the plainer Theme.accent -- accentLight
+            // ("#5980a6") is a muted, fairly desaturated blue-gray that
+            // still didn't stand out enough against a light popup
+            // background, per a follow-up report ("fine in dark mode, not
+            // in light mode"). accent800 is the same "readable on top of
+            // accentTint" variant the Settings dialog's own "Up to date"
+            // badge already uses for exactly this reason -- a solid, darker
+            // navy in light mode instead of a pale wash. accentDark's own
+            // accent800 ("#cfe3f4", pale against near-black) reads just as
+            // clearly, so this doesn't cost anything in dark mode either.
             Rectangle {
                 visible: menuItem.isCurrent
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 width: 3
-                color: Theme.accent
+                color: Theme.accent800
             }
         }
     }

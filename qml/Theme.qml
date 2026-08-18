@@ -50,7 +50,13 @@ QtObject {
     readonly property color accent: dark ? accentDark : accentLight
     readonly property color accent700: dark ? "#a2c8e8" : "#416180"
     readonly property color accent800: dark ? "#cfe3f4" : "#2c455d"
-    readonly property color accentTint: dark ? "#24313d" : "#eef6ff"
+    // Light mode's value used to be "#eef6ff" -- barely different from (and
+    // even a hair *lighter* than) backgroundLight's own "#f2f2f3", so a
+    // whole popup row tinted with it read as "no different from the plain
+    // rows around it" (reported against ComboBox's own "current value"
+    // marker). The dark-mode side already reads fine as a soft blue marker
+    // against the near-black window, so only this half needed more punch.
+    readonly property color accentTint: dark ? "#24313d" : "#d7e7f5"
     readonly property color divider: dark ? "#3c3e44" : "#c9c9ca"
     // A Dialog/Popup's own background used to just be Theme.background with
     // a `divider`-colored 1px border -- but that's the *same* color as the
