@@ -131,7 +131,7 @@ Dialog {
                         id: systemFontFamilyCombo
                         Layout.fillWidth: true
                         palette: Theme.palette
-                        editable: true
+                        editable: false
                         model: AppController.availableFontFamilies()
                         Component.onCompleted: currentIndex = find(AppController.systemFontFamily)
                         onActivated: AppController.systemFontFamily = currentText
@@ -165,7 +165,7 @@ Dialog {
                         id: fontFamilyCombo
                         Layout.fillWidth: true
                         palette: Theme.palette
-                        editable: true
+                        editable: false
                         model: AppController.availableFontFamilies()
                         Component.onCompleted: currentIndex = find(AppController.logFontFamily)
                         onActivated: AppController.logFontFamily = currentText
