@@ -6,8 +6,14 @@ import UbiBot
 
 ApplicationWindow {
     id: window
-    width: 1200
-    height: 800
+    // Bumped from 1200x800 -- this session's own control-size/font-size/
+    // spacing increases (bigger buttons, +2px spacing tokens, a larger
+    // default base font, ...) grew the toolbar row's natural content width
+    // past what 1200 has room for, clipping the right-aligned "Open port"
+    // button off the edge at that size. A modest bump gives that room back
+    // without the window opening noticeably larger on a normal desktop.
+    width: 1320
+    height: 860
     visible: true
     title: qsTr("UbiBot Serial Assistant")
     color: Theme.background
