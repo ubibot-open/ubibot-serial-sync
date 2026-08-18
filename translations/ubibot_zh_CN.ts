@@ -129,6 +129,10 @@
         <translation>帮助(&amp;H)</translation>
     </message>
     <message>
+        <source>About</source>
+        <translation>关于</translation>
+    </message>
+    <message>
         <source>Send</source>
         <translation>发送</translation>
     </message>
@@ -511,6 +515,53 @@
     <message>
         <source>Restore defaults</source>
         <translation>恢复默认值</translation>
+    </message>
+</context>
+<context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>关于</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 串口助手</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>版本 %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>面向 UbiBot IoT 设备（WS1、WS1 Pro、GS1-AL4G1RS、SP1 等）的串口调试工具，基于 Qt 6、QML 和 C++17 构建。</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>构建时间</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>公司</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · 美国</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>网站</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>基于 Qt %1 构建，遵循 GNU Lesser General Public License v3（LGPLv3）。Qt 是 The Qt Company Ltd. 的注册商标。本程序以动态链接方式使用 Qt，随附的 Qt 库可替换为兼容的 LGPLv3 版本。</translation>
     </message>
 </context>
 <context>

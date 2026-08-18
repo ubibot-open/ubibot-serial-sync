@@ -40,9 +40,12 @@ class AppController : public QObject {
     // in the custom title bar and Settings & About. qtVersion is the Qt
     // build it was compiled against, shown alongside it in Settings &
     // About; neither needs a NOTIFY, both are fixed for the process's
-    // whole lifetime.
+    // whole lifetime. buildTime is the CMake-configure-time timestamp from
+    // the same compile-definition mechanism (see CMakeLists.txt), shown in
+    // the About dialog.
     Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
     Q_PROPERTY(QString qtVersion READ qtVersion CONSTANT)
+    Q_PROPERTY(QString buildTime READ buildTime CONSTANT)
 
     Q_PROPERTY(QString currentModelId READ currentModelId WRITE setCurrentModelId NOTIFY currentModelChanged)
     Q_PROPERTY(QString currentModelDescription READ currentModelDescription NOTIFY currentModelChanged)
@@ -101,6 +104,7 @@ public:
 
     QString appVersion() const;
     QString qtVersion() const;
+    QString buildTime() const;
 
     bool portOpen() const;
     QString portStatusText() const;

@@ -4,7 +4,7 @@ import UbiBot
 // Shared "elevated card" background for every Dialog/Popup's `background:`
 // property (Main.qml's historyPopup/portErrorDialog, ConnectionWizardDialog,
 // SettingsAboutDialog + its nested updateResultDialog, SaveLogDialog,
-// RemoteAssistPanel's notImplementedDialog). Replaces the old
+// AboutDialog, RemoteAssistPanel's notImplementedDialog). Replaces the old
 // `Rectangle { color: Theme.background; border.color: Theme.divider; ... }`
 // pattern repeated in each of those files, which had two problems:
 //

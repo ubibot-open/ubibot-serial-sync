@@ -267,7 +267,11 @@ ApplicationWindow {
             }
             Menu {
                 title: qsTr("&Help")
-                MenuItem { text: qsTr("Settings"); onTriggered: settingsDialog.open() }
+                // Was a copy-pasted duplicate of the Tools menu's own
+                // "Settings" item (same text, same handler) -- Settings
+                // already has its proper home under Tools, so this slot
+                // is About instead, per user feedback.
+                MenuItem { text: qsTr("About"); onTriggered: aboutDialog.open() }
             }
         }
 
@@ -779,6 +783,7 @@ ApplicationWindow {
     ConnectionWizardDialog { id: wizardDialog }
     SaveLogDialog { id: saveLogDialog }
     SettingsAboutDialog { id: settingsDialog }
+    AboutDialog { id: aboutDialog }
 
     Dialog {
         id: portErrorDialog

@@ -67,6 +67,7 @@ AppController::~AppController() = default;
 // that actually comes from.
 QString AppController::appVersion() const { return QCoreApplication::applicationVersion(); }
 QString AppController::qtVersion() const { return QStringLiteral(QT_VERSION_STR); }
+QString AppController::buildTime() const { return QStringLiteral(APP_BUILD_TIME); }
 
 bool AppController::portOpen() const { return serial_.isOpen(); }
 

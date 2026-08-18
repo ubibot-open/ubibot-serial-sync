@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.21)
 # that's what was asked for -- CMake's project(VERSION ...) already supports
 # up to four.
 project(UbiBotSerialAssistant
-    VERSION 0.1.1.1
+    VERSION 0.2.1.1
     DESCRIPTION "UbiBot Serial Assistant / UbiBot 串口助手"
     LANGUAGES CXX
 )
@@ -84,6 +84,7 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/ConnectionWizardDialog.qml
         qml/SaveLogDialog.qml
         qml/SettingsAboutDialog.qml
+        qml/AboutDialog.qml
     SOURCES
         src/core/language_manager.h
         src/core/language_manager.cpp
@@ -132,8 +133,17 @@ set_target_properties(UbiBotSerialAssistant PROPERTIES
 # one compile definition, rather than each hardcoding its own copy of the
 # string -- so bumping the version for a release really is just the one
 # edit at the top of this file.
+#
+# APP_BUILD_TIME is stamped once here, at CMake *configure* time -- not
+# reevaluated on every incremental compile -- and shown next to the version
+# number in the About dialog (AppController::buildTime()). Good enough for
+# "when was this build configured/produced"; a fresh `cmake -S . -B ...`
+# (as the packaging steps below always start with) picks up a current
+# timestamp for each real release.
+string(TIMESTAMP APP_BUILD_TIME "%Y-%m-%d %H:%M UTC" UTC)
 target_compile_definitions(UbiBotSerialAssistant PRIVATE
     APP_VERSION="${PROJECT_VERSION}"
+    APP_BUILD_TIME="${APP_BUILD_TIME}"
 )
 
 if(WIN32)
