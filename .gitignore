@@ -8,3 +8,4 @@ CMakeLists.txt.user
 .vs/
 out/
 *.qm
+build.md

@@ -247,150 +247,167 @@ ApplicationWindow {
     // needs to sit above *both* of them, they're combined into one
     // `header:` ColumnLayout instead so the stacking order is explicit:
     // TitleBar, then the menu row, then the icon toolbar.
-    header: ColumnLayout {
-        spacing: 0
+    header: Item {
+        id: headerRoot
+        // ColumnLayout below drives the actual size (title bar + menu +
+        // toolbar); this wrapper only exists so the border Rectangle at the
+        // bottom can anchors.fill it and get a real, non-zero size to draw
+        // into -- see that Rectangle's own comment for why it needs this.
+        implicitWidth: headerColumn.implicitWidth
+        implicitHeight: headerColumn.implicitHeight
 
-        TitleBar { Layout.fillWidth: true }
+        ColumnLayout {
+            id: headerColumn
+            anchors.fill: parent
+            spacing: 0
 
-        MenuBar {
-            Layout.fillWidth: true
-            Menu {
-                title: qsTr("&File")
-                MenuItem { text: qsTr("Save log"); onTriggered: saveLogDialog.open() }
-                MenuSeparator {}
-                MenuItem { text: qsTr("Exit"); onTriggered: Qt.quit() }
-            }
-            Menu {
-                title: qsTr("&Edit")
-                MenuItem { text: qsTr("Clear"); onTriggered: AppController.logModel.clear() }
-            }
-            Menu {
-                title: qsTr("&View")
-                MenuItem {
-                    text: qsTr("Pause scrolling")
-                    checkable: true
-                    checked: monitor.paused
-                    onTriggered: monitor.paused = checked
+            TitleBar { Layout.fillWidth: true }
+
+            MenuBar {
+                Layout.fillWidth: true
+                Menu {
+                    title: qsTr("&File")
+                    MenuItem { text: qsTr("Save log"); onTriggered: saveLogDialog.open() }
+                    MenuSeparator {}
+                    MenuItem { text: qsTr("Exit"); onTriggered: Qt.quit() }
+                }
+                Menu {
+                    title: qsTr("&Edit")
+                    MenuItem { text: qsTr("Clear"); onTriggered: AppController.logModel.clear() }
+                }
+                Menu {
+                    title: qsTr("&View")
+                    MenuItem {
+                        text: qsTr("Pause scrolling")
+                        checkable: true
+                        checked: monitor.paused
+                        onTriggered: monitor.paused = checked
+                    }
+                }
+                Menu {
+                    title: qsTr("&Tools")
+                    MenuItem { text: qsTr("Settings"); onTriggered: settingsDialog.open() }
+                }
+                Menu {
+                    title: qsTr("&Help")
+                    // Was a copy-pasted duplicate of the Tools menu's own
+                    // "Settings" item (same text, same handler) -- Settings
+                    // already has its proper home under Tools, so this slot
+                    // is About instead, per user feedback.
+                    MenuItem { text: qsTr("About"); onTriggered: aboutDialog.open() }
                 }
             }
-            Menu {
-                title: qsTr("&Tools")
-                MenuItem { text: qsTr("Settings"); onTriggered: settingsDialog.open() }
-            }
-            Menu {
-                title: qsTr("&Help")
-                // Was a copy-pasted duplicate of the Tools menu's own
-                // "Settings" item (same text, same handler) -- Settings
-                // already has its proper home under Tools, so this slot
-                // is About instead, per user feedback.
-                MenuItem { text: qsTr("About"); onTriggered: aboutDialog.open() }
-            }
-        }
 
-        // Icon-only toolbar (matches the original design's compact 32x32
-        // icon buttons) with the current-device badge and the
-        // open/close-port button at the trailing end, all in the one row
-        // the design puts them in.
-        ToolBar {
-            Layout.fillWidth: true
-            // Design's toolbar row is a fixed 52px band (32px icon buttons
-            // plus 10px of breathing room top and bottom) -- pin it
-            // explicitly since Fusion's default ToolBar padding varies by
-            // platform.
-            implicitHeight: 52
+            // Icon-only toolbar (matches the original design's compact 32x32
+            // icon buttons) with the current-device badge and the
+            // open/close-port button at the trailing end, all in the one row
+            // the design puts them in.
+            ToolBar {
+                Layout.fillWidth: true
+                // Design's toolbar row is a fixed 52px band (32px icon buttons
+                // plus 10px of breathing room top and bottom) -- pin it
+                // explicitly since Fusion's default ToolBar padding varies by
+                // platform.
+                implicitHeight: 52
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 8
-                anchors.rightMargin: 12
-                // Was 0 (touching icon squares, by design -- see
-                // CompactToolButton's own comment) -- per user feedback that
-                // the toolbar buttons read as too cramped together, a small
-                // gap now separates them without losing the compact-toolbar
-                // look (still much tighter than the rest of the app's
-                // control spacing).
-                spacing: 4
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 12
+                    // Was 0 (touching icon squares, by design -- see
+                    // CompactToolButton's own comment) -- per user feedback that
+                    // the toolbar buttons read as too cramped together, a small
+                    // gap now separates them without losing the compact-toolbar
+                    // look (still much tighter than the rest of the app's
+                    // control spacing).
+                    spacing: 4
 
-                CompactToolButton {
-                    icon.source: "qrc:/icons/save.svg"
-                    ToolTip.text: qsTr("Save log")
-                    onClicked: saveLogDialog.open()
-                }
-                ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
-                CompactToolButton {
-                    icon.source: "qrc:/icons/send.svg"
-                    ToolTip.text: qsTr("Send")
-                    onClicked: AppController.sendManualText()
-                }
-                CompactToolButton {
-                    icon.source: "qrc:/icons/pause.svg"
-                    checkable: true
-                    checked: monitor.paused
-                    ToolTip.text: qsTr("Pause scrolling")
-                    onToggled: monitor.paused = checked
-                }
-                CompactToolButton {
-                    icon.source: "qrc:/icons/clear.svg"
-                    ToolTip.text: qsTr("Clear")
-                    onClicked: AppController.logModel.clear()
-                }
-                ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
-                CompactToolButton {
-                    icon.source: "qrc:/icons/settings.svg"
-                    ToolTip.text: qsTr("Settings")
-                    onClicked: settingsDialog.open()
-                }
+                    CompactToolButton {
+                        icon.source: "qrc:/icons/save.svg"
+                        ToolTip.text: qsTr("Save log")
+                        onClicked: saveLogDialog.open()
+                    }
+                    ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
+                    CompactToolButton {
+                        icon.source: "qrc:/icons/send.svg"
+                        ToolTip.text: qsTr("Send")
+                        onClicked: AppController.sendManualText()
+                    }
+                    CompactToolButton {
+                        icon.source: "qrc:/icons/pause.svg"
+                        checkable: true
+                        checked: monitor.paused
+                        ToolTip.text: qsTr("Pause scrolling")
+                        onToggled: monitor.paused = checked
+                    }
+                    CompactToolButton {
+                        icon.source: "qrc:/icons/clear.svg"
+                        ToolTip.text: qsTr("Clear")
+                        onClicked: AppController.logModel.clear()
+                    }
+                    ToolSeparator { Layout.preferredHeight: 22; Layout.leftMargin: 4; Layout.rightMargin: 4 }
+                    CompactToolButton {
+                        icon.source: "qrc:/icons/settings.svg"
+                        ToolTip.text: qsTr("Settings")
+                        onClicked: settingsDialog.open()
+                    }
 
-                Item { Layout.fillWidth: true }
+                    Item { Layout.fillWidth: true }
 
-                // Was a "Current device"/model-id badge shown here, right
-                // next to the port button -- misleading now that the device
-                // command library doesn't drive the port connection at all
-                // (see CommandLibraryPanel.qml); the currently-picked model
-                // is still visible in the "Device commands" panel's own
-                // combo box, it just doesn't need repeating next to a
-                // button it has nothing to do with.
-                Button {
-                    text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
-                    highlighted: true
-                    Layout.preferredWidth: 112
-                    Layout.leftMargin: 12
-                    onClicked: {
-                        if (AppController.portOpen) {
-                            AppController.closePort()
-                        } else {
-                            AppController.openPort(serialPanel.selectedPort, serialPanel.selectedBaud,
-                                                    serialPanel.selectedDataBits, serialPanel.selectedParity,
-                                                    serialPanel.selectedStopBits, serialPanel.selectedFlowControl)
+                    // Was a "Current device"/model-id badge shown here, right
+                    // next to the port button -- misleading now that the device
+                    // command library doesn't drive the port connection at all
+                    // (see CommandLibraryPanel.qml); the currently-picked model
+                    // is still visible in the "Device commands" panel's own
+                    // combo box, it just doesn't need repeating next to a
+                    // button it has nothing to do with.
+                    Button {
+                        text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
+                        highlighted: true
+                        Layout.preferredWidth: 112
+                        Layout.leftMargin: 12
+                        onClicked: {
+                            if (AppController.portOpen) {
+                                AppController.closePort()
+                            } else {
+                                AppController.openPort(serialPanel.selectedPort, serialPanel.selectedBaud,
+                                                        serialPanel.selectedDataBits, serialPanel.selectedParity,
+                                                        serialPanel.selectedStopBits, serialPanel.selectedFlowControl)
+                            }
                         }
                     }
                 }
             }
-        }
+        } // headerColumn
 
         // Top/left/right of the window-perimeter border -- see the
         // `flags:` comment above: going frameless dropped the OS's own
         // window border/drop shadow along with its title bar, and without
         // some edge of its own this window visually disappears into
         // whatever's directly behind it once that happens to be a similar
-        // color. Declared last (topmost) and sized to this whole header
-        // block (title bar + menu + toolbar together, the one region that
-        // reaches the window's true top edge) rather than window-level,
-        // for the same reason the resize grips are split the same way --
-        // window's own plain children only reach down to contentItem,
-        // which starts below all of this. The matching left/right/bottom
-        // pieces below (window-level, reaching contentItem's true edges)
-        // pick up exactly where this leaves off, tracing one continuous
-        // outline with no gap at the seam. transparent fill + border-only,
-        // so it doesn't intercept clicks meant for the title bar buttons/
-        // menu/toolbar underneath.
+        // color. Declared last (topmost, as a sibling of headerColumn
+        // rather than a child of it -- a plain child of a ColumnLayout
+        // with no Layout.fillWidth/fillHeight of its own collapses to a
+        // 0x0 cell and draws nothing, which is what silently broke this
+        // before) and anchored to fill headerRoot, which is sized to this
+        // whole header block (title bar + menu + toolbar together, the one
+        // region that reaches the window's true top edge) rather than
+        // window-level, for the same reason the resize grips are split the
+        // same way -- window's own plain children only reach down to
+        // contentItem, which starts below all of this. The matching
+        // left/right/bottom pieces below (window-level, reaching
+        // contentItem's true edges) pick up exactly where this leaves off,
+        // tracing one continuous outline with no gap at the seam.
+        // transparent fill + border-only, so it doesn't intercept clicks
+        // meant for the title bar buttons/menu/toolbar underneath.
         Rectangle {
+            anchors.fill: parent
             visible: window.visibility !== Window.Maximized
             color: "transparent"
             border.color: Theme.dialogBorder
             border.width: 1
         }
-    }
+    } // headerRoot
 
     ColumnLayout {
         anchors.fill: parent
