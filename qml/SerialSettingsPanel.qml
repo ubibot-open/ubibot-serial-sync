@@ -126,6 +126,17 @@ Flickable {
         Layout.minimumWidth: 80
         elide: Text.ElideRight
     }
+    component FitCheckBox: CheckBox {
+        Layout.fillWidth: true
+        contentItem: Text {
+            text: parent.text
+            font: parent.font
+            elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: parent.indicator.width + parent.spacing
+            color: Theme.text
+        }
+    }
 
     ColumnLayout {
         id: column
@@ -212,17 +223,17 @@ Flickable {
             RadioButton { text: "ASCII"; checked: !AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = false }
             RadioButton { text: "HEX"; checked: AppController.logModel.hexMode; onToggled: if (checked) AppController.logModel.hexMode = true }
         }
-        CheckBox {
+        FitCheckBox {
             text: qsTr("Show timestamp")
             checked: AppController.logModel.showTimestamp
             onToggled: AppController.logModel.showTimestamp = checked
         }
-        CheckBox {
+        FitCheckBox {
             text: qsTr("Wrap lines")
             checked: root.wrapLines
             onToggled: root.wrapLines = checked
         }
-        CheckBox {
+        FitCheckBox {
             id: echoCheck
             text: qsTr("Echo sent data")
             checked: AppController.echoTx
@@ -235,13 +246,13 @@ Flickable {
             RadioButton { text: "ASCII"; checked: !AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = false }
             RadioButton { text: "HEX"; checked: AppController.sendAsHex; onToggled: if (checked) AppController.sendAsHex = true }
         }
-        CheckBox {
+        FitCheckBox {
             text: qsTr("Append CRC (CRC16/MODBUS)")
             checked: AppController.crcEnabled
             onToggled: AppController.crcEnabled = checked
         }
         RowLayout {
-            CheckBox {
+            FitCheckBox {
                 text: qsTr("Repeat send")
                 checked: AppController.repeatSendEnabled
                 onToggled: AppController.repeatSendEnabled = checked
