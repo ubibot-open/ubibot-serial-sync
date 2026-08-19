@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QLocale>
 #include <QSettings>
+#include <QStyleHints>
 
 namespace {
 constexpr auto kLanguage = "app/language";
@@ -214,8 +215,23 @@ void SettingsStore::setSystemFontSize(int pixelSize) {
 }
 
 QString SettingsStore::themeMode() const {
-    const QString mode = QSettings().value(kThemeMode, QStringLiteral("dark")).toString();
-    return mode == QStringLiteral("light") ? mode : QStringLiteral("dark");
+    QSettings s;
+    if (s.contains(kThemeMode)) {
+        const QString mode = s.value(kThemeMode).toString();
+        return mode == QStringLiteral("light") ? mode : QStringLiteral("dark");
+    }
+
+    // First run: match the OS's own light/dark preference (Windows'
+    // "Choose your color mode", macOS's Appearance setting, or the
+    // relevant Linux desktop portal -- whichever this Qt build's platform
+    // theme plugin can read), same idea as language()'s system-locale
+    // match above. QStyleHints::colorScheme() reports Qt::ColorScheme::
+    // Unknown when the platform can't tell it one way or the other (an
+    // older/minimal platform plugin, a Linux desktop without portal
+    // support, ...) -- that and an explicit Dark both fall back to dark.
+    return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Light
+        ? QStringLiteral("light")
+        : QStringLiteral("dark");
 }
 
 void SettingsStore::setThemeMode(const QString &mode) {

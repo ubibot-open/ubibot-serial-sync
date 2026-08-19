@@ -104,16 +104,19 @@ public:
     int systemFontSize() const;
     void setSystemFontSize(int pixelSize);
 
-    // "light" or "dark" -- anything else stored (shouldn't happen outside a
-    // hand-edited settings file), including nothing stored at all yet (a
-    // fresh install), falls back to "dark". Drives Theme.qml's whole color
-    // palette.
+    // "light" or "dark". Once something's actually been stored, anything
+    // other than "light" coerces to "dark" (shouldn't happen outside a
+    // hand-edited settings file). On first run (nothing stored yet), this
+    // matches the OS's own light/dark preference instead -- same idea as
+    // language()'s system-locale match below -- falling back to "dark" when
+    // the platform can't report one. Drives Theme.qml's whole color palette.
     QString themeMode() const;
     void setThemeMode(const QString &mode);
 
-    // Clears the persisted language/font overrides above (the "Settings &
-    // About" dialog's own settings) so the next read of each falls back to
-    // its built-in default -- system-locale detection for language(),
+    // Clears the persisted language/font/theme overrides above (the
+    // "Settings & About" dialog's own settings) so the next read of each
+    // falls back to its built-in default -- system-locale detection for
+    // language(), the system's own light/dark preference for themeMode(),
     // "Consolas" (Microsoft YaHei UI on Windows) at 13px for the data
     // monitor font, and the platform default family (also Microsoft YaHei
     // UI on Windows) at 13px for the system font. Leaves everything else

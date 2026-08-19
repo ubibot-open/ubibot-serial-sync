@@ -258,11 +258,20 @@ Flickable {
                 onToggled: AppController.repeatSendEnabled = checked
             }
             SpinBox {
-                from: 50
+                // Deliberately not tied to repeatSendEnabled -- per user
+                // feedback, the interval should be settable *before*
+                // ticking "Repeat send" on, not only after, so someone
+                // enabling the feature doesn't have to fight a disabled
+                // field first.
+                from: 0
                 to: 3600000
                 stepSize: 50
+                // SpinBox defaults to editable: false (arrows/scroll only,
+                // no typing) -- per user feedback, that's the only way to
+                // reach an interval right now. IntValidator (Fusion's own
+                // SpinBox.qml) still enforces the from/to range either way.
+                editable: true
                 value: AppController.repeatIntervalMs
-                enabled: AppController.repeatSendEnabled
                 onValueModified: AppController.repeatIntervalMs = value
             }
             Label { text: qsTr("ms") }
