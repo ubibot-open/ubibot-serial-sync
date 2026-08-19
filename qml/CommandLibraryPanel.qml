@@ -234,6 +234,10 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
+            Button {
+                text: qsTr("Batch commands")
+                onClicked: batchListDialog.open()
+            }
             Item { Layout.fillWidth: true }
             Button {
                 text: qsTr("New template")
@@ -326,6 +330,340 @@ Item {
                 wrapMode: TextArea.Wrap
                 font.family: Theme.monoFont
                 background: Rectangle { color: Theme.surface; border.color: Theme.divider; border.width: 1 }
+            }
+        }
+    }
+
+    // "Batch commands" management -- lists the user's saved batches (each a
+    // named sequence of {text, isHex, crc} steps plus a send interval), with
+    // play/stop, edit, and delete. Nested here (not a separate top-level
+    // file) for the same reasoning as templateDialog above: only this panel
+    // ever opens it. Starting/stopping a batch is a plain AppController call
+    // (startBatchCommand/stopBatchCommand own the actual send timer) so a
+    // run keeps going even if this dialog is closed mid-send -- runningBatchRow/
+    // batchProgressText below reflect that live regardless of who started it.
+    Dialog {
+        id: batchListDialog
+        title: qsTr("Batch commands")
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        width: 420
+        height: 460
+        palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
+        background: DialogCard {}
+        header: Label {
+            text: batchListDialog.title
+            font.bold: true
+            padding: 14
+            color: Theme.text
+        }
+        footer: DialogButtonBox {
+            palette: Theme.palette
+            Button {
+                text: qsTr("Close")
+                palette: Theme.palette
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+            }
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 10
+
+            Label {
+                Layout.fillWidth: true
+                visible: batchListView.count === 0
+                text: qsTr("No batch commands yet")
+                color: Theme.textMuted
+                wrapMode: Text.WordWrap
+            }
+
+            ListView {
+                id: batchListView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                model: AppController.batchCommandModel
+
+                delegate: Rectangle {
+                    id: batchDelegate
+                    required property int index
+                    required property string name
+                    required property int stepCount
+                    required property int intervalMs
+
+                    // Whether this row is the one AppController is actively
+                    // sending -- compared by row index since batchCommandModel
+                    // has no reorder feature (add always appends, remove is
+                    // the only thing that can shift indices, and
+                    // AppController.removeBatchCommand keeps runningBatchRow
+                    // pointing at the right row when that happens).
+                    readonly property bool running: batchDelegate.index === AppController.runningBatchRow
+
+                    width: batchListView.width
+                    height: 56
+                    color: running ? Theme.accentTint
+                        : (rowHover.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent")
+                    border.color: Theme.divider
+                    border.width: 1
+
+                    MouseArea {
+                        id: rowHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (batchDelegate.running) AppController.stopBatchCommand()
+                            else AppController.startBatchCommand(batchDelegate.index)
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onClicked: batchContextMenu.popup()
+                    }
+                    Menu {
+                        id: batchContextMenu
+                        MenuItem {
+                            text: qsTr("Edit")
+                            onTriggered: batchEditDialog.openForEdit(batchDelegate.index, batchDelegate.name,
+                                                                      batchDelegate.intervalMs)
+                        }
+                        MenuItem {
+                            text: qsTr("Delete")
+                            onTriggered: AppController.removeBatchCommand(batchDelegate.index)
+                        }
+                    }
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 16
+                        anchors.rightMargin: 16
+                        spacing: 11
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 1
+                            Label { text: batchDelegate.name }
+                            Label {
+                                text: batchDelegate.running
+                                    ? AppController.batchProgressText
+                                    : qsTr("%1 steps · %2 ms interval").arg(batchDelegate.stepCount).arg(batchDelegate.intervalMs)
+                                font.pixelSize: Theme.baseFontSize - 1
+                                color: batchDelegate.running ? Theme.accent700 : Theme.textMuted
+                            }
+                        }
+                        Label {
+                            text: batchDelegate.running ? qsTr("■ Stop") : qsTr("▶ Run")
+                            color: batchDelegate.running ? Theme.error : Theme.accent
+                            font.bold: true
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
+                Button {
+                    text: qsTr("New batch")
+                    onClicked: batchEditDialog.openForNew()
+                }
+            }
+        }
+    }
+
+    // Add/edit form for one batch command -- name, send interval, and a
+    // dynamic list of steps (each its own literal text + ASCII/HEX + CRC
+    // option, independent of the app-wide sendAsHex/crcEnabled toggles --
+    // see core/batch_command.h). stepsModel is a plain ListModel (not a JS
+    // array) specifically so each step row's fields can be mutated in place
+    // via setProperty() without rebuilding the whole list on every keystroke.
+    Dialog {
+        id: batchEditDialog
+        title: editRow >= 0 ? qsTr("Edit batch command") : qsTr("New batch command")
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        width: 460
+        height: 520
+        palette: Theme.palette
+        font.family: Theme.baseFontFamily
+        font.pixelSize: Theme.baseFontSize
+        background: DialogCard {}
+        header: Label {
+            text: batchEditDialog.title
+            font.bold: true
+            padding: 14
+            color: Theme.text
+        }
+        footer: DialogButtonBox {
+            palette: Theme.palette
+            Button {
+                text: qsTr("Cancel")
+                palette: Theme.palette
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+            }
+            Button {
+                text: qsTr("Save")
+                palette: Theme.palette
+                // Only checks step *count* -- a step whose text is still
+                // blank is legal to click Save with (see onClicked below,
+                // which just leaves the dialog open rather than silently
+                // discarding it), since tracking "does any row have real
+                // text" reactively would need each row's own binding to
+                // reach back out to this button.
+                enabled: batchNameField.text.trim().length > 0 && stepsModel.count > 0
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+                onClicked: {
+                    const steps = batchEditDialog.collectSteps()
+                    // Every step's text is still blank -- addBatchCommand/
+                    // updateBatchCommand would silently no-op on this (same
+                    // "ignore rather than store a useless row" rule as
+                    // addCustomTemplate), which would otherwise look like a
+                    // broken Save button. Leaving the dialog open instead at
+                    // least gives the user something to notice and fix.
+                    if (!steps.some(function (s) { return s.text.trim().length > 0 })) return
+                    if (batchEditDialog.editRow >= 0)
+                        AppController.updateBatchCommand(batchEditDialog.editRow, batchNameField.text, intervalSpin.value, steps)
+                    else
+                        AppController.addBatchCommand(batchNameField.text, intervalSpin.value, steps)
+                    batchEditDialog.close()
+                }
+            }
+        }
+
+        // -1 means "creating a new batch"; otherwise the row index
+        // (captured when "Edit" was clicked) to update on save -- same
+        // convention as templateDialog.editRow above.
+        property int editRow: -1
+
+        ListModel { id: stepsModel }
+
+        function openForNew() {
+            editRow = -1
+            batchNameField.text = ""
+            intervalSpin.value = 500
+            stepsModel.clear()
+            addStep()
+            open()
+        }
+        function openForEdit(row, name, intervalMs) {
+            editRow = row
+            batchNameField.text = name
+            intervalSpin.value = intervalMs
+            stepsModel.clear()
+            const steps = AppController.stepsForBatchRow(row)
+            for (var i = 0; i < steps.length; ++i)
+                stepsModel.append({stepText: steps[i].text, isHex: steps[i].isHex, crc: steps[i].crc})
+            if (stepsModel.count === 0) addStep()
+            open()
+        }
+        function addStep() {
+            stepsModel.append({stepText: "", isHex: false, crc: false})
+        }
+        function collectSteps() {
+            const result = []
+            for (var i = 0; i < stepsModel.count; ++i) {
+                const item = stepsModel.get(i)
+                result.push({text: item.stepText, isHex: item.isHex, crc: item.crc})
+            }
+            return result
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 10
+
+            Label { text: qsTr("Name") }
+            TextField {
+                id: batchNameField
+                Layout.fillWidth: true
+                placeholderText: qsTr("e.g. Startup sequence")
+                placeholderTextColor: Theme.textMuted
+            }
+
+            RowLayout {
+                Label { text: qsTr("Interval") }
+                SpinBox {
+                    id: intervalSpin
+                    from: 0
+                    to: 3600000
+                    stepSize: 50
+                    editable: true
+                }
+                Label { text: qsTr("ms") }
+                Item { Layout.fillWidth: true }
+            }
+
+            Label { text: qsTr("Steps") }
+
+            ListView {
+                id: stepsView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                spacing: 6
+                model: stepsModel
+
+                delegate: Rectangle {
+                    id: stepDelegate
+                    required property int index
+                    required property string stepText
+                    required property bool isHex
+                    required property bool crc
+
+                    width: stepsView.width
+                    height: 64
+                    color: Theme.surface
+                    border.color: Theme.divider
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 8
+
+                        Label { text: (stepDelegate.index + 1) + "."; color: Theme.textMuted }
+
+                        TextField {
+                            Layout.fillWidth: true
+                            text: stepDelegate.stepText
+                            placeholderText: qsTr("Command text")
+                            placeholderTextColor: Theme.textMuted
+                            font.family: Theme.monoFont
+                            onTextEdited: stepsModel.setProperty(stepDelegate.index, "stepText", text)
+                        }
+
+                        RadioButton {
+                            text: "ASCII"
+                            checked: !stepDelegate.isHex
+                            onToggled: if (checked) stepsModel.setProperty(stepDelegate.index, "isHex", false)
+                        }
+                        RadioButton {
+                            text: "HEX"
+                            checked: stepDelegate.isHex
+                            onToggled: if (checked) stepsModel.setProperty(stepDelegate.index, "isHex", true)
+                        }
+                        CheckBox {
+                            text: qsTr("CRC")
+                            checked: stepDelegate.crc
+                            onToggled: stepsModel.setProperty(stepDelegate.index, "crc", checked)
+                        }
+                        ToolButton {
+                            text: "✕"
+                            enabled: stepsModel.count > 1
+                            onClicked: stepsModel.remove(stepDelegate.index)
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
+                Button {
+                    text: qsTr("Add step")
+                    onClicked: batchEditDialog.addStep()
+                }
             }
         }
     }

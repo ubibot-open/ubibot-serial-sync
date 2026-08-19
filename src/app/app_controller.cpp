@@ -2,6 +2,7 @@
 
 #include "core/crc16.h"
 #include "core/language_manager.h"
+#include "models/batch_command_model.h"
 #include "models/command_history_model.h"
 #include "models/command_list_model.h"
 #include "models/log_list_model.h"
@@ -31,9 +32,13 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     commandModel_ = new CommandListModel(&library_, &settings_, this);
     portListModel_ = new PortListModel(this);
     commandHistoryModel_ = new CommandHistoryModel(&settings_, this);
+    batchCommandModel_ = new BatchCommandModel(&settings_, this);
 
     repeatTimer_ = new QTimer(this);
     connect(repeatTimer_, &QTimer::timeout, this, &AppController::sendManualText);
+
+    batchTimer_ = new QTimer(this);
+    connect(batchTimer_, &QTimer::timeout, this, &AppController::sendNextBatchStep);
 
     rxFlushTimer_ = new QTimer(this);
     rxFlushTimer_->setSingleShot(true);
@@ -45,6 +50,7 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     connect(&serial_, &SerialManager::opened, this, [this](const SerialConfig &) { emit connectionChanged(); });
     connect(&serial_, &SerialManager::closed, this, [this] {
         repeatTimer_->stop();
+        stopBatchCommand();
         flushRxLineBuffer();
         emit connectionChanged();
     });
@@ -245,31 +251,31 @@ void AppController::setRepeatIntervalMs(int ms) {
     emit repeatSendChanged();
 }
 
-QByteArray AppController::composeAsciiPayload(const QString &text) const {
+QByteArray AppController::composeAsciiPayload(const QString &text, bool crc) const {
     QByteArray bytes = text.toUtf8();
     // Captured before any CRC bytes are appended below -- otherwise a CRC
     // byte that happens to equal '\n' (0x0A) would make this wrongly think
     // the user's own text already ended in a newline and skip adding the
     // real "\r\n" terminator.
     const bool hasTerminator = bytes.endsWith('\n');
-    if (crcEnabled_) bytes += Crc16::modbusBytes(bytes);
+    if (crc) bytes += Crc16::modbusBytes(bytes);
     if (!hasTerminator) bytes += "\r\n";
     return bytes;
 }
 
-QByteArray AppController::composeHexPayload(const QString &text) const {
+QByteArray AppController::composeHexPayload(const QString &text, bool crc) const {
     QString cleaned = text;
     cleaned.remove(QLatin1Char(' '));
     cleaned.remove(QLatin1Char('\n'));
     cleaned.remove(QLatin1Char('\r'));
     cleaned.remove(QLatin1Char('\t'));
     QByteArray bytes = QByteArray::fromHex(cleaned.toUtf8());
-    if (crcEnabled_) bytes += Crc16::modbusBytes(bytes);
+    if (crc) bytes += Crc16::modbusBytes(bytes);
     return bytes;
 }
 
-QString AppController::crcEchoSuffix(const QByteArray &data) const {
-    if (!crcEnabled_) return QString();
+QString AppController::crcEchoSuffix(const QByteArray &data, bool crc) const {
+    if (!crc) return QString();
     return QStringLiteral(" [CRC %1]").arg(QString::fromLatin1(Crc16::modbusBytes(data).toHex(' ').toUpper()));
 }
 
@@ -365,12 +371,12 @@ void AppController::sendManualText() {
     }
 
     if (sendAsHex_) {
-        const QByteArray payload = composeHexPayload(text);
+        const QByteArray payload = composeHexPayload(text, crcEnabled_);
         serial_.write(payload);
         if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
     } else {
-        serial_.write(composeAsciiPayload(text));
-        if (echoTx_) logManager_.append(LogKind::Tx, (text + crcEchoSuffix(text.toUtf8())).toUtf8());
+        serial_.write(composeAsciiPayload(text, crcEnabled_));
+        if (echoTx_) logManager_.append(LogKind::Tx, (text + crcEchoSuffix(text.toUtf8(), crcEnabled_)).toUtf8());
     }
 
     // Repeat-send calls this on every timer tick with the same draftText_ --
@@ -417,6 +423,111 @@ void AppController::loadCommandWithParamsIntoDraft(int row, const QVariantMap &v
 }
 
 void AppController::moveCommandRow(int from, int to) { commandModel_->moveRow(from, to); }
+
+void AppController::addBatchCommand(const QString &name, int intervalMs, const QVariantList &steps) {
+    batchCommandModel_->addBatchCommand(name, intervalMs, steps);
+}
+
+void AppController::updateBatchCommand(int row, const QString &name, int intervalMs, const QVariantList &steps) {
+    batchCommandModel_->updateBatchCommand(row, name, intervalMs, steps);
+}
+
+void AppController::removeBatchCommand(int row) {
+    if (row == batchRunningRow_) {
+        // Deleting the batch that's actively sending -- stop it cleanly
+        // first rather than leaving batchTimer_ ticking against a snapshot
+        // whose source row is about to disappear.
+        stopBatchCommand();
+    } else if (batchRunningRow_ >= 0 && row < batchRunningRow_) {
+        // A row *below* the running one shifts up by one once removed --
+        // batchRunningRow_ has to follow it so the dialog keeps
+        // highlighting the same logical batch, not whichever row happens
+        // to land at the old index afterward.
+        --batchRunningRow_;
+        emit batchStateChanged();
+    }
+    batchCommandModel_->removeBatchCommand(row);
+}
+
+QVariantList AppController::stepsForBatchRow(int row) const { return batchCommandModel_->stepsForRow(row); }
+
+void AppController::startBatchCommand(int row) {
+    const BatchCommand *bc = batchCommandModel_->commandAt(row);
+    if (!bc || bc->steps.isEmpty()) return;
+
+    if (!serial_.isOpen()) {
+        logManager_.append(LogKind::Err, tr("Port is not open — click \"Open port\" first.").toUtf8());
+        return;
+    }
+
+    // Only one batch runs at a time -- starting a new one (or re-starting
+    // the same one) cleanly stops whatever's already in flight first.
+    stopBatchCommand();
+
+    batchQueue_ = *bc;
+    batchStepIndex_ = 0;
+    batchRunningRow_ = row;
+    logManager_.append(
+        LogKind::Sys,
+        tr("Batch \"%1\" started — %2 step(s).").arg(batchQueue_.name).arg(batchQueue_.steps.size()).toUtf8());
+    emit batchStateChanged();
+
+    // Send the first step right away rather than waiting a full interval to
+    // see anything happen; sendNextBatchStep() below only needs to cover
+    // the steps after it.
+    sendNextBatchStep();
+    if (batchRunningRow_ >= 0 && batchStepIndex_ < batchQueue_.steps.size())
+        batchTimer_->start(qMax(0, batchQueue_.intervalMs));
+}
+
+void AppController::sendNextBatchStep() {
+    if (batchRunningRow_ < 0 || batchStepIndex_ >= batchQueue_.steps.size()) {
+        stopBatchCommand();
+        return;
+    }
+    if (!serial_.isOpen()) {
+        stopBatchCommand();
+        return;
+    }
+
+    const BatchCommandStep &step = batchQueue_.steps.at(batchStepIndex_);
+    if (step.isHex) {
+        const QByteArray payload = composeHexPayload(step.text, step.crcEnabled);
+        serial_.write(payload);
+        if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
+    } else {
+        serial_.write(composeAsciiPayload(step.text, step.crcEnabled));
+        if (echoTx_)
+            logManager_.append(LogKind::Tx, (step.text + crcEchoSuffix(step.text.toUtf8(), step.crcEnabled)).toUtf8());
+    }
+    ++batchStepIndex_;
+    emit batchStateChanged();
+
+    if (batchStepIndex_ >= batchQueue_.steps.size()) {
+        logManager_.append(LogKind::Sys, tr("Batch \"%1\" finished.").arg(batchQueue_.name).toUtf8());
+        stopBatchCommand();
+    }
+}
+
+void AppController::stopBatchCommand() {
+    if (batchRunningRow_ < 0) return;
+    // Only log an explicit "stopped" line when this cuts a run short --
+    // sendNextBatchStep() above already logs its own "finished" line right
+    // before calling this on natural completion, so this would otherwise
+    // double up on every normal run.
+    if (batchStepIndex_ < batchQueue_.steps.size())
+        logManager_.append(LogKind::Sys, tr("Batch \"%1\" stopped.").arg(batchQueue_.name).toUtf8());
+    batchTimer_->stop();
+    batchRunningRow_ = -1;
+    batchStepIndex_ = 0;
+    batchQueue_ = BatchCommand();
+    emit batchStateChanged();
+}
+
+QString AppController::batchProgressText() const {
+    if (batchRunningRow_ < 0) return QString();
+    return tr("%1 / %2").arg(batchStepIndex_).arg(batchQueue_.steps.size());
+}
 
 void AppController::addCustomTemplate(const QString &name, const QString &content) {
     commandModel_->addCustomTemplate(name, content);

@@ -109,6 +109,7 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/core/ansi_text.cpp
         src/core/crc16.h
         src/core/crc16.cpp
+        src/core/batch_command.h
         src/core/log_entry.h
         src/core/log_manager.h
         src/core/log_manager.cpp
@@ -122,6 +123,8 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/models/command_list_model.cpp
         src/models/command_history_model.h
         src/models/command_history_model.cpp
+        src/models/batch_command_model.h
+        src/models/batch_command_model.cpp
         src/models/port_list_model.h
         src/models/port_list_model.cpp
         src/app/app_controller.h

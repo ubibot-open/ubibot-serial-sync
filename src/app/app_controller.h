@@ -1,9 +1,11 @@
 #pragma once
 
+#include "core/batch_command.h"
 #include "core/device_library.h"
 #include "core/log_manager.h"
 #include "core/serial_manager.h"
 #include "core/settings_store.h"
+#include "models/batch_command_model.h"
 #include "models/command_history_model.h"
 #include "models/command_list_model.h"
 #include "models/log_list_model.h"
@@ -93,6 +95,17 @@ class AppController : public QObject {
     Q_PROPERTY(bool repeatSendEnabled READ repeatSendEnabled WRITE setRepeatSendEnabled NOTIFY repeatSendChanged)
     Q_PROPERTY(int repeatIntervalMs READ repeatIntervalMs WRITE setRepeatIntervalMs NOTIFY repeatSendChanged)
 
+    // "Batch commands" (CommandLibraryPanel.qml's own batch dialog) --
+    // batchRunning/runningBatchRow/batchProgressText describe whatever
+    // batch is currently mid-send (runningBatchRow is the row index into
+    // batchCommandModel, -1 when nothing is running) so the dialog can
+    // highlight the right row and show live "N / total" progress
+    // regardless of whether the dialog was the thing that started it.
+    Q_PROPERTY(BatchCommandModel *batchCommandModel READ batchCommandModel CONSTANT)
+    Q_PROPERTY(bool batchRunning READ batchRunning NOTIFY batchStateChanged)
+    Q_PROPERTY(int runningBatchRow READ runningBatchRow NOTIFY batchStateChanged)
+    Q_PROPERTY(QString batchProgressText READ batchProgressText NOTIFY batchStateChanged)
+
     Q_PROPERTY(LogListModel *logModel READ logModel CONSTANT)
     Q_PROPERTY(CommandListModel *commandModel READ commandModel CONSTANT)
     Q_PROPERTY(PortListModel *portListModel READ portListModel CONSTANT)
@@ -164,6 +177,11 @@ public:
     int repeatIntervalMs() const { return repeatIntervalMs_; }
     void setRepeatIntervalMs(int ms);
 
+    BatchCommandModel *batchCommandModel() const { return batchCommandModel_; }
+    bool batchRunning() const { return batchRunningRow_ >= 0; }
+    int runningBatchRow() const { return batchRunningRow_; }
+    QString batchProgressText() const;
+
     LogListModel *logModel() const { return logModel_; }
     CommandListModel *commandModel() const { return commandModel_; }
     PortListModel *portListModel() const { return portListModel_; }
@@ -213,6 +231,25 @@ public:
     // -- forwards to CommandListModel::moveRow(), which persists the result.
     Q_INVOKABLE void moveCommandRow(int from, int to);
 
+    // "Batch commands" -- a user-authored sequence of {text, isHex, crc}
+    // steps sent one at a time at a fixed interval, picked from
+    // CommandLibraryPanel.qml's own batch dialog. add/update/remove/
+    // stepsForRow forward straight to batchCommandModel_ (same reasoning as
+    // addCustomTemplate and friends above); start/stop own the actual send
+    // engine (batchTimer_) since that needs serial_/logManager_ access the
+    // model doesn't have. `steps` is a QVariantList of {text, isHex, crc}
+    // maps.
+    Q_INVOKABLE void addBatchCommand(const QString &name, int intervalMs, const QVariantList &steps);
+    Q_INVOKABLE void updateBatchCommand(int row, const QString &name, int intervalMs, const QVariantList &steps);
+    Q_INVOKABLE void removeBatchCommand(int row);
+    Q_INVOKABLE QVariantList stepsForBatchRow(int row) const;
+    // No-op if the port isn't open, the row is out of range, or it has no
+    // steps. Stops whatever batch is already running first (if any), so
+    // there's only ever one in flight.
+    Q_INVOKABLE void startBatchCommand(int row);
+    // Safe to call whether or not a batch is actually running.
+    Q_INVOKABLE void stopBatchCommand();
+
     // {present, baudRate, dataBits, parity, stopBits, flowControl} for the
     // given model id -- the last four are the raw QSerialPort enum ints, so
     // QML can feed them straight to a SerialOptions combo's indexOfValue().
@@ -243,19 +280,31 @@ signals:
     void sendAsHexChanged();
     void crcEnabledChanged();
     void repeatSendChanged();
+    void batchStateChanged();
     void portOpenFailed(const QString &error);
     void statusMessage(const QString &text);
 
 private:
-    QByteArray composeAsciiPayload(const QString &text) const;
-    QByteArray composeHexPayload(const QString &text) const;
+    // `crc` is explicit (rather than always reading crcEnabled_) so a batch
+    // step's own per-step CRC option (independent of the global toggle) can
+    // reuse these same three helpers -- see sendNextBatchStep().
+    QByteArray composeAsciiPayload(const QString &text, bool crc) const;
+    QByteArray composeHexPayload(const QString &text, bool crc) const;
     // " [CRC XX XX]" (the exact bytes composeAsciiPayload()/composeHexPayload()
-    // append for this same data) when crcEnabled_ is on, else empty --
-    // appended to the TX echo log line so an ASCII-mode send's log entry
-    // still shows what actually went out, since (unlike the HEX-mode echo,
-    // which already logs the final CRC-included payload as hex) the ASCII
-    // echo logs the human-typed text, not raw wire bytes.
-    QString crcEchoSuffix(const QByteArray &data) const;
+    // append for this same data) when `crc` is on, else empty -- appended to
+    // the TX echo log line so an ASCII-mode send's log entry still shows
+    // what actually went out, since (unlike the HEX-mode echo, which already
+    // logs the final CRC-included payload as hex) the ASCII echo logs the
+    // human-typed text, not raw wire bytes.
+    QString crcEchoSuffix(const QByteArray &data, bool crc) const;
+
+    // Sends batchQueue_.steps[batchStepIndex_] and advances batchStepIndex_;
+    // called once immediately from startBatchCommand() (so a run's first
+    // step goes out right away instead of only after the first interval
+    // elapses) and then once per batchTimer_ tick. Stops the run (via
+    // stopBatchCommand()) once the queue is exhausted, or if the port
+    // somehow closed mid-run.
+    void sendNextBatchStep();
 
     // Raw serial reads land in arbitrary, driver-chosen chunk sizes -- a
     // single logical line from the device routinely arrives as several
@@ -286,7 +335,18 @@ private:
     CommandListModel *commandModel_;
     PortListModel *portListModel_;
     CommandHistoryModel *commandHistoryModel_;
+    BatchCommandModel *batchCommandModel_;
     QTimer *repeatTimer_;
+    QTimer *batchTimer_;
+    // Snapshot of the batch being sent, taken when startBatchCommand() opens
+    // it -- so editing or deleting the saved entry in batchCommandModel_
+    // mid-run can't corrupt an in-flight send. batchRunningRow_ is the row
+    // index into batchCommandModel_ this snapshot came from (-1 when no
+    // batch is running); batchStepIndex_ is how many of its steps have
+    // been sent so far.
+    BatchCommand batchQueue_;
+    int batchRunningRow_ = -1;
+    int batchStepIndex_ = 0;
 
     QString selectedPortName_;
     QString draftText_;

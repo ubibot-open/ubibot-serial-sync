@@ -29,6 +29,7 @@ constexpr auto kSystemFontFamily = "app/fontFamily";
 constexpr auto kSystemFontSize = "app/fontSize";
 constexpr auto kThemeMode = "app/themeMode";
 constexpr auto kCustomTemplates = "send/customTemplates";
+constexpr auto kBatchCommands = "send/batchCommands";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -144,6 +145,49 @@ void SettingsStore::setCustomTemplates(const QVector<CustomCommandTemplate> &tem
         arr.push_back(o);
     }
     QSettings().setValue(kCustomTemplates, QJsonDocument(arr).toJson(QJsonDocument::Compact));
+}
+
+QVector<BatchCommand> SettingsStore::batchCommands() const {
+    QVector<BatchCommand> result;
+    const QJsonDocument doc = QJsonDocument::fromJson(QSettings().value(kBatchCommands).toByteArray());
+    for (const QJsonValue &v : doc.array()) {
+        const QJsonObject o = v.toObject();
+        BatchCommand b;
+        b.id = o.value(QStringLiteral("id")).toString();
+        b.name = o.value(QStringLiteral("name")).toString();
+        b.intervalMs = o.value(QStringLiteral("intervalMs")).toInt(500);
+        for (const QJsonValue &sv : o.value(QStringLiteral("steps")).toArray()) {
+            const QJsonObject so = sv.toObject();
+            BatchCommandStep step;
+            step.text = so.value(QStringLiteral("text")).toString();
+            step.isHex = so.value(QStringLiteral("isHex")).toBool();
+            step.crcEnabled = so.value(QStringLiteral("crc")).toBool();
+            b.steps.push_back(step);
+        }
+        result.push_back(b);
+    }
+    return result;
+}
+
+void SettingsStore::setBatchCommands(const QVector<BatchCommand> &commands) {
+    QJsonArray arr;
+    for (const BatchCommand &b : commands) {
+        QJsonObject o;
+        o[QStringLiteral("id")] = b.id;
+        o[QStringLiteral("name")] = b.name;
+        o[QStringLiteral("intervalMs")] = b.intervalMs;
+        QJsonArray steps;
+        for (const BatchCommandStep &step : b.steps) {
+            QJsonObject so;
+            so[QStringLiteral("text")] = step.text;
+            so[QStringLiteral("isHex")] = step.isHex;
+            so[QStringLiteral("crc")] = step.crcEnabled;
+            steps.push_back(so);
+        }
+        o[QStringLiteral("steps")] = steps;
+        arr.push_back(o);
+    }
+    QSettings().setValue(kBatchCommands, QJsonDocument(arr).toJson(QJsonDocument::Compact));
 }
 
 QString SettingsStore::logFontFamily() const {

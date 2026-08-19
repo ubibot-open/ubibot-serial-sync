@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/batch_command.h"
 #include "core/language_manager.h"
 #include "core/serial_manager.h"
 
@@ -76,6 +77,15 @@ public:
     // of the whole list.
     QVector<CustomCommandTemplate> customTemplates() const;
     void setCustomTemplates(const QVector<CustomCommandTemplate> &templates);
+
+    // The user's saved "Batch commands" (CommandLibraryPanel.qml's own
+    // batch dialog) -- each a {name, intervalMs, steps} sequence, in display
+    // order. Same one-JSON-blob-under-one-key storage as customTemplates()
+    // above, for the same reasoning (small, user-curated list). See
+    // BatchCommandModel, the only reader/writer (via AppController's
+    // addBatchCommand/updateBatchCommand/removeBatchCommand).
+    QVector<BatchCommand> batchCommands() const;
+    void setBatchCommands(const QVector<BatchCommand> &commands);
 
     // Data monitor (right-hand log pane) font. Size defaults to 13px
     // (originally the hardcoded value DataMonitorView.qml used before this
