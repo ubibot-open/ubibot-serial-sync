@@ -14,6 +14,18 @@ ApplicationWindow {
     // without the window opening noticeably larger on a normal desktop.
     width: 1320
     height: 860
+    // Nothing below stops the window from being dragged narrower/shorter
+    // than this on its own -- the custom resize grips near the end of this
+    // file call the real window.startSystemResize(), so minimumWidth/
+    // minimumHeight are enforced by the OS during that drag exactly like a
+    // normal titled window's would be. Below ~860 the fixed-width sidebar
+    // (330px) leaves the icon toolbar/"Open port" button/data monitor no
+    // room left to lay out in, and a language with longer translations
+    // squeezes the Serial/Device commands tab labels down to unreadable
+    // ellipsis well before that -- this is the width below which the layout
+    // has nowhere left to give, not a number tuned to look nice.
+    minimumWidth: 860
+    minimumHeight: 600
     visible: true
     title: qsTr("UbiBot Serial Assistant")
     color: Theme.background

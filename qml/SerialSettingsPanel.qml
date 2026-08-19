@@ -90,6 +90,33 @@ Flickable {
         color: Theme.textMuted
     }
 
+    // The Port/Baud rate/.../Flow control label column below used to pin
+    // every row to a fixed Layout.preferredWidth: 70 -- comfortably wide
+    // enough for the English/Chinese originals, but some of this app's
+    // other shipped languages translate these into noticeably longer
+    // words/phrases ("Flow control" -> "Управление потоком" in Russian,
+    // say), which just got clipped at that fixed width.
+    //
+    // Letting the column auto-size to its widest label (no preferredWidth
+    // at all) fixed that clipping, but only traded it for a worse one: this
+    // sidebar's own width is fixed (Main.qml), so a label wide enough to
+    // want more room than the sidebar has just takes it from the combo box
+    // next to it -- which is how "no margin left, and the label text still
+    // ran past the sidebar's own edge" showed up for Russian. A label
+    // column can borrow space from its neighbor; it can't invent space the
+    // sidebar doesn't have.
+    //
+    // maximumWidth is the actual fix: it caps how far GridLayout will *let*
+    // the column grow, guaranteeing the combo box column always keeps a
+    // livable minimum regardless of translation length. elide is what
+    // makes that cap safe to hit -- past it, the label truncates with an
+    // ellipsis instead of overflowing the column GridLayout capped it at.
+    component RowLabel: Label {
+        Layout.maximumWidth: 120
+        Layout.fillWidth: true
+        elide: Text.ElideRight
+    }
+
     ColumnLayout {
         id: column
         x: 16
@@ -106,18 +133,7 @@ Flickable {
             columnSpacing: 10
             rowSpacing: 8
 
-            // The label column below used to pin every row to a fixed
-            // Layout.preferredWidth: 70 -- comfortably wide enough for the
-            // English/Chinese originals, but some of this app's other
-            // shipped languages translate these into noticeably longer
-            // words/phrases ("Flow control" -> "Управление потоком" in
-            // Russian, say), which just got clipped at that fixed width.
-            // Leaving preferredWidth unset lets GridLayout fall back to its
-            // own default column-sizing: each column sized to fit the
-            // widest cell actually placed in it, so the label column
-            // auto-widens (or narrows) to whatever the *current* language's
-            // longest label needs, with no per-language tuning required.
-            Label { text: qsTr("Port") }
+            RowLabel { text: qsTr("Port") }
             RowLayout {
                 Layout.fillWidth: true
                 PortComboBox {
@@ -146,7 +162,7 @@ Flickable {
                 }
             }
 
-            Label { text: qsTr("Baud rate") }
+            RowLabel { text: qsTr("Baud rate") }
             // Was editable (free-text entry, validated against a plain
             // 50-4000000 numeric range) -- selection-only now, per user
             // feedback that a baud rate isn't something to type in by hand.
@@ -159,7 +175,7 @@ Flickable {
                 currentIndex: 8 // 115200
             }
 
-            Label { text: qsTr("Data bits") }
+            RowLabel { text: qsTr("Data bits") }
             ComboBox {
                 id: dataBitsCombo
                 Layout.fillWidth: true
@@ -169,7 +185,7 @@ Flickable {
                 // change) is handled by rebuildOptions().
             }
 
-            Label { text: qsTr("Parity") }
+            RowLabel { text: qsTr("Parity") }
             ComboBox {
                 id: parityCombo
                 Layout.fillWidth: true
@@ -177,7 +193,7 @@ Flickable {
                 valueRole: "value"
             }
 
-            Label { text: qsTr("Stop bits") }
+            RowLabel { text: qsTr("Stop bits") }
             ComboBox {
                 id: stopBitsCombo
                 Layout.fillWidth: true
@@ -185,7 +201,7 @@ Flickable {
                 valueRole: "value"
             }
 
-            Label { text: qsTr("Flow control") }
+            RowLabel { text: qsTr("Flow control") }
             ComboBox {
                 id: flowCombo
                 Layout.fillWidth: true
