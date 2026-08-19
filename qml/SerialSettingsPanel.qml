@@ -106,7 +106,18 @@ Flickable {
             columnSpacing: 10
             rowSpacing: 8
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Port") }
+            // The label column below used to pin every row to a fixed
+            // Layout.preferredWidth: 70 -- comfortably wide enough for the
+            // English/Chinese originals, but some of this app's other
+            // shipped languages translate these into noticeably longer
+            // words/phrases ("Flow control" -> "Управление потоком" in
+            // Russian, say), which just got clipped at that fixed width.
+            // Leaving preferredWidth unset lets GridLayout fall back to its
+            // own default column-sizing: each column sized to fit the
+            // widest cell actually placed in it, so the label column
+            // auto-widens (or narrows) to whatever the *current* language's
+            // longest label needs, with no per-language tuning required.
+            Label { text: qsTr("Port") }
             RowLayout {
                 Layout.fillWidth: true
                 PortComboBox {
@@ -135,7 +146,7 @@ Flickable {
                 }
             }
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Baud rate") }
+            Label { text: qsTr("Baud rate") }
             // Was editable (free-text entry, validated against a plain
             // 50-4000000 numeric range) -- selection-only now, per user
             // feedback that a baud rate isn't something to type in by hand.
@@ -148,7 +159,7 @@ Flickable {
                 currentIndex: 8 // 115200
             }
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Data bits") }
+            Label { text: qsTr("Data bits") }
             ComboBox {
                 id: dataBitsCombo
                 Layout.fillWidth: true
@@ -158,7 +169,7 @@ Flickable {
                 // change) is handled by rebuildOptions().
             }
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Parity") }
+            Label { text: qsTr("Parity") }
             ComboBox {
                 id: parityCombo
                 Layout.fillWidth: true
@@ -166,7 +177,7 @@ Flickable {
                 valueRole: "value"
             }
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Stop bits") }
+            Label { text: qsTr("Stop bits") }
             ComboBox {
                 id: stopBitsCombo
                 Layout.fillWidth: true
@@ -174,7 +185,7 @@ Flickable {
                 valueRole: "value"
             }
 
-            Label { Layout.preferredWidth: 70; text: qsTr("Flow control") }
+            Label { text: qsTr("Flow control") }
             ComboBox {
                 id: flowCombo
                 Layout.fillWidth: true

@@ -436,12 +436,27 @@ ApplicationWindow {
                                     required property int index
                                     width: Math.floor(modeBar.width / 2)
                                     height: 36
+                                    // This is a fixed even split by design (a
+                                    // two-way toggle reads as "equal choices"
+                                    // -- an uneven one looks like a mistake),
+                                    // so a language whose translation just
+                                    // doesn't fit half this width can't be
+                                    // fixed by resizing the segment itself.
+                                    // clip + elide below is the fallback:
+                                    // truncate with an ellipsis rather than
+                                    // (Text doesn't clip on its own) bleeding
+                                    // over the divider into the next segment,
+                                    // which is what a long Russian label did.
+                                    clip: true
                                     color: modeBar.currentIndex === index ? Theme.accent : "transparent"
                                     border.color: Theme.divider
                                     border.width: 1
 
                                     Label {
                                         anchors.centerIn: parent
+                                        width: Math.min(implicitWidth, parent.width - 12)
+                                        horizontalAlignment: Text.AlignHCenter
+                                        elide: Text.ElideRight
                                         text: segment.modelData
                                         font.pixelSize: Theme.baseFontSize + 1
                                         color: modeBar.currentIndex === index ? Theme.accentForeground : Theme.text
