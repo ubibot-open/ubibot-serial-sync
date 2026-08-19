@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr" sourcelanguage="en">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Assistant série UbiBot</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>Version %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>Un outil de débogage de port série pour les appareils IoT UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1, et d&apos;autres), développé avec Qt 6, QML et C++17.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>Date de compilation</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>Société</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · États-Unis d&apos;Amérique</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Site web</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Développé avec Qt %1 sous licence GNU Lesser General Public License v3 (LGPLv3). Qt est une marque déposée de The Qt Company Ltd. Qt est lié dynamiquement, les bibliothèques Qt fournies peuvent donc être remplacées par une version compatible LGPLv3.</translation>
+    </message>
+</context>
+<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -28,6 +75,22 @@
         <translation>Port fermé</translation>
     </message>
     <message>
+        <source>Batch &quot;%1&quot; started — %2 step(s).</source>
+        <translation>Lot « %1 » démarré — %2 étape(s).</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; finished.</source>
+        <translation>Lot « %1 » terminé.</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; stopped.</source>
+        <translation>Lot « %1 » arrêté.</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>Log saved to %1</source>
         <translation>Journal enregistré dans %1</translation>
     </message>
@@ -37,26 +100,168 @@
     </message>
 </context>
 <context>
-    <name>SerialOptions</name>
+    <name>CommandLibraryPanel</name>
     <message>
-        <source>None</source>
-        <translation>Aucune</translation>
+        <source>Search commands</source>
+        <translation>Rechercher des commandes</translation>
     </message>
     <message>
-        <source>Even</source>
-        <translation>Paire</translation>
+        <source>Drag a row to reorder</source>
+        <translation>Faites glisser une ligne pour la réorganiser</translation>
     </message>
     <message>
-        <source>Odd</source>
-        <translation>Impaire</translation>
+        <source>Edit</source>
+        <translation>Modifier</translation>
     </message>
     <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
     </message>
     <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
+        <source>Batch commands</source>
+        <translation>Commandes en lot</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Nouveau modèle</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>Modifier le modèle</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>ex. : réinitialiser l&apos;appareil</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Contenu</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>Le texte exact à envoyer</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Fermer</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>Aucune commande en lot pour l&apos;instant</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 étape(s) · intervalle %2 ms</translation>
+    </message>
+    <message>
+        <source>■ Stop</source>
+        <translation>■ Arrêter</translation>
+    </message>
+    <message>
+        <source>▶ Run</source>
+        <translation>▶ Lancer</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>Nouveau lot</translation>
+    </message>
+    <message>
+        <source>Edit batch command</source>
+        <translation>Modifier la commande en lot</translation>
+    </message>
+    <message>
+        <source>New batch command</source>
+        <translation>Nouvelle commande en lot</translation>
+    </message>
+    <message>
+        <source>e.g. Startup sequence</source>
+        <translation>ex. : séquence de démarrage</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>Intervalle</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation type="unfinished">ms</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Étapes</translation>
+    </message>
+    <message>
+        <source>Command text</source>
+        <translation>Texte de la commande</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Add step</source>
+        <translation>Ajouter une étape</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Device model · Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Enregistrer</translation>
+    </message>
+</context>
+<context>
+    <name>CommandParamsPanel</name>
+    <message>
+        <source>Needs parameters</source>
+        <translation>Paramètres requis</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Insérer</translation>
+    </message>
+</context>
+<context>
+    <name>DataMonitorView</name>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data monitor</source>
+        <translation>Moniteur de données</translation>
+    </message>
+    <message>
+        <source>%1 lines</source>
+        <translation>%1 lignes</translation>
+    </message>
+    <message>
+        <source>Rx %1</source>
+        <translation>Rx %1</translation>
+    </message>
+    <message>
+        <source>Tx %1</source>
+        <translation>Tx %1</translation>
     </message>
 </context>
 <context>
@@ -126,10 +331,6 @@
         <translation>Série</translation>
     </message>
     <message>
-        <source>Remote support</source>
-        <translation>Assistance à distance</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>Fermer le port</translation>
     </message>
@@ -163,117 +364,14 @@
     </message>
 </context>
 <context>
-    <name>SerialSettingsPanel</name>
+    <name>PortComboBox</name>
     <message>
-        <source>Port</source>
-        <translation>Port</translation>
+        <source>No ports found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baud rate</source>
-        <translation>Débit (bauds)</translation>
-    </message>
-    <message>
-        <source>Data bits</source>
-        <translation>Bits de données</translation>
-    </message>
-    <message>
-        <source>Parity</source>
-        <translation>Parité</translation>
-    </message>
-    <message>
-        <source>Stop bits</source>
-        <translation>Bits d&apos;arrêt</translation>
-    </message>
-    <message>
-        <source>Flow control</source>
-        <translation>Contrôle de flux</translation>
-    </message>
-    <message>
-        <source>Receive</source>
-        <translation>Réception</translation>
-    </message>
-    <message>
-        <source>Show timestamp</source>
-        <translation>Afficher l&apos;horodatage</translation>
-    </message>
-    <message>
-        <source>Wrap lines</source>
-        <translation>Retour à la ligne</translation>
-    </message>
-    <message>
-        <source>Echo sent data</source>
-        <translation>Afficher les données envoyées</translation>
-    </message>
-    <message>
-        <source>Transmit</source>
-        <translation>Émission</translation>
-    </message>
-    <message>
-        <source>Append CRC (CRC16/MODBUS)</source>
-        <translation>Ajouter le CRC (CRC16/MODBUS)</translation>
-    </message>
-    <message>
-        <source>Repeat send</source>
-        <translation>Envoi répété</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
-    </message>
-</context>
-<context>
-    <name>CommandLibraryPanel</name>
-    <message>
-        <source>Device model</source>
-        <translation>Modèle de l&apos;appareil</translation>
-    </message>
-    <message>
-        <source>Search commands</source>
-        <translation>Rechercher des commandes</translation>
-    </message>
-    <message>
-        <source>Drag a row to reorder</source>
-        <translation>Faites glisser une ligne pour la réorganiser</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Modifier</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>Nouveau modèle</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>Modifier le modèle</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>ex. : réinitialiser l&apos;appareil</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Contenu</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>Le texte exact à envoyer</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Enregistrer</translation>
+        <source>Unknown device</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -336,40 +434,6 @@
     </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
-    <message>
-        <source>Needs parameters</source>
-        <translation>Paramètres requis</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Insert</source>
-        <translation>Insérer</translation>
-    </message>
-</context>
-<context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Data monitor</source>
-        <translation>Moniteur de données</translation>
-    </message>
-    <message>
-        <source>%1 lines</source>
-        <translation>%1 lignes</translation>
-    </message>
-    <message>
-        <source>Rx %1</source>
-        <translation>Rx %1</translation>
-    </message>
-    <message>
-        <source>Tx %1</source>
-        <translation>Tx %1</translation>
-    </message>
-</context>
-<context>
     <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
@@ -410,6 +474,99 @@
     <message>
         <source>Save</source>
         <translation>Enregistrer</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>Port série déconnecté.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>Aucune</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>Paire</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>Impaire</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SerialSettingsPanel</name>
+    <message>
+        <source>Port · PORT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <source>Baud rate</source>
+        <translation>Débit (bauds)</translation>
+    </message>
+    <message>
+        <source>Data bits</source>
+        <translation>Bits de données</translation>
+    </message>
+    <message>
+        <source>Parity</source>
+        <translation>Parité</translation>
+    </message>
+    <message>
+        <source>Stop bits</source>
+        <translation>Bits d&apos;arrêt</translation>
+    </message>
+    <message>
+        <source>Flow control</source>
+        <translation>Contrôle de flux</translation>
+    </message>
+    <message>
+        <source>Receive · RECEIVE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transmit · TRANSMIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timestamp</source>
+        <translation>Afficher l&apos;horodatage</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>Retour à la ligne</translation>
+    </message>
+    <message>
+        <source>Echo sent data</source>
+        <translation>Afficher les données envoyées</translation>
+    </message>
+    <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>Ajouter le CRC (CRC16/MODBUS)</translation>
+    </message>
+    <message>
+        <source>Repeat send</source>
+        <translation>Envoi répété</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
 </context>
 <context>
@@ -493,60 +650,6 @@
     <message>
         <source>Restore defaults</source>
         <translation>Rétablir les valeurs par défaut</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>À propos</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Assistant série UbiBot</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>Version %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>Un outil de débogage de port série pour les appareils IoT UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1, et d&apos;autres), développé avec Qt 6, QML et C++17.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>Date de compilation</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>Société</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · États-Unis d&apos;Amérique</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Site web</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Développé avec Qt %1 sous licence GNU Lesser General Public License v3 (LGPLv3). Qt est une marque déposée de The Qt Company Ltd. Qt est lié dynamiquement, les bibliothèques Qt fournies peuvent donc être remplacées par une version compatible LGPLv3.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialManager</name>
-    <message>
-        <source>Serial port disconnected.</source>
-        <translation>Port série déconnecté.</translation>
     </message>
 </context>
 </TS>

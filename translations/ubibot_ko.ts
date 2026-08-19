@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko" sourcelanguage="en">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>정보</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 시리얼 어시스턴트</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>버전 %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>UbiBot IoT 장치(WS1, WS1 Pro, GS1-AL4G1RS, SP1 등)를 위한 시리얼 포트 디버깅 도구로, Qt 6, QML, C++17로 제작되었습니다.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>빌드 시간</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>회사</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · 미국</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>웹사이트</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>GNU Lesser General Public License v3(LGPLv3)에 따라 Qt %1로 제작되었습니다. Qt는 The Qt Company Ltd.의 상표입니다. Qt는 동적으로 링크되어 있으므로 번들된 Qt 라이브러리는 호환되는 LGPLv3 빌드로 교체할 수 있습니다.</translation>
+    </message>
+</context>
+<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -28,6 +75,22 @@
         <translation>포트 닫힘</translation>
     </message>
     <message>
+        <source>Batch &quot;%1&quot; started — %2 step(s).</source>
+        <translation>배치 &quot;%1&quot; 시작됨 — %2단계.</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; finished.</source>
+        <translation>배치 &quot;%1&quot; 완료됨.</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; stopped.</source>
+        <translation>배치 &quot;%1&quot; 중지됨.</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>Log saved to %1</source>
         <translation>로그가 %1에 저장되었습니다</translation>
     </message>
@@ -37,26 +100,168 @@
     </message>
 </context>
 <context>
-    <name>SerialOptions</name>
+    <name>CommandLibraryPanel</name>
     <message>
-        <source>None</source>
-        <translation>없음</translation>
+        <source>Search commands</source>
+        <translation>명령 검색</translation>
     </message>
     <message>
-        <source>Even</source>
-        <translation>짝수</translation>
+        <source>Drag a row to reorder</source>
+        <translation>행을 드래그하여 순서 변경</translation>
     </message>
     <message>
-        <source>Odd</source>
-        <translation>홀수</translation>
+        <source>Edit</source>
+        <translation>편집</translation>
     </message>
     <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
+        <source>Delete</source>
+        <translation>삭제</translation>
     </message>
     <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
+        <source>Batch commands</source>
+        <translation>배치 명령</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>새 템플릿</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>템플릿 편집</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>예: 장치 재설정</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>내용</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>전송할 실제 텍스트</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">닫기</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>아직 배치 명령이 없습니다</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1단계 · 간격 %2ms</translation>
+    </message>
+    <message>
+        <source>■ Stop</source>
+        <translation>■ 정지</translation>
+    </message>
+    <message>
+        <source>▶ Run</source>
+        <translation>▶ 실행</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>새 배치</translation>
+    </message>
+    <message>
+        <source>Edit batch command</source>
+        <translation>배치 명령 편집</translation>
+    </message>
+    <message>
+        <source>New batch command</source>
+        <translation>새 배치 명령</translation>
+    </message>
+    <message>
+        <source>e.g. Startup sequence</source>
+        <translation>예: 시작 시퀀스</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>간격</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation type="unfinished">ms</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>단계</translation>
+    </message>
+    <message>
+        <source>Command text</source>
+        <translation>명령 내용</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Add step</source>
+        <translation>단계 추가</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Device model · Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+</context>
+<context>
+    <name>CommandParamsPanel</name>
+    <message>
+        <source>Needs parameters</source>
+        <translation>매개변수 필요</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>삽입</translation>
+    </message>
+</context>
+<context>
+    <name>DataMonitorView</name>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data monitor</source>
+        <translation>데이터 모니터</translation>
+    </message>
+    <message>
+        <source>%1 lines</source>
+        <translation>%1줄</translation>
+    </message>
+    <message>
+        <source>Rx %1</source>
+        <translation>수신 %1</translation>
+    </message>
+    <message>
+        <source>Tx %1</source>
+        <translation>송신 %1</translation>
     </message>
 </context>
 <context>
@@ -126,10 +331,6 @@
         <translation>시리얼</translation>
     </message>
     <message>
-        <source>Remote support</source>
-        <translation>원격 지원</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>포트 닫기</translation>
     </message>
@@ -163,117 +364,14 @@
     </message>
 </context>
 <context>
-    <name>SerialSettingsPanel</name>
+    <name>PortComboBox</name>
     <message>
-        <source>Port</source>
-        <translation>포트</translation>
+        <source>No ports found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baud rate</source>
-        <translation>보드레이트</translation>
-    </message>
-    <message>
-        <source>Data bits</source>
-        <translation>데이터 비트</translation>
-    </message>
-    <message>
-        <source>Parity</source>
-        <translation>패리티</translation>
-    </message>
-    <message>
-        <source>Stop bits</source>
-        <translation>정지 비트</translation>
-    </message>
-    <message>
-        <source>Flow control</source>
-        <translation>흐름 제어</translation>
-    </message>
-    <message>
-        <source>Receive</source>
-        <translation>수신</translation>
-    </message>
-    <message>
-        <source>Show timestamp</source>
-        <translation>타임스탬프 표시</translation>
-    </message>
-    <message>
-        <source>Wrap lines</source>
-        <translation>줄 바꿈</translation>
-    </message>
-    <message>
-        <source>Echo sent data</source>
-        <translation>전송 데이터 에코 표시</translation>
-    </message>
-    <message>
-        <source>Transmit</source>
-        <translation>송신</translation>
-    </message>
-    <message>
-        <source>Append CRC (CRC16/MODBUS)</source>
-        <translation>CRC 추가 (CRC16/MODBUS)</translation>
-    </message>
-    <message>
-        <source>Repeat send</source>
-        <translation>반복 전송</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
-    </message>
-</context>
-<context>
-    <name>CommandLibraryPanel</name>
-    <message>
-        <source>Device model</source>
-        <translation>장치 모델</translation>
-    </message>
-    <message>
-        <source>Search commands</source>
-        <translation>명령 검색</translation>
-    </message>
-    <message>
-        <source>Drag a row to reorder</source>
-        <translation>행을 드래그하여 순서 변경</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>편집</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>삭제</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>새 템플릿</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>템플릿 편집</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>이름</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>예: 장치 재설정</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>내용</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>전송할 실제 텍스트</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>취소</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>저장</translation>
+        <source>Unknown device</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -336,40 +434,6 @@
     </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
-    <message>
-        <source>Needs parameters</source>
-        <translation>매개변수 필요</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>취소</translation>
-    </message>
-    <message>
-        <source>Insert</source>
-        <translation>삽입</translation>
-    </message>
-</context>
-<context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Data monitor</source>
-        <translation>데이터 모니터</translation>
-    </message>
-    <message>
-        <source>%1 lines</source>
-        <translation>%1줄</translation>
-    </message>
-    <message>
-        <source>Rx %1</source>
-        <translation>수신 %1</translation>
-    </message>
-    <message>
-        <source>Tx %1</source>
-        <translation>송신 %1</translation>
-    </message>
-</context>
-<context>
     <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
@@ -410,6 +474,99 @@
     <message>
         <source>Save</source>
         <translation>저장</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>시리얼 포트 연결이 끊어졌습니다.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>짝수</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>홀수</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SerialSettingsPanel</name>
+    <message>
+        <source>Port · PORT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>포트</translation>
+    </message>
+    <message>
+        <source>Baud rate</source>
+        <translation>보드레이트</translation>
+    </message>
+    <message>
+        <source>Data bits</source>
+        <translation>데이터 비트</translation>
+    </message>
+    <message>
+        <source>Parity</source>
+        <translation>패리티</translation>
+    </message>
+    <message>
+        <source>Stop bits</source>
+        <translation>정지 비트</translation>
+    </message>
+    <message>
+        <source>Flow control</source>
+        <translation>흐름 제어</translation>
+    </message>
+    <message>
+        <source>Receive · RECEIVE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transmit · TRANSMIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timestamp</source>
+        <translation>타임스탬프 표시</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>줄 바꿈</translation>
+    </message>
+    <message>
+        <source>Echo sent data</source>
+        <translation>전송 데이터 에코 표시</translation>
+    </message>
+    <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>CRC 추가 (CRC16/MODBUS)</translation>
+    </message>
+    <message>
+        <source>Repeat send</source>
+        <translation>반복 전송</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
 </context>
 <context>
@@ -493,60 +650,6 @@
     <message>
         <source>Restore defaults</source>
         <translation>기본값으로 복원</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>정보</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>닫기</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 시리얼 어시스턴트</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>버전 %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>UbiBot IoT 장치(WS1, WS1 Pro, GS1-AL4G1RS, SP1 등)를 위한 시리얼 포트 디버깅 도구로, Qt 6, QML, C++17로 제작되었습니다.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>빌드 시간</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>회사</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · 미국</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>웹사이트</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>GNU Lesser General Public License v3(LGPLv3)에 따라 Qt %1로 제작되었습니다. Qt는 The Qt Company Ltd.의 상표입니다. Qt는 동적으로 링크되어 있으므로 번들된 Qt 라이브러리는 호환되는 LGPLv3 빌드로 교체할 수 있습니다.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialManager</name>
-    <message>
-        <source>Serial port disconnected.</source>
-        <translation>시리얼 포트 연결이 끊어졌습니다.</translation>
     </message>
 </context>
 </TS>

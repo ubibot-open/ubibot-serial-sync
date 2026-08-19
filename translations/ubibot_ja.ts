@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja" sourcelanguage="en">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>バージョン情報</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot シリアルアシスタント</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>バージョン %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>UbiBot IoT デバイス（WS1、WS1 Pro、GS1-AL4G1RS、SP1 など）向けのシリアルポートデバッグツールです。Qt 6、QML、C++17 で構築されています。</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>ビルド日時</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>会社</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · アメリカ合衆国</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>ウェブサイト</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Qt %1（GNU Lesser General Public License v3、LGPLv3）を使用して構築されています。Qt は The Qt Company Ltd. の商標です。Qt は動的リンクされているため、同梱の Qt ライブラリは互換性のある LGPLv3 ビルドに置き換えることができます。</translation>
+    </message>
+</context>
+<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -28,6 +75,22 @@
         <translation>ポートを閉じました</translation>
     </message>
     <message>
+        <source>Batch &quot;%1&quot; started — %2 step(s).</source>
+        <translation>バッチ「%1」を開始しました — %2 ステップ。</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; finished.</source>
+        <translation>バッチ「%1」が完了しました。</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; stopped.</source>
+        <translation>バッチ「%1」を停止しました。</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>Log saved to %1</source>
         <translation>ログを %1 に保存しました</translation>
     </message>
@@ -37,26 +100,168 @@
     </message>
 </context>
 <context>
-    <name>SerialOptions</name>
+    <name>CommandLibraryPanel</name>
     <message>
-        <source>None</source>
-        <translation>なし</translation>
+        <source>Search commands</source>
+        <translation>コマンドを検索</translation>
     </message>
     <message>
-        <source>Even</source>
-        <translation>偶数</translation>
+        <source>Drag a row to reorder</source>
+        <translation>行をドラッグして並べ替え</translation>
     </message>
     <message>
-        <source>Odd</source>
-        <translation>奇数</translation>
+        <source>Edit</source>
+        <translation>編集</translation>
     </message>
     <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
+        <source>Delete</source>
+        <translation>削除</translation>
     </message>
     <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
+        <source>Batch commands</source>
+        <translation>バッチコマンド</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新しいテンプレート</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>テンプレートを編集</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名前</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>例：デバイスをリセット</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>送信する実際のテキスト</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">閉じる</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>バッチコマンドはまだありません</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 ステップ · 間隔 %2 ms</translation>
+    </message>
+    <message>
+        <source>■ Stop</source>
+        <translation>■ 停止</translation>
+    </message>
+    <message>
+        <source>▶ Run</source>
+        <translation>▶ 実行</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>新規バッチ</translation>
+    </message>
+    <message>
+        <source>Edit batch command</source>
+        <translation>バッチコマンドを編集</translation>
+    </message>
+    <message>
+        <source>New batch command</source>
+        <translation>新規バッチコマンド</translation>
+    </message>
+    <message>
+        <source>e.g. Startup sequence</source>
+        <translation>例：起動シーケンス</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>間隔</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation type="unfinished">ミリ秒</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>ステップ</translation>
+    </message>
+    <message>
+        <source>Command text</source>
+        <translation>コマンド内容</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Add step</source>
+        <translation>ステップを追加</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Device model · Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+</context>
+<context>
+    <name>CommandParamsPanel</name>
+    <message>
+        <source>Needs parameters</source>
+        <translation>パラメーターが必要です</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>挿入</translation>
+    </message>
+</context>
+<context>
+    <name>DataMonitorView</name>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data monitor</source>
+        <translation>データモニター</translation>
+    </message>
+    <message>
+        <source>%1 lines</source>
+        <translation>%1 行</translation>
+    </message>
+    <message>
+        <source>Rx %1</source>
+        <translation>受信 %1</translation>
+    </message>
+    <message>
+        <source>Tx %1</source>
+        <translation>送信 %1</translation>
     </message>
 </context>
 <context>
@@ -126,10 +331,6 @@
         <translation>シリアル</translation>
     </message>
     <message>
-        <source>Remote support</source>
-        <translation>リモートサポート</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>ポートを閉じる</translation>
     </message>
@@ -163,117 +364,14 @@
     </message>
 </context>
 <context>
-    <name>SerialSettingsPanel</name>
+    <name>PortComboBox</name>
     <message>
-        <source>Port</source>
-        <translation>ポート</translation>
+        <source>No ports found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baud rate</source>
-        <translation>ボーレート</translation>
-    </message>
-    <message>
-        <source>Data bits</source>
-        <translation>データビット</translation>
-    </message>
-    <message>
-        <source>Parity</source>
-        <translation>パリティ</translation>
-    </message>
-    <message>
-        <source>Stop bits</source>
-        <translation>ストップビット</translation>
-    </message>
-    <message>
-        <source>Flow control</source>
-        <translation>フロー制御</translation>
-    </message>
-    <message>
-        <source>Receive</source>
-        <translation>受信</translation>
-    </message>
-    <message>
-        <source>Show timestamp</source>
-        <translation>タイムスタンプを表示</translation>
-    </message>
-    <message>
-        <source>Wrap lines</source>
-        <translation>折り返し</translation>
-    </message>
-    <message>
-        <source>Echo sent data</source>
-        <translation>送信データをエコー表示</translation>
-    </message>
-    <message>
-        <source>Transmit</source>
-        <translation>送信設定</translation>
-    </message>
-    <message>
-        <source>Append CRC (CRC16/MODBUS)</source>
-        <translation>CRC を付加 (CRC16/MODBUS)</translation>
-    </message>
-    <message>
-        <source>Repeat send</source>
-        <translation>繰り返し送信</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ミリ秒</translation>
-    </message>
-</context>
-<context>
-    <name>CommandLibraryPanel</name>
-    <message>
-        <source>Device model</source>
-        <translation>デバイスモデル</translation>
-    </message>
-    <message>
-        <source>Search commands</source>
-        <translation>コマンドを検索</translation>
-    </message>
-    <message>
-        <source>Drag a row to reorder</source>
-        <translation>行をドラッグして並べ替え</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>編集</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>新しいテンプレート</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>テンプレートを編集</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>例：デバイスをリセット</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>内容</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>送信する実際のテキスト</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
+        <source>Unknown device</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -336,40 +434,6 @@
     </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
-    <message>
-        <source>Needs parameters</source>
-        <translation>パラメーターが必要です</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <source>Insert</source>
-        <translation>挿入</translation>
-    </message>
-</context>
-<context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Data monitor</source>
-        <translation>データモニター</translation>
-    </message>
-    <message>
-        <source>%1 lines</source>
-        <translation>%1 行</translation>
-    </message>
-    <message>
-        <source>Rx %1</source>
-        <translation>受信 %1</translation>
-    </message>
-    <message>
-        <source>Tx %1</source>
-        <translation>送信 %1</translation>
-    </message>
-</context>
-<context>
     <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
@@ -410,6 +474,99 @@
     <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>シリアルポートが切断されました。</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>偶数</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>奇数</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SerialSettingsPanel</name>
+    <message>
+        <source>Port · PORT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>ポート</translation>
+    </message>
+    <message>
+        <source>Baud rate</source>
+        <translation>ボーレート</translation>
+    </message>
+    <message>
+        <source>Data bits</source>
+        <translation>データビット</translation>
+    </message>
+    <message>
+        <source>Parity</source>
+        <translation>パリティ</translation>
+    </message>
+    <message>
+        <source>Stop bits</source>
+        <translation>ストップビット</translation>
+    </message>
+    <message>
+        <source>Flow control</source>
+        <translation>フロー制御</translation>
+    </message>
+    <message>
+        <source>Receive · RECEIVE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transmit · TRANSMIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timestamp</source>
+        <translation>タイムスタンプを表示</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>折り返し</translation>
+    </message>
+    <message>
+        <source>Echo sent data</source>
+        <translation>送信データをエコー表示</translation>
+    </message>
+    <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>CRC を付加 (CRC16/MODBUS)</translation>
+    </message>
+    <message>
+        <source>Repeat send</source>
+        <translation>繰り返し送信</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation>ミリ秒</translation>
     </message>
 </context>
 <context>
@@ -493,60 +650,6 @@
     <message>
         <source>Restore defaults</source>
         <translation>既定値に戻す</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>バージョン情報</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot シリアルアシスタント</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>バージョン %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>UbiBot IoT デバイス（WS1、WS1 Pro、GS1-AL4G1RS、SP1 など）向けのシリアルポートデバッグツールです。Qt 6、QML、C++17 で構築されています。</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>ビルド日時</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>会社</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · アメリカ合衆国</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>ウェブサイト</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Qt %1（GNU Lesser General Public License v3、LGPLv3）を使用して構築されています。Qt は The Qt Company Ltd. の商標です。Qt は動的リンクされているため、同梱の Qt ライブラリは互換性のある LGPLv3 ビルドに置き換えることができます。</translation>
-    </message>
-</context>
-<context>
-    <name>SerialManager</name>
-    <message>
-        <source>Serial port disconnected.</source>
-        <translation>シリアルポートが切断されました。</translation>
     </message>
 </context>
 </TS>

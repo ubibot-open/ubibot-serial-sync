@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru" sourcelanguage="en">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>О программе</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Помощник последовательного порта UbiBot</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>Версия %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>Инструмент отладки последовательного порта для IoT-устройств UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 и др.), созданный на Qt 6, QML и C++17.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>Время сборки</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>Компания</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · США</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Веб-сайт</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Создано с использованием Qt %1 по лицензии GNU Lesser General Public License v3 (LGPLv3). Qt является товарным знаком The Qt Company Ltd. Qt подключается динамически, поэтому входящие в комплект библиотеки Qt можно заменить совместимой сборкой LGPLv3.</translation>
+    </message>
+</context>
+<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -28,6 +75,22 @@
         <translation>Порт закрыт</translation>
     </message>
     <message>
+        <source>Batch &quot;%1&quot; started — %2 step(s).</source>
+        <translation>Пакет «%1» запущен — %2 шаг(ов).</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; finished.</source>
+        <translation>Пакет «%1» завершён.</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; stopped.</source>
+        <translation>Пакет «%1» остановлен.</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>Log saved to %1</source>
         <translation>Журнал сохранён в %1</translation>
     </message>
@@ -37,26 +100,168 @@
     </message>
 </context>
 <context>
-    <name>SerialOptions</name>
+    <name>CommandLibraryPanel</name>
     <message>
-        <source>None</source>
-        <translation>Нет</translation>
+        <source>Search commands</source>
+        <translation>Поиск команд</translation>
     </message>
     <message>
-        <source>Even</source>
-        <translation>Чётный</translation>
+        <source>Drag a row to reorder</source>
+        <translation>Перетащите строку для изменения порядка</translation>
     </message>
     <message>
-        <source>Odd</source>
-        <translation>Нечётный</translation>
+        <source>Edit</source>
+        <translation>Изменить</translation>
     </message>
     <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
+        <source>Delete</source>
+        <translation>Удалить</translation>
     </message>
     <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
+        <source>Batch commands</source>
+        <translation>Пакетные команды</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Новый шаблон</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>Изменить шаблон</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>например: сброс устройства</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Содержимое</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>Точный текст для отправки</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Закрыть</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>Пакетных команд пока нет</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 шаг(ов) · интервал %2 мс</translation>
+    </message>
+    <message>
+        <source>■ Stop</source>
+        <translation>■ Стоп</translation>
+    </message>
+    <message>
+        <source>▶ Run</source>
+        <translation>▶ Запуск</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>Новый пакет</translation>
+    </message>
+    <message>
+        <source>Edit batch command</source>
+        <translation>Изменить пакетную команду</translation>
+    </message>
+    <message>
+        <source>New batch command</source>
+        <translation>Новая пакетная команда</translation>
+    </message>
+    <message>
+        <source>e.g. Startup sequence</source>
+        <translation>например: последовательность запуска</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>Интервал</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation type="unfinished">мс</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>Шаги</translation>
+    </message>
+    <message>
+        <source>Command text</source>
+        <translation>Текст команды</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Add step</source>
+        <translation>Добавить шаг</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Device model · Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+</context>
+<context>
+    <name>CommandParamsPanel</name>
+    <message>
+        <source>Needs parameters</source>
+        <translation>Требуются параметры</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Вставить</translation>
+    </message>
+</context>
+<context>
+    <name>DataMonitorView</name>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data monitor</source>
+        <translation>Монитор данных</translation>
+    </message>
+    <message>
+        <source>%1 lines</source>
+        <translation>%1 строк</translation>
+    </message>
+    <message>
+        <source>Rx %1</source>
+        <translation>Приём %1</translation>
+    </message>
+    <message>
+        <source>Tx %1</source>
+        <translation>Передача %1</translation>
     </message>
 </context>
 <context>
@@ -126,10 +331,6 @@
         <translation>Последовательный порт</translation>
     </message>
     <message>
-        <source>Remote support</source>
-        <translation>Удалённая поддержка</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>Закрыть порт</translation>
     </message>
@@ -163,117 +364,14 @@
     </message>
 </context>
 <context>
-    <name>SerialSettingsPanel</name>
+    <name>PortComboBox</name>
     <message>
-        <source>Port</source>
-        <translation>Порт</translation>
+        <source>No ports found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baud rate</source>
-        <translation>Скорость (бод)</translation>
-    </message>
-    <message>
-        <source>Data bits</source>
-        <translation>Биты данных</translation>
-    </message>
-    <message>
-        <source>Parity</source>
-        <translation>Чётность</translation>
-    </message>
-    <message>
-        <source>Stop bits</source>
-        <translation>Стоп-биты</translation>
-    </message>
-    <message>
-        <source>Flow control</source>
-        <translation>Управление потоком</translation>
-    </message>
-    <message>
-        <source>Receive</source>
-        <translation>Приём</translation>
-    </message>
-    <message>
-        <source>Show timestamp</source>
-        <translation>Показывать время</translation>
-    </message>
-    <message>
-        <source>Wrap lines</source>
-        <translation>Перенос строк</translation>
-    </message>
-    <message>
-        <source>Echo sent data</source>
-        <translation>Отображать отправленные данные</translation>
-    </message>
-    <message>
-        <source>Transmit</source>
-        <translation>Передача</translation>
-    </message>
-    <message>
-        <source>Append CRC (CRC16/MODBUS)</source>
-        <translation>Добавлять CRC (CRC16/MODBUS)</translation>
-    </message>
-    <message>
-        <source>Repeat send</source>
-        <translation>Повторная отправка</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>мс</translation>
-    </message>
-</context>
-<context>
-    <name>CommandLibraryPanel</name>
-    <message>
-        <source>Device model</source>
-        <translation>Модель устройства</translation>
-    </message>
-    <message>
-        <source>Search commands</source>
-        <translation>Поиск команд</translation>
-    </message>
-    <message>
-        <source>Drag a row to reorder</source>
-        <translation>Перетащите строку для изменения порядка</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Изменить</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>Новый шаблон</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>Изменить шаблон</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>например: сброс устройства</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Содержимое</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>Точный текст для отправки</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Сохранить</translation>
+        <source>Unknown device</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -336,40 +434,6 @@
     </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
-    <message>
-        <source>Needs parameters</source>
-        <translation>Требуются параметры</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Insert</source>
-        <translation>Вставить</translation>
-    </message>
-</context>
-<context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Data monitor</source>
-        <translation>Монитор данных</translation>
-    </message>
-    <message>
-        <source>%1 lines</source>
-        <translation>%1 строк</translation>
-    </message>
-    <message>
-        <source>Rx %1</source>
-        <translation>Приём %1</translation>
-    </message>
-    <message>
-        <source>Tx %1</source>
-        <translation>Передача %1</translation>
-    </message>
-</context>
-<context>
     <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
@@ -410,6 +474,99 @@
     <message>
         <source>Save</source>
         <translation>Сохранить</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>Последовательный порт отключён.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>Чётный</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>Нечётный</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SerialSettingsPanel</name>
+    <message>
+        <source>Port · PORT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <source>Baud rate</source>
+        <translation>Скорость (бод)</translation>
+    </message>
+    <message>
+        <source>Data bits</source>
+        <translation>Биты данных</translation>
+    </message>
+    <message>
+        <source>Parity</source>
+        <translation>Чётность</translation>
+    </message>
+    <message>
+        <source>Stop bits</source>
+        <translation>Стоп-биты</translation>
+    </message>
+    <message>
+        <source>Flow control</source>
+        <translation>Управление потоком</translation>
+    </message>
+    <message>
+        <source>Receive · RECEIVE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transmit · TRANSMIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timestamp</source>
+        <translation>Показывать время</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>Перенос строк</translation>
+    </message>
+    <message>
+        <source>Echo sent data</source>
+        <translation>Отображать отправленные данные</translation>
+    </message>
+    <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>Добавлять CRC (CRC16/MODBUS)</translation>
+    </message>
+    <message>
+        <source>Repeat send</source>
+        <translation>Повторная отправка</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation>мс</translation>
     </message>
 </context>
 <context>
@@ -493,60 +650,6 @@
     <message>
         <source>Restore defaults</source>
         <translation>Восстановить по умолчанию</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>О программе</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Помощник последовательного порта UbiBot</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>Версия %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>Инструмент отладки последовательного порта для IoT-устройств UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 и др.), созданный на Qt 6, QML и C++17.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>Время сборки</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>Компания</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · США</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Веб-сайт</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Создано с использованием Qt %1 по лицензии GNU Lesser General Public License v3 (LGPLv3). Qt является товарным знаком The Qt Company Ltd. Qt подключается динамически, поэтому входящие в комплект библиотеки Qt можно заменить совместимой сборкой LGPLv3.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialManager</name>
-    <message>
-        <source>Serial port disconnected.</source>
-        <translation>Последовательный порт отключён.</translation>
     </message>
 </context>
 </TS>

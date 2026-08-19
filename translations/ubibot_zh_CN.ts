@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN" sourcelanguage="en">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>关于</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 串口助手</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>版本 %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
+        <translation>面向 UbiBot IoT 设备（WS1、WS1 Pro、GS1-AL4G1RS、SP1 等）的串口调试工具，基于 Qt 6、QML 和 C++17 构建。</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>构建时间</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>公司</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · 美国</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>网站</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>基于 Qt %1 构建，遵循 GNU Lesser General Public License v3（LGPLv3）。Qt 是 The Qt Company Ltd. 的注册商标。本程序以动态链接方式使用 Qt，随附的 Qt 库可替换为兼容的 LGPLv3 版本。</translation>
+    </message>
+</context>
+<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -28,6 +75,22 @@
         <translation>串口已关闭</translation>
     </message>
     <message>
+        <source>Batch &quot;%1&quot; started — %2 step(s).</source>
+        <translation>批量指令「%1」已开始 — 共 %2 步。</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; finished.</source>
+        <translation>批量指令「%1」已完成。</translation>
+    </message>
+    <message>
+        <source>Batch &quot;%1&quot; stopped.</source>
+        <translation>批量指令「%1」已停止。</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>Log saved to %1</source>
         <translation>日志已保存到 %1</translation>
     </message>
@@ -37,26 +100,168 @@
     </message>
 </context>
 <context>
-    <name>SerialOptions</name>
+    <name>CommandLibraryPanel</name>
     <message>
-        <source>None</source>
-        <translation>无</translation>
+        <source>Search commands</source>
+        <translation>搜索指令</translation>
     </message>
     <message>
-        <source>Even</source>
-        <translation>偶校验</translation>
+        <source>Drag a row to reorder</source>
+        <translation>可拖拽行调整顺序</translation>
     </message>
     <message>
-        <source>Odd</source>
-        <translation>奇校验</translation>
+        <source>Edit</source>
+        <translation>编辑</translation>
     </message>
     <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
+        <source>Delete</source>
+        <translation>删除</translation>
     </message>
     <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
+        <source>Batch commands</source>
+        <translation>批量指令</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新建模板</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>编辑模板</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>例如：重启设备</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>要发送的原始文本</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">关闭</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>暂无批量指令</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 步 · 间隔 %2 毫秒</translation>
+    </message>
+    <message>
+        <source>■ Stop</source>
+        <translation>■ 停止</translation>
+    </message>
+    <message>
+        <source>▶ Run</source>
+        <translation>▶ 运行</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>新建批量</translation>
+    </message>
+    <message>
+        <source>Edit batch command</source>
+        <translation>编辑批量指令</translation>
+    </message>
+    <message>
+        <source>New batch command</source>
+        <translation>新建批量指令</translation>
+    </message>
+    <message>
+        <source>e.g. Startup sequence</source>
+        <translation>例如：启动流程</translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation>间隔</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation type="unfinished">毫秒</translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation>步骤</translation>
+    </message>
+    <message>
+        <source>Command text</source>
+        <translation>指令内容</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Add step</source>
+        <translation>添加步骤</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Device model · Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+</context>
+<context>
+    <name>CommandParamsPanel</name>
+    <message>
+        <source>Needs parameters</source>
+        <translation>需要参数</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>填入</translation>
+    </message>
+</context>
+<context>
+    <name>DataMonitorView</name>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data monitor</source>
+        <translation>数据监视</translation>
+    </message>
+    <message>
+        <source>%1 lines</source>
+        <translation>%1 行</translation>
+    </message>
+    <message>
+        <source>Rx %1</source>
+        <translation>接收 %1</translation>
+    </message>
+    <message>
+        <source>Tx %1</source>
+        <translation>发送 %1</translation>
     </message>
 </context>
 <context>
@@ -126,10 +331,6 @@
         <translation>串口</translation>
     </message>
     <message>
-        <source>Remote support</source>
-        <translation>远程协助</translation>
-    </message>
-    <message>
         <source>Close port</source>
         <translation>关闭串口</translation>
     </message>
@@ -163,117 +364,14 @@
     </message>
 </context>
 <context>
-    <name>SerialSettingsPanel</name>
+    <name>PortComboBox</name>
     <message>
-        <source>Port</source>
-        <translation>端口</translation>
+        <source>No ports found</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baud rate</source>
-        <translation>波特率</translation>
-    </message>
-    <message>
-        <source>Data bits</source>
-        <translation>数据位</translation>
-    </message>
-    <message>
-        <source>Parity</source>
-        <translation>校验位</translation>
-    </message>
-    <message>
-        <source>Stop bits</source>
-        <translation>停止位</translation>
-    </message>
-    <message>
-        <source>Flow control</source>
-        <translation>流控</translation>
-    </message>
-    <message>
-        <source>Receive</source>
-        <translation>接收设置</translation>
-    </message>
-    <message>
-        <source>Show timestamp</source>
-        <translation>显示时间戳</translation>
-    </message>
-    <message>
-        <source>Wrap lines</source>
-        <translation>自动换行</translation>
-    </message>
-    <message>
-        <source>Echo sent data</source>
-        <translation>显示发送内容</translation>
-    </message>
-    <message>
-        <source>Transmit</source>
-        <translation>发送设置</translation>
-    </message>
-    <message>
-        <source>Append CRC (CRC16/MODBUS)</source>
-        <translation>附加 CRC 校验（CRC16/MODBUS）</translation>
-    </message>
-    <message>
-        <source>Repeat send</source>
-        <translation>重复发送</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>毫秒</translation>
-    </message>
-</context>
-<context>
-    <name>CommandLibraryPanel</name>
-    <message>
-        <source>Device model</source>
-        <translation>设备型号</translation>
-    </message>
-    <message>
-        <source>Search commands</source>
-        <translation>搜索指令</translation>
-    </message>
-    <message>
-        <source>Drag a row to reorder</source>
-        <translation>可拖拽行调整顺序</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>编辑</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>新建模板</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>编辑模板</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>例如：重启设备</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>内容</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>要发送的原始文本</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
+        <source>Unknown device</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -336,40 +434,6 @@
     </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
-    <message>
-        <source>Needs parameters</source>
-        <translation>需要参数</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Insert</source>
-        <translation>填入</translation>
-    </message>
-</context>
-<context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Data monitor</source>
-        <translation>数据监视</translation>
-    </message>
-    <message>
-        <source>%1 lines</source>
-        <translation>%1 行</translation>
-    </message>
-    <message>
-        <source>Rx %1</source>
-        <translation>接收 %1</translation>
-    </message>
-    <message>
-        <source>Tx %1</source>
-        <translation>发送 %1</translation>
-    </message>
-</context>
-<context>
     <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
@@ -410,6 +474,99 @@
     <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>串口已断开连接。</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>偶校验</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>奇校验</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SerialSettingsPanel</name>
+    <message>
+        <source>Port · PORT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>端口</translation>
+    </message>
+    <message>
+        <source>Baud rate</source>
+        <translation>波特率</translation>
+    </message>
+    <message>
+        <source>Data bits</source>
+        <translation>数据位</translation>
+    </message>
+    <message>
+        <source>Parity</source>
+        <translation>校验位</translation>
+    </message>
+    <message>
+        <source>Stop bits</source>
+        <translation>停止位</translation>
+    </message>
+    <message>
+        <source>Flow control</source>
+        <translation>流控</translation>
+    </message>
+    <message>
+        <source>Receive · RECEIVE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transmit · TRANSMIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timestamp</source>
+        <translation>显示时间戳</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>自动换行</translation>
+    </message>
+    <message>
+        <source>Echo sent data</source>
+        <translation>显示发送内容</translation>
+    </message>
+    <message>
+        <source>Append CRC (CRC16/MODBUS)</source>
+        <translation>附加 CRC 校验（CRC16/MODBUS）</translation>
+    </message>
+    <message>
+        <source>Repeat send</source>
+        <translation>重复发送</translation>
+    </message>
+    <message>
+        <source>ms</source>
+        <translation>毫秒</translation>
     </message>
 </context>
 <context>
@@ -493,60 +650,6 @@
     <message>
         <source>Restore defaults</source>
         <translation>恢复默认值</translation>
-    </message>
-</context>
-<context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>关于</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 串口助手</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>版本 %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>面向 UbiBot IoT 设备（WS1、WS1 Pro、GS1-AL4G1RS、SP1 等）的串口调试工具，基于 Qt 6、QML 和 C++17 构建。</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>构建时间</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>公司</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · 美国</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>网站</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>基于 Qt %1 构建，遵循 GNU Lesser General Public License v3（LGPLv3）。Qt 是 The Qt Company Ltd. 的注册商标。本程序以动态链接方式使用 Qt，随附的 Qt 库可替换为兼容的 LGPLv3 版本。</translation>
-    </message>
-</context>
-<context>
-    <name>SerialManager</name>
-    <message>
-        <source>Serial port disconnected.</source>
-        <translation>串口已断开连接。</translation>
     </message>
 </context>
 </TS>
