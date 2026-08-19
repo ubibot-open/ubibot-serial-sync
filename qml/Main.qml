@@ -386,7 +386,6 @@ ApplicationWindow {
         // menu/toolbar underneath.
         Rectangle {
             visible: window.visibility !== Window.Maximized
-            anchors.fill: parent
             color: "transparent"
             border.color: Theme.dialogBorder
             border.width: 1

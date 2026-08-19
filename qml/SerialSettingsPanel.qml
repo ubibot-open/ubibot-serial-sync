@@ -111,18 +111,28 @@ Flickable {
     // livable minimum regardless of translation length. elide is what
     // makes that cap safe to hit -- past it, the label truncates with an
     // ellipsis instead of overflowing the column GridLayout capped it at.
+    //
+    // Deliberately no Layout.fillWidth here -- that would make this label
+    // compete with the combo box column for GridLayout's leftover space,
+    // and once the label maxes out at 120 that offered share doesn't get
+    // handed back to the combo box, it just goes unused -- the dead gap
+    // (and lost right-edge margin) reported after the first version of
+    // this fix. Left at its own natural (short-text) or capped
+    // (long-text) size, every bit of leftover space in the row goes to the
+    // combo box's own fillWidth instead, same as before this label column
+    // needed a cap at all.
     component RowLabel: Label {
         Layout.maximumWidth: 120
-        Layout.fillWidth: true
+        Layout.minimumWidth: 80
         elide: Text.ElideRight
     }
 
     ColumnLayout {
         id: column
-        x: 16
-        y: 16
-        width: root.width - 32
         spacing: 8
+        anchors.margins: 16
+        width: parent.width - 32
+        x: 16
 
         SectionHeading { text: qsTr("Port · PORT") }
 
@@ -136,15 +146,10 @@ Flickable {
             RowLabel { text: qsTr("Port") }
             RowLayout {
                 Layout.fillWidth: true
+
                 PortComboBox {
                     id: portCombo
                     Layout.fillWidth: true
-                    // Shared with the port picker on the "Device commands"
-                    // panel -- whichever one the user picks a port in, both
-                    // should agree on it. Falls back to the first detected
-                    // port (matching this combo's old, unbound-currentIndex
-                    // behavior) when nothing's been picked yet or the
-                    // previously-picked port is no longer present.
                     currentIndex: {
                         const byName = AppController.portListModel.indexOfPortName(AppController.selectedPortName)
                         return byName >= 0 ? byName : (count > 0 ? 0 : -1)
@@ -153,21 +158,12 @@ Flickable {
                 }
                 ToolButton {
                     icon.source: "qrc:/icons/refresh.svg"
-                    // refresh.svg is a hardcoded dark stroke with no
-                    // `icon.color` of its own -- invisible against a dark
-                    // toolbar/panel without this (see Main.qml's
-                    // CompactToolButton for the same fix).
                     icon.color: Theme.text
                     onClicked: AppController.portListModel.refresh()
                 }
             }
 
             RowLabel { text: qsTr("Baud rate") }
-            // Was editable (free-text entry, validated against a plain
-            // 50-4000000 numeric range) -- selection-only now, per user
-            // feedback that a baud rate isn't something to type in by hand.
-            // SerialOptions.baudRateOptions() was expanded with more of the
-            // standard rates to compensate (1200 up to 921600).
             ComboBox {
                 id: baudCombo
                 Layout.fillWidth: true
