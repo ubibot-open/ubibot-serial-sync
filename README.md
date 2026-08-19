@@ -3,10 +3,11 @@
 A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS,
 SP1, …), built with Qt 6.11 / QML / C++17 / CMake. The UI is QML (Qt Quick
 Controls); all behavior -- serial I/O, the device command library, logging,
-settings persistence, translations -- lives in C++. Ships with English and
-Simplified Chinese today, picked from a dropdown in Settings & About (built
-to scale past a dozen languages), and is structured so adding more later is
-a matter of dropping in one more `.ts` file.
+settings persistence, translations -- lives in C++. Ships with English,
+Simplified & Traditional Chinese, Japanese, Korean, Russian, French, and
+Italian today, picked from a dropdown in Settings & About (built to scale
+past a dozen languages), and is structured so adding more later is a matter
+of dropping in one more `.ts` file.
 
 This project was scaffolded from a design mockup; see
 [Project notes](#project-notes) below for what's real vs. placeholder.
@@ -146,6 +147,12 @@ resources/
   resources.qrc
 translations/
   ubibot_zh_CN.ts      # Simplified Chinese catalog (hand-authored; see below)
+  ubibot_zh_TW.ts      # Traditional Chinese
+  ubibot_ja.ts         # Japanese
+  ubibot_ko.ts         # Korean
+  ubibot_ru.ts         # Russian
+  ubibot_fr.ts         # French
+  ubibot_it.ts         # Italian
 qml/
   Main.qml             # window shell: menu bar, toolbar, mode tabs, status bar
   Theme.qml            # shared colors/fonts (pragma Singleton)
@@ -220,9 +227,10 @@ exception — it's never included from QML, only used internally by
 ## Internationalization
 
 Every UI string is written in English and wrapped in `tr(...)` (C++) or
-`qsTr(...)` (QML) — Qt's translation tooling treats both uniformly.
-Simplified Chinese is a plain Qt translation catalog
-(`translations/ubibot_zh_CN.ts`). Only one language is ever active at a time
+`qsTr(...)` (QML) — Qt's translation tooling treats both uniformly. Every
+other language is a plain Qt translation catalog under `translations/`
+(`ubibot_zh_CN.ts`, `ubibot_zh_TW.ts`, `ubibot_ja.ts`, `ubibot_ko.ts`,
+`ubibot_ru.ts`, `ubibot_fr.ts`, `ubibot_it.ts`). Only one language is ever active at a time
 — no mixed/bilingual display — chosen from a dropdown in Settings & About
 that's populated at runtime from `AppController.availableLanguages()`
 (backed by `LanguageManager::availableLanguages()` in

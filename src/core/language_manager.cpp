@@ -11,6 +11,12 @@ namespace {
 const QVector<LanguageInfo> kLanguages = {
     {QStringLiteral("en"), QStringLiteral("English")},
     {QStringLiteral("zh_CN"), QStringLiteral("简体中文")},
+    {QStringLiteral("zh_TW"), QStringLiteral("繁體中文")},
+    {QStringLiteral("ja"), QStringLiteral("日本語")},
+    {QStringLiteral("ko"), QStringLiteral("한국어")},
+    {QStringLiteral("ru"), QStringLiteral("Русский")},
+    {QStringLiteral("fr"), QStringLiteral("Français")},
+    {QStringLiteral("it"), QStringLiteral("Italiano")},
 };
 
 }  // namespace

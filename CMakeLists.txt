@@ -178,8 +178,10 @@ endif()
 
 # --- Translations -----------------------------------------------------
 # Source strings (tr()/qsTr()) are written in English, which needs no .ts
-# file of its own. ubibot_zh_CN.ts supplies the Simplified Chinese catalog.
-# lupdate scans both the C++ sources above and the .qml files listed in
+# file of its own. Each other TS_FILES entry below supplies one more
+# language's catalog (Simplified/Traditional Chinese, Japanese, Korean,
+# Russian, French, Italian today). lupdate scans both the C++ sources
+# above and the .qml files listed in
 # QML_FILES natively. The language picker (Settings & About dialog) only
 # ever shows one active language at a time, populated from
 # AppController::availableLanguages() (core/language_manager.cpp).
@@ -188,7 +190,14 @@ endif()
 # matching {code, nativeName} to kLanguages in core/language_manager.cpp,
 # and fill in the .ts once lupdate has generated its <message> entries.
 qt_add_translations(UbiBotSerialAssistant
-    TS_FILES translations/ubibot_zh_CN.ts
+    TS_FILES
+        translations/ubibot_zh_CN.ts
+        translations/ubibot_zh_TW.ts
+        translations/ubibot_ja.ts
+        translations/ubibot_ko.ts
+        translations/ubibot_ru.ts
+        translations/ubibot_fr.ts
+        translations/ubibot_it.ts
     RESOURCE_PREFIX "/i18n"
     LUPDATE_OPTIONS -no-obsolete -locations none
 )
