@@ -223,16 +223,31 @@ Dialog {
                     anchors.fill: parent
                     Label { text: AppController.libraryVersion; font.family: Theme.monoFont }
                     Label {
+                        // "Up to date" only once a check has actually run and
+                        // found nothing newer -- before the first check this
+                        // just shows nothing rather than a guess.
+                        visible: AppController.libraryUpdateState === "upToDate"
                         text: qsTr("Up to date")
                         color: Theme.accent800
                         padding: 2
                         background: Rectangle { color: Theme.accentTint }
                     }
+                    Label {
+                        visible: AppController.libraryUpdateState === "updateAvailable"
+                        text: qsTr("Update available")
+                        color: Theme.text
+                        padding: 2
+                        background: Rectangle { color: Theme.accent }
+                    }
                     Item { Layout.fillWidth: true }
                     Button {
                         text: qsTr("Check for updates")
                         palette: Theme.palette
-                        onClicked: updateResultDialog.open()
+                        enabled: AppController.libraryUpdateState !== "checking" && AppController.libraryUpdateState !== "downloading"
+                        onClicked: {
+                            AppController.checkForLibraryUpdate();
+                            updateResultDialog.open();
+                        }
                     }
                 }
             }
@@ -289,16 +304,33 @@ Dialog {
             palette: Theme.palette
             // background: Rectangle { color: Theme.surface }
             Button {
+                text: qsTr("Download and apply")
+                palette: Theme.palette
+                visible: AppController.libraryUpdateAvailable
+                enabled: AppController.libraryUpdateState !== "downloading"
+                DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
+                onClicked: AppController.downloadLibraryUpdate()
+            }
+            Button {
                 text: qsTr("OK")
                 palette: Theme.palette
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             }
         }
-        Label {
+        ColumnLayout {
             width: 320
-            wrapMode: Text.WordWrap
-            text: AppController.checkForLibraryUpdate()
-            color: Theme.text
+            spacing: 8
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: AppController.libraryUpdateMessage
+                color: Theme.text
+            }
+            BusyIndicator {
+                Layout.alignment: Qt.AlignHCenter
+                running: AppController.libraryUpdateState === "checking" || AppController.libraryUpdateState === "downloading"
+                visible: running
+            }
         }
     }
 }

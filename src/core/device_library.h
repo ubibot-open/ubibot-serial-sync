@@ -112,6 +112,17 @@ class DeviceLibrary {
 public:
     bool loadFromResource(const QString &resourcePath = QStringLiteral(":/data/devices.json"));
 
+    // Same schema as loadFromResource() (see docs/device-json-protocol-schema.md
+    // and, for the network-fetched case, docs/device-library-update-protocol.md)
+    // but from raw bytes already in memory rather than a Qt resource path --
+    // shared by loadFromResource() itself and by AppController when applying a
+    // cached/just-downloaded devices.json (SettingsStore::cachedLibraryJson(),
+    // DeviceLibraryUpdateClient::fetchFinished()). Replaces models()/version()
+    // wholesale on success; leaves the previous data in place and returns
+    // false (with errorString() set) on a parse failure, so a bad download
+    // never blanks out an already-working library.
+    bool loadFromJsonText(const QByteArray &data);
+
     const QVector<DeviceModel> &models() const { return models_; }
     const DeviceModel *model(const QString &id) const;
     QStringList modelIds() const;

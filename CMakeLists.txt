@@ -22,7 +22,7 @@ set(CMAKE_AUTORCC ON)
 # qt_add_translations()) will work, but 6.11 is the minimum we've validated
 # against. QtQuick.Dialogs' FolderDialog (SaveLogDialog.qml) needs 6.3+,
 # well under our floor.
-find_package(Qt6 6.7 REQUIRED COMPONENTS Quick QuickControls2 SerialPort LinguistTools)
+find_package(Qt6 6.7 REQUIRED COMPONENTS Quick QuickControls2 SerialPort Network LinguistTools)
 
 qt_standard_project_setup(REQUIRES 6.7)
 
@@ -49,6 +49,7 @@ target_link_libraries(UbiBotSerialAssistant PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::SerialPort
+    Qt6::Network
 )
 
 # qt_add_qml_module() does NOT scan .qml file contents for "pragma
@@ -105,6 +106,10 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/core/language_manager.cpp
         src/core/device_library.h
         src/core/device_library.cpp
+        src/core/device_library_update_client.h
+        src/core/device_library_update_client.cpp
+        src/core/env_config.h
+        src/core/env_config.cpp
         src/core/ansi_text.h
         src/core/ansi_text.cpp
         src/core/crc16.h

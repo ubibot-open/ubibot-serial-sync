@@ -5,6 +5,7 @@
 #include "core/serial_manager.h"
 
 #include <QByteArray>
+#include <QDateTime>
 #include <QSet>
 #include <QString>
 #include <QVector>
@@ -133,4 +134,22 @@ public:
     // (serial config, favorites, window geometry, log preferences)
     // untouched, since those aren't surfaced on that dialog.
     void resetDisplayPreferences();
+
+    // The most recently downloaded device/command library -- the raw JSON
+    // bytes exactly as fetched from {baseUrl}/latest (see
+    // core/device_library_update_client.h and
+    // docs/device-library-update-protocol.md), stored as text so
+    // AppController can feed it straight back into
+    // DeviceLibrary::loadFromJsonText() on the next launch, in place of the
+    // bundled resources/devices.json. Empty until "check for updates" ->
+    // "download and apply" has succeeded at least once.
+    QString cachedLibraryJson() const;
+    void setCachedLibraryJson(const QString &json);
+
+    // When the last {baseUrl}/version check completed (success or failure --
+    // this is purely "when did we last try", not "when did it last find an
+    // update"), shown next to "Check for updates" in Settings & About.
+    // Invalid/null QDateTime when never checked.
+    QDateTime lastLibraryCheckAt() const;
+    void setLastLibraryCheckAt(const QDateTime &when);
 };

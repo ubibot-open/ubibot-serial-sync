@@ -6,6 +6,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <utility>
+
 QString LocalizedText::text() const {
     return LanguageManager::instance().pick(zh, en);
 }
@@ -83,27 +85,34 @@ QVector<CommandParam> readParams(const QJsonObject &cmdObj) {
 }  // namespace
 
 bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
-    models_.clear();
-    error_.clear();
-
     QFile file(resourcePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         error_ = QStringLiteral("cannot open %1").arg(resourcePath);
         return false;
     }
+    return loadFromJsonText(file.readAll());
+}
+
+bool DeviceLibrary::loadFromJsonText(const QByteArray &data) {
+    error_.clear();
 
     QJsonParseError parseError;
-    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    const QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         error_ = parseError.errorString();
         return false;
     }
 
+    // Parsed into locals first, models_/version_ only overwritten once the
+    // whole document has parsed cleanly -- a malformed/truncated download
+    // (see DeviceLibraryUpdateClient) must never leave the library half
+    // replaced or empty when it already had good data from a previous load.
+    QVector<DeviceModel> models;
     const QJsonObject root = doc.object();
-    version_ = root.value(QStringLiteral("version")).toString();
+    const QString version = root.value(QStringLiteral("version")).toString();
 
     const QJsonArray modelArray = root.value(QStringLiteral("models")).toArray();
-    models_.reserve(modelArray.size());
+    models.reserve(modelArray.size());
     for (const QJsonValue &modelVal : modelArray) {
         const QJsonObject modelObj = modelVal.toObject();
         DeviceModel model;
@@ -155,9 +164,11 @@ bool DeviceLibrary::loadFromResource(const QString &resourcePath) {
             model.commands.push_back(cmd);
         }
 
-        models_.push_back(model);
+        models.push_back(model);
     }
 
+    models_ = std::move(models);
+    version_ = version;
     return true;
 }
 

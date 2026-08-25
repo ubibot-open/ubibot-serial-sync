@@ -30,6 +30,8 @@ constexpr auto kSystemFontSize = "app/fontSize";
 constexpr auto kThemeMode = "app/themeMode";
 constexpr auto kCustomTemplates = "send/customTemplates";
 constexpr auto kBatchCommands = "send/batchCommands";
+constexpr auto kCachedLibraryJson = "library/cachedJson";
+constexpr auto kLastLibraryCheckAt = "library/lastCheckAt";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -290,4 +292,14 @@ void SettingsStore::resetDisplayPreferences() {
     s.remove(kSystemFontFamily);
     s.remove(kSystemFontSize);
     s.remove(kThemeMode);
+}
+
+QString SettingsStore::cachedLibraryJson() const { return QSettings().value(kCachedLibraryJson).toString(); }
+
+void SettingsStore::setCachedLibraryJson(const QString &json) { QSettings().setValue(kCachedLibraryJson, json); }
+
+QDateTime SettingsStore::lastLibraryCheckAt() const { return QSettings().value(kLastLibraryCheckAt).toDateTime(); }
+
+void SettingsStore::setLastLibraryCheckAt(const QDateTime &when) {
+    QSettings().setValue(kLastLibraryCheckAt, when);
 }

@@ -2,6 +2,7 @@
 
 #include "core/batch_command.h"
 #include "core/device_library.h"
+#include "core/device_library_update_client.h"
 #include "core/log_manager.h"
 #include "core/serial_manager.h"
 #include "core/settings_store.h"
@@ -51,10 +52,33 @@ class AppController : public QObject {
 
     Q_PROPERTY(QString currentModelId READ currentModelId WRITE setCurrentModelId NOTIFY currentModelChanged)
     Q_PROPERTY(QString currentModelDescription READ currentModelDescription NOTIFY currentModelChanged)
-    Q_PROPERTY(QStringList modelIds READ modelIds CONSTANT)
-    Q_PROPERTY(QString libraryVersion READ libraryVersion CONSTANT)
-    Q_PROPERTY(int modelCount READ modelCount CONSTANT)
-    Q_PROPERTY(int commandCount READ commandCount CONSTANT)
+    // These four used to be CONSTANT (the library only ever came from the
+    // bundled resources/devices.json, loaded once at startup). Now that a
+    // successful "download and apply" (see downloadLibraryUpdate() below)
+    // can replace the library's contents in place while the app is running,
+    // they need libraryChanged() so QML rebinds instead of showing stale
+    // model/command counts until a restart.
+    Q_PROPERTY(QStringList modelIds READ modelIds NOTIFY libraryChanged)
+    Q_PROPERTY(QString libraryVersion READ libraryVersion NOTIFY libraryChanged)
+    Q_PROPERTY(int modelCount READ modelCount NOTIFY libraryChanged)
+    Q_PROPERTY(int commandCount READ commandCount NOTIFY libraryChanged)
+
+    // Device-library remote update state (see core/device_library_update_client.h
+    // and docs/device-library-update-protocol.md) -- all driven by
+    // checkForLibraryUpdate()/downloadLibraryUpdate() below and read by the
+    // "Command library" section of SettingsAboutDialog.qml.
+    // "idle" | "checking" | "upToDate" | "updateAvailable" | "downloading" | "error"
+    Q_PROPERTY(QString libraryUpdateState READ libraryUpdateState NOTIFY libraryUpdateStateChanged)
+    // Human-readable status/error/changelog text for whatever
+    // libraryUpdateState currently is -- what the dialog actually displays.
+    Q_PROPERTY(QString libraryUpdateMessage READ libraryUpdateMessage NOTIFY libraryUpdateStateChanged)
+    // Version string reported by the last successful /version check; empty
+    // until one has succeeded.
+    Q_PROPERTY(QString remoteLibraryVersion READ remoteLibraryVersion NOTIFY libraryUpdateStateChanged)
+    // True only when a check found a newer version AND the app itself
+    // satisfies that version's minAppVersion -- gates the "Download and
+    // apply" button in SettingsAboutDialog.qml.
+    Q_PROPERTY(bool libraryUpdateAvailable READ libraryUpdateAvailable NOTIFY libraryUpdateStateChanged)
 
     Q_PROPERTY(QString currentLanguage READ currentLanguage WRITE setCurrentLanguage NOTIFY currentLanguageChanged)
 
@@ -265,7 +289,25 @@ public:
     Q_INVOKABLE QString saveLog(const QString &directory, const QString &baseFileName, const QString &format,
                                  bool autoRotate);
 
-    Q_INVOKABLE QString checkForLibraryUpdate() const;
+    QString libraryUpdateState() const { return libraryUpdateState_; }
+    QString libraryUpdateMessage() const { return libraryUpdateMessage_; }
+    QString remoteLibraryVersion() const { return remoteLibraryVersion_; }
+    bool libraryUpdateAvailable() const { return libraryUpdateAvailable_; }
+
+    // Kicks off an async GET {baseUrl}/version (see
+    // core/device_library_update_client.h); results land on the
+    // libraryUpdateState/libraryUpdateMessage/remoteLibraryVersion/
+    // libraryUpdateAvailable properties above via libraryUpdateStateChanged
+    // once the request completes -- this method itself returns immediately.
+    // A no-op-ish immediate "not configured" result when .env doesn't set
+    // DEVICE_LIBRARY_API_BASE_URL.
+    Q_INVOKABLE void checkForLibraryUpdate();
+    // Only meaningful (and only exposed as actionable in the UI) once
+    // libraryUpdateAvailable is true. Downloads {baseUrl}/latest, and on
+    // success replaces the in-memory library, persists it via
+    // SettingsStore::setCachedLibraryJson(), and refreshes commandModel_ --
+    // all visible immediately, no restart required.
+    Q_INVOKABLE void downloadLibraryUpdate();
 
 signals:
     void connectionChanged();
@@ -283,6 +325,11 @@ signals:
     void batchStateChanged();
     void portOpenFailed(const QString &error);
     void statusMessage(const QString &text);
+    // Fired whenever the device library's contents are wholesale replaced
+    // (currently only downloadLibraryUpdate() succeeding) -- modelIds/
+    // libraryVersion/modelCount/commandCount all re-read from library_ then.
+    void libraryChanged();
+    void libraryUpdateStateChanged();
 
 private:
     // `crc` is explicit (rather than always reading crcEnabled_) so a batch
@@ -330,6 +377,12 @@ private:
     SettingsStore settings_;
     SerialManager serial_;
     LogManager logManager_;
+    DeviceLibraryUpdateClient *libraryUpdateClient_;
+
+    QString libraryUpdateState_ = QStringLiteral("idle");
+    QString libraryUpdateMessage_;
+    QString remoteLibraryVersion_;
+    bool libraryUpdateAvailable_ = false;
 
     LogListModel *logModel_;
     CommandListModel *commandModel_;

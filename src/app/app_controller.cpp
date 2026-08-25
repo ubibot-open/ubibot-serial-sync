@@ -1,6 +1,7 @@
 #include "app/app_controller.h"
 
 #include "core/crc16.h"
+#include "core/env_config.h"
 #include "core/language_manager.h"
 #include "models/batch_command_model.h"
 #include "models/command_history_model.h"
@@ -15,6 +16,7 @@
 #include <QGuiApplication>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QVersionNumber>
 
 namespace {
 QHash<QString, QString> toHash(const QVariantMap &values) {
@@ -25,7 +27,17 @@ QHash<QString, QString> toHash(const QVariantMap &values) {
 }  // namespace
 
 AppController::AppController(QObject *parent) : QObject(parent) {
-    library_.loadFromResource();
+    // Prefer the last successfully downloaded library (see
+    // downloadLibraryUpdate() below) over the one baked into the binary at
+    // compile time -- falls back to the bundled resources/devices.json
+    // whenever nothing's been downloaded yet, or the cached text somehow
+    // fails to parse (corrupt QSettings value, older cache from an
+    // incompatible schema, ...), so a bad cache can never leave the app with
+    // no command library at all.
+    const QString cachedJson = settings_.cachedLibraryJson();
+    if (cachedJson.isEmpty() || !library_.loadFromJsonText(cachedJson.toUtf8())) {
+        library_.loadFromResource();
+    }
     LanguageManager::instance().setLanguage(settings_.language());
 
     logModel_ = new LogListModel(&logManager_, this);
@@ -63,6 +75,75 @@ AppController::AppController(QObject *parent) : QObject(parent) {
 
     const QString lastModel = settings_.lastModelId();
     commandModel_->setModelId(lastModel.isEmpty() ? library_.modelIds().value(0) : lastModel);
+
+    libraryUpdateClient_ =
+        new DeviceLibraryUpdateClient(EnvConfig::instance().value(QStringLiteral("DEVICE_LIBRARY_API_BASE_URL")),
+                                       EnvConfig::instance().value(QStringLiteral("DEVICE_LIBRARY_API_KEY")), this);
+
+    connect(libraryUpdateClient_, &DeviceLibraryUpdateClient::checkFinished, this,
+            [this](bool ok, bool updateAvailable, const QString &remoteVersion, const QString &minAppVersion,
+                   const QString &message, const QString &error) {
+                settings_.setLastLibraryCheckAt(QDateTime::currentDateTimeUtc());
+                remoteLibraryVersion_ = remoteVersion;
+
+                // A newer library that requires a newer app than this build
+                // (docs/device-library-update-protocol.md#4/#6) is reported
+                // but not downloadable -- surfaced as its own message rather
+                // than silently either offering a download that would break
+                // something, or hiding that an update exists at all.
+                const bool appTooOld = !minAppVersion.isEmpty() &&
+                    QVersionNumber::fromString(QCoreApplication::applicationVersion()) <
+                        QVersionNumber::fromString(minAppVersion);
+
+                if (!ok) {
+                    libraryUpdateState_ = QStringLiteral("error");
+                    libraryUpdateMessage_ = error;
+                    libraryUpdateAvailable_ = false;
+                } else if (!updateAvailable) {
+                    libraryUpdateState_ = QStringLiteral("upToDate");
+                    libraryUpdateMessage_ = tr("Command library is up to date (%1).").arg(library_.version());
+                    libraryUpdateAvailable_ = false;
+                } else if (appTooOld) {
+                    libraryUpdateState_ = QStringLiteral("error");
+                    libraryUpdateMessage_ =
+                        tr("Version %1 is available, but requires app version %2 or later -- please update the app first.")
+                            .arg(remoteVersion, minAppVersion);
+                    libraryUpdateAvailable_ = false;
+                } else {
+                    libraryUpdateState_ = QStringLiteral("updateAvailable");
+                    libraryUpdateMessage_ =
+                        message.isEmpty() ? tr("Version %1 is available.").arg(remoteVersion) : message;
+                    libraryUpdateAvailable_ = true;
+                }
+                emit libraryUpdateStateChanged();
+            });
+
+    connect(libraryUpdateClient_, &DeviceLibraryUpdateClient::fetchFinished, this,
+            [this](bool ok, const QString &version, const QByteArray &rawJson, const QString &error) {
+                if (!ok || !library_.loadFromJsonText(rawJson)) {
+                    libraryUpdateState_ = QStringLiteral("error");
+                    libraryUpdateMessage_ =
+                        !error.isEmpty() ? error : tr("Downloaded data could not be applied: %1").arg(library_.errorString());
+                    emit libraryUpdateStateChanged();
+                    return;
+                }
+
+                settings_.setCachedLibraryJson(QString::fromUtf8(rawJson));
+                commandModel_->reload();
+                emit libraryChanged();
+                if (library_.model(commandModel_->modelId()) == nullptr) {
+                    // The previously selected model no longer exists in the
+                    // new library (removed upstream) -- fall back to
+                    // whatever the new library's first model is, same as a
+                    // fresh install with no lastModelId at all.
+                    setCurrentModelId(library_.modelIds().value(0));
+                }
+
+                libraryUpdateState_ = QStringLiteral("upToDate");
+                libraryUpdateMessage_ = tr("Updated to %1.").arg(version);
+                libraryUpdateAvailable_ = false;
+                emit libraryUpdateStateChanged();
+            });
 }
 
 AppController::~AppController() = default;
@@ -591,6 +672,25 @@ QString AppController::saveLog(const QString &directory, const QString &baseFile
     return QString();
 }
 
-QString AppController::checkForLibraryUpdate() const {
-    return tr("Bundled command library is %1 — this build checks the local copy only.").arg(library_.version());
+void AppController::checkForLibraryUpdate() {
+    if (!libraryUpdateClient_->isConfigured()) {
+        libraryUpdateState_ = QStringLiteral("error");
+        libraryUpdateMessage_ = tr("No update server configured (.env) -- using the bundled command library only.");
+        libraryUpdateAvailable_ = false;
+        emit libraryUpdateStateChanged();
+        return;
+    }
+
+    libraryUpdateState_ = QStringLiteral("checking");
+    libraryUpdateMessage_ = tr("Checking for updates…");
+    emit libraryUpdateStateChanged();
+    libraryUpdateClient_->checkForUpdate(library_.version());
+}
+
+void AppController::downloadLibraryUpdate() {
+    if (!libraryUpdateAvailable_) return;  // nothing to apply -- see libraryUpdateAvailable's own doc comment
+    libraryUpdateState_ = QStringLiteral("downloading");
+    libraryUpdateMessage_ = tr("Downloading…");
+    emit libraryUpdateStateChanged();
+    libraryUpdateClient_->fetchLatest();
 }

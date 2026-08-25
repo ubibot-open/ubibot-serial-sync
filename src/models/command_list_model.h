@@ -38,6 +38,14 @@ public:
     void setModelId(const QString &id);
     QString modelId() const { return modelId_; }
 
+    // Rebuilds rows_ from the current modelId_ against whatever `library_`
+    // now holds -- setModelId() skips rebuild() when the id is unchanged, so
+    // this is the hook AppController calls after swapping the library's
+    // contents wholesale (DeviceLibrary::loadFromJsonText(), applying a
+    // downloaded update) to pick up the new command set for the model
+    // that's already selected.
+    void reload() { rebuild(); }
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;

@@ -9,3 +9,8 @@ CMakeLists.txt.user
 out/
 *.qm
 build.md
+
+# Local device-library update-server config (see .env.example and
+# docs/device-library-update-protocol.md) -- deliberately never committed,
+# since the URL/key can differ per environment.
+.env
