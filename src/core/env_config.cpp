@@ -19,6 +19,15 @@ EnvConfig::EnvConfig() {
     // dropped into the current working directory. Loaded second so it wins
     // over the deploy-layout file above when both happen to exist.
     loadFile(QDir::current().filePath(QStringLiteral(".env")));
+#ifdef APP_SOURCE_DIR
+    // Dev convenience #2: a ".env" sitting at the repo root, found even when
+    // neither of the above happens to be it (e.g. Qt Creator's default
+    // working directory is the build dir, not the source dir). Loaded last
+    // so it wins when more than one exists. APP_SOURCE_DIR is only ever this
+    // machine's own checkout path (see CMakeLists.txt) -- on another
+    // machine/a real deploy it simply won't exist and this is a no-op.
+    loadFile(QDir(QStringLiteral(APP_SOURCE_DIR)).filePath(QStringLiteral(".env")));
+#endif
 }
 
 void EnvConfig::loadFile(const QString &path) {

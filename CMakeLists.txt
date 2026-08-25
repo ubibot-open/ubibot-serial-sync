@@ -167,6 +167,14 @@ string(TIMESTAMP APP_BUILD_TIME "%Y-%m-%d %H:%M UTC" UTC)
 target_compile_definitions(UbiBotSerialAssistant PRIVATE
     APP_VERSION="${PROJECT_VERSION}"
     APP_BUILD_TIME="${APP_BUILD_TIME}"
+    # Baked-in path to this checkout, purely so EnvConfig (core/env_config.cpp)
+    # has a third place to look for a dev-only ".env" besides next to the exe
+    # and the current working directory -- both of which miss a ".env" sitting
+    # at the repo root when running from Qt Creator or a plain build/ tree
+    # (its default working directory is the build dir, not the source dir).
+    # Harmless on another machine/a real deploy: that path just won't exist
+    # there, so EnvConfig's lookup silently no-ops.
+    APP_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 
 if(WIN32)

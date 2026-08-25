@@ -9,13 +9,18 @@
 // shouldn't require a rebuild to change. See
 // docs/device-library-update-protocol.md for the full picture.
 //
-// Looked up next to the running executable first (the production/deploy
-// layout), then the current working directory (dev convenience when running
-// straight out of the build tree); a key found in the second location
-// overrides the first. Neither file existing, or a key simply being absent,
-// both just mean "not configured" -- value() returns `fallback` (empty by
-// default) and callers (DeviceLibraryUpdateClient) treat an empty base URL as
-// "remote update disabled, bundled devices.json only" rather than an error.
+// Looked up in, in order: next to the running executable (the production/
+// deploy layout), the current working directory (dev convenience when
+// running straight out of the build tree), then this checkout's own source
+// root (APP_SOURCE_DIR, a compile-time define from CMakeLists.txt) -- the
+// last one exists so a ".env" left at the repo root is still found when
+// running from Qt Creator or a plain build/ tree, whose default working
+// directory is the build dir, not the source dir. Each location loaded
+// overrides keys already loaded from an earlier one. Neither file existing
+// anywhere, or a key simply being absent, both just mean "not configured" --
+// value() returns `fallback` (empty by default) and callers
+// (DeviceLibraryUpdateClient) treat an empty base URL as "remote update
+// disabled, bundled devices.json only" rather than an error.
 class EnvConfig {
 public:
     static const EnvConfig &instance();
