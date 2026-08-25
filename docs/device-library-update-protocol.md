@@ -25,23 +25,31 @@ Qt 资源**——新增一个型号或一条指令，必须改这个文件、重
 [.env.example](../.env.example) 和 [.gitignore](../.gitignore)）：
 
 ```
-DEVICE_LIBRARY_API_BASE_URL=https://api.ubibot.com/serial-assistant/device-library
+DEVICE_LIBRARY_API_BASE_URL=https://appcenter.ubibot.com/api/device-library
 DEVICE_LIBRARY_API_KEY=
 ```
 
 - `DEVICE_LIBRARY_API_BASE_URL`：两个接口的公共前缀（不带末尾 `/`，客户端会
   自动去掉多余的斜杠）。**留空或整个 `.env` 文件不存在** = 不启用远程更新，
   App 只用编译期打包的 `resources/devices.json`，"检查更新"按钮会直接提示
-  "未配置更新服务器"，不会报错崩溃。
+  "未配置更新服务器"，不会报错崩溃。协议本身（下面第 4、5 节）只定义相对路径
+  `/version`、`/latest`——`/api/device-library` 这段前缀完全是配置项，不是客户端
+  代码里硬编码的东西；真实后台（见第 3.1 节）恰好把两个接口注册在这个路径下，
+  所以生产环境的 `DEVICE_LIBRARY_API_BASE_URL` 才长这样。
 - `DEVICE_LIBRARY_API_KEY`：可选。非空时客户端在每次请求上带
   `X-Api-Key: <这个值>` 请求头，供后台按需做访问控制；后台如果不需要鉴权，
-  留空即可。
+  留空即可。当前真实后台（第 3.1 节）没做鉴权，留空即可。
 
 客户端查找 `.env` 的顺序（见 [EnvConfig](../src/core/env_config.h)）：
 1. 可执行文件所在目录（`deploy/UbiBotSerialAssistant/.env`）—— 生产/打包环境。
 2. 当前工作目录 —— 开发时直接在构建目录里跑，方便临时指向测试后台。
+3. 这份代码检出的源码根目录（编译期写死的路径，见
+   [CMakeLists.txt](../CMakeLists.txt) 的 `APP_SOURCE_DIR`）—— 纯开发便利，
+   让放在仓库根目录的 `.env` 在用 Qt Creator 跑（默认工作目录是构建目录，不是
+   源码目录）时也能被找到；换一台机器/正式打包后这个路径自然不存在，查找会
+   静默跳过。
 
-两处都找不到就是禁用状态。**打包发布时，需要运维/发布流程把真正的 `.env`
+三处都找不到就是禁用状态。**打包发布时，需要运维/发布流程把真正的 `.env`
 放进 `deploy/UbiBotSerialAssistant/` 目录**（和 `windeployqt` 产物放一起），
 这一步不在本仓库的构建脚本里自动完成。
 
@@ -65,6 +73,22 @@ DEVICE_LIBRARY_API_KEY=
   `resources/devices.json` 的 `version` 字段同一套约定），服务端保证新版本
   号字典序大于旧版本号；客户端只做字符串相等/不等比较（不等 = 有更新），不做
   语义化版本比较。
+
+### 3.1 真实后台实现
+
+真实后台是 `ubibot-appcenter` 仓库的 `server/`（Laravel 应用）：
+`app/Http/Controllers/DeviceLibraryController.php` 实现下面两个接口的具体
+逻辑，`routes/api.php` 里注册路由；因为 `routes/api.php` 整体已经被
+`RouteServiceProvider` 套了一层 `api` 前缀，所以最终对外路径是
+`/api/device-library/version`、`/api/device-library/latest`（**不需要
+鉴权**，和该项目里 `/api/software/list` 这类公开只读接口一个待遇）。数据来自
+该仓库的 `resources/device-library/{devices,meta}.json` 两个文件——目前还
+没有配套的后台管理 CRUD 界面，更新设备库靠直接改这两个 JSON 文件、走一次
+正常部署流程；以后有了设备管理页面，再把 Controller 里的读文件逻辑换成读
+数据库，这两个接口本身的路径/响应格式不用变。
+
+本仓库 `server/` 目录下的 Go 模拟服务端（[server/README.md](../server/README.md)）
+路径布局跟真实后台完全对齐，只是 host:port 不同，方便本地联调时随时切换。
 
 ## 4. 接口一：版本检查 `GET {baseUrl}/version`
 

@@ -1,8 +1,44 @@
 {
-  "version": "lib-2026.08.25",
+  "version": "lib-2026.08.26",
   "models": [
     {
       "id": "WS1",
+      "protocol": "json",
+      "description": {
+        "zh": "轻松连 WS1 · 温湿度 + 光照 + WiFi",
+        "en": "UbiBot WS1 · Temp/Humidity + Light + WiFi"
+      },
+      "serial": { "baudRate": 115200, "dataBits": 8, "parity": "None", "stopBits": 1, "flowControl": "None" },
+      "commands": [
+        {
+          "id": "read-device-info", "group": { "zh": "设备信息", "en": "Device Info" }, "name": { "zh": "读取设备信息", "en": "Read device info" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZFByb2R1Y3QifQ=="
+        },
+        {
+          "id": "read-sensor-data", "group": { "zh": "数据", "en": "Data" }, "name": { "zh": "读取设备数据", "en": "Read sensor data" },
+          "type": "query", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVhZERhdGEifQ=="
+        },
+        {
+          "id": "set-wifi", "group": { "zh": "配置", "en": "Config" }, "name": { "zh": "设置 WiFi", "en": "Set WiFi" },
+          "type": "set", "needsInput": true,
+          "params": [
+            { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
+            { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+          ],
+          "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
+        },
+        {
+          "id": "reboot", "group": { "zh": "维护", "en": "Maintenance" }, "name": { "zh": "重启设备（示例：模拟服务端新增指令）", "en": "Reboot device (demo: added by mock server)" },
+          "type": "action", "needsInput": false,
+          "payloadBase64": "eyJjb21tYW5kIjoiUmVib290In0="
+        }
+      ]
+    },
+        {
+      "id": "GS1",
       "protocol": "json",
       "description": {
         "zh": "轻松连 WS1 · 温湿度 + 光照 + WiFi",

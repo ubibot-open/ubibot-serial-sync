@@ -1,8 +1,8 @@
 {
-  "publishedAt": "2026-08-25T08:00:00Z",
-  "minAppVersion": "0.2.0.0",
+  "publishedAt": "2026-08-25T09:00:00Z",
+  "minAppVersion": "0.2.1.0",
   "changelog": {
-    "zh": "新增「重启设备」指令（演示：模拟服务端新增了一条指令）。",
-    "en": "Added a \"Reboot device\" command (demo: the mock server added one new command)."
+    "zh": "新增设备GS1",
+    "en": "Added device GS1"
   }
 }

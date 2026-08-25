@@ -1,7 +1,9 @@
 // Command device-library-mock-server is a stand-in for the real backend
 // described in docs/device-library-update-protocol.md -- it implements just
-// the two read-only JSON endpoints the desktop app calls (GET /version and
-// GET /latest), reading their data straight from the two files under
+// the two read-only JSON endpoints the desktop app calls (GET
+// /api/device-library/version and GET /api/device-library/latest, matching
+// the path layout of the real Laravel backend in ubibot-appcenter's
+// routes/api.php), reading their data straight from the two files under
 // data/ so testing "there's an update" is just editing JSON and refreshing,
 // no rebuild needed. No authentication -- every request is served as-is;
 // the app's optional X-Api-Key header (see core/device_library_update_client.h)
@@ -123,7 +125,7 @@ func writeError(w http.ResponseWriter, status int, code, message string) {
 	writeJSON(w, status, body)
 }
 
-// handleVersion implements GET /version -- see
+// handleVersion implements GET /api/device-library/version -- see
 // docs/device-library-update-protocol.md#4.
 func (s *server) handleVersion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -170,7 +172,7 @@ func (s *server) handleVersion(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, body)
 }
 
-// handleLatest implements GET /latest -- see
+// handleLatest implements GET /api/device-library/latest -- see
 // docs/device-library-update-protocol.md#5, including the X-Content-SHA256
 // integrity header (hash of the exact response body being sent).
 func (s *server) handleLatest(w http.ResponseWriter, r *http.Request) {
@@ -219,11 +221,15 @@ func main() {
 
 	s := &server{dataDir: *dataDir}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/version", s.handleVersion)
-	mux.HandleFunc("/latest", s.handleLatest)
+	// Paths match the real backend (ubibot-appcenter's Laravel routes/api.php,
+	// which registers these under /api/device-library/*) so a .env pointing
+	// at this mock and one pointing at production differ only in host:port,
+	// never in path shape.
+	mux.HandleFunc("/api/device-library/version", s.handleVersion)
+	mux.HandleFunc("/api/device-library/latest", s.handleLatest)
 
 	log.Printf("device-library mock server listening on %s (data dir: %s)", *addr, *dataDir)
-	log.Printf("point the app at it via .env: DEVICE_LIBRARY_API_BASE_URL=http://<this-host>%s", *addr)
+	log.Printf("point the app at it via .env: DEVICE_LIBRARY_API_BASE_URL=http://<this-host>%s/api/device-library", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}

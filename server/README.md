@@ -6,21 +6,23 @@
 
 ```bash
 cd server
-go run . -addr :8080
+go run . -addr :8980
 ```
 
-（`-addr`/`-data` 都是可选 flag，默认 `:8080` 和 `./data`。）
+（`-addr`/`-data` 都是可选 flag，默认 `:8980` 和 `./data`。）
 
 ## 接入客户端
 
 在仓库根目录建一个 `.env`（gitignore 了，不会被提交，见 [.env.example](../.env.example)）：
 
 ```
-DEVICE_LIBRARY_API_BASE_URL=http://127.0.0.1:8080
+DEVICE_LIBRARY_API_BASE_URL=http://127.0.0.1:8980/api/device-library
 DEVICE_LIBRARY_API_KEY=
 ```
 
 把它放到打包产物同目录（`deploy/UbiBotSerialAssistant/.env`）或者项目当前工作目录（开发时直接在构建目录里跑），下次「Check for updates」就会打到这个模拟服务端。
+
+路径里的 `/api/device-library` 是刻意和真实后台（`ubibot-appcenter` 仓库 `server/routes/api.php` 里注册的 `App\Http\Controllers\DeviceLibraryController`）对齐的——两边只是 host:port 不同，路径结构完全一样，`.env` 切换起来不用改别的。
 
 ## 数据文件
 
@@ -29,7 +31,7 @@ DEVICE_LIBRARY_API_KEY=
 
 ## 两个接口
 
-- `GET /version` —— 元数据（`version`/`publishedAt`/`minAppVersion`/`modelCount`/`commandCount`/`changelog`）。
-- `GET /latest` —— 完整数据（`{ok, version, publishedAt, models}`），响应头带 `X-Content-SHA256`（整个响应体的 SHA-256），客户端会校验。
+- `GET /api/device-library/version` —— 元数据（`version`/`publishedAt`/`minAppVersion`/`modelCount`/`commandCount`/`changelog`）。
+- `GET /api/device-library/latest` —— 完整数据（`{ok, version, publishedAt, models}`），响应头带 `X-Content-SHA256`（整个响应体的 SHA-256），客户端会校验。
 
 两个接口的完整字段说明、错误信封格式见 [docs/device-library-update-protocol.md](../docs/device-library-update-protocol.md)。
