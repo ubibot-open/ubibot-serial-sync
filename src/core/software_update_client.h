@@ -18,7 +18,7 @@ class QFile;
 // needed this app registered as one more row (see ubibot-appcenter's
 // migration 2026_08_25_010000_register_ubibot_serial_assistant_software.php)
 // plus someone uploading Version rows for it through the existing
-// admin-react "软件版本管理" page -- see docs/app-self-update.md for the full
+// admin-react "Software Version Management" page -- see docs/app-self-update.md for the full
 // picture, including why baseUrl/apiKey come from EnvConfig exactly like
 // DeviceLibraryUpdateClient's do.
 //

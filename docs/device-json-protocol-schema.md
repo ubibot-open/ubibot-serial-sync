@@ -1,76 +1,76 @@
-# 设备指令库 · JSON 协议扩展设计
+# Device Command Library · JSON Protocol Extension Design
 
-状态：**设计稿，多数关键问题已拍板**（见文末「待确认事项」，剩下的是次要项）。本文档只定义数据结构，不涉及本次的代码改动。
+Status: **Design draft, most key questions have been settled** (see "Open Questions" at the end of the document — what remains is minor). This document only defines the data structures; it does not cover the code changes for this round.
 
-> **v2 更新**：根据反馈确认——① 选中型号后串口参数**强制覆盖**（不是"仅在未改动时预填"）；
-> ② JSON 指令发送时**自动追加 `\r\n`**，和现有 AT 指令的行为完全一致；
-> ③ 需要输入的 JSON 指令**不走参数表单**，而是把指令模板直接放进手动发送框，
-> 由用户自己改完再点「发送」。第 5、6、9、10 节已按此更新。
+> **v2 update**: Confirmed based on feedback — ① once a model is selected, the serial port parameters are **force-overridden** (not "only prefilled if unchanged");
+> ② JSON commands **automatically append `\r\n`** when sent, identical to the existing AT command behavior;
+> ③ JSON commands that need input **skip the parameter form** and instead put the command template directly into the manual-send box,
+> for the user to edit and click "Send" themselves. Sections 5, 6, 9, and 10 have been updated accordingly.
 
-## 1. 背景
+## 1. Background
 
-现有 `resources/devices.json`（[devices.json](../resources/devices.json)，对应 C++
-端 [DeviceLibrary](../src/core/device_library.h)）里的指令都是纯文本 AT 指令模板，例如：
+The commands in the current `resources/devices.json` ([devices.json](../resources/devices.json), corresponding to the C++-side
+[DeviceLibrary](../src/core/device_library.h)) are all plain-text AT command templates, for example:
 
 ```json
 { "name": { "zh": "读取设备信息", "en": "Read device info" }, "cmd": "AT+DEVINFO?" }
 ```
 
-现在要接入一批用 **JSON 报文**通信的设备，指令本身是一段 JSON，例如：
+We now need to onboard a batch of devices that communicate via **JSON messages**, where the command itself is a JSON blob, for example:
 
 ```json
 {"Command":"ReadProduct"}
 ```
 
-需要在指令库里描述：设备名、设备描述、设备的串口参数（波特率、数据位等）、以及指令列表（指令名、类型、是否需要用户输入、指令内容的 base64 编码）。
+The command library needs to describe: device name, device description, the device's serial port parameters (baud rate, data bits, etc.), and the command list (command name, type, whether user input is required, base64-encoded command content).
 
-## 2. 设计原则
+## 2. Design Principles
 
-1. **与现有 AT 协议共存，不推翻现有 4 款设备的数据**。在 model 级加一个
-   `protocol` 字段区分 `"at"` / `"json"`，旧数据不填这个字段时按 `"at"`
-   处理，完全向后兼容。
-2. **指令内容用 base64 存，而不是把 JSON 字符串直接嵌进 JSON 文件**。原因：
-   - 避免"JSON 里塞 JSON"要对 `"` 做转义，写起来容易错、也难读（试想
-     `"cmd": "{\"Command\":\"ReadProduct\"}"` 这种写法，几条还好，几十条就很痛苦）。
-   - base64 是二进制安全的，以后如果某个设备用的不是 JSON 而是别的二进制帧
-     格式，同一套字段（`payloadBase64`）不用改。
-   - 编辑器/脚本校验方便：解出来的必须是能 `json.loads` 成功的合法 JSON。
-3. **需要输入的指令不走结构化表单**，payload 解码后是带 `<key>` 占位符的
-   模板，直接整段放进手动发送框，由用户自己把占位符改成真实值再点「发送」
-   —— 和现有 AT 模板（`AT+INTERVAL=<sec>`）那套自动替换 + 弹参数表单
-   （[DeviceCommand::resolve](../src/core/device_library.h:36) +
-   `CommandParamsPanel`）是两种不同的交互，JSON 协议这批指令刻意选了更
-   简单直接的"文本框里改完直接发"方式，理由和具体流程见第 9 节。
+1. **Coexist with the existing AT protocol — don't overturn the data for the existing 4 devices.** Add a
+   `protocol` field at the model level to distinguish `"at"` / `"json"`; when old data omits this field it is treated as `"at"`,
+   fully backward compatible.
+2. **Store command content as base64 rather than embedding the JSON string directly inside the JSON file.** Reasons:
+   - Avoids having to escape `"` for "JSON nested inside JSON," which is error-prone and hard to read (imagine
+     `"cmd": "{\"Command\":\"ReadProduct\"}"` — fine for a few entries, painful for dozens).
+   - base64 is binary-safe — if some future device uses a binary frame format other than JSON,
+     the same field (`payloadBase64`) doesn't need to change.
+   - Convenient for editor/script validation: the decoded result must be valid JSON that `json.loads` can parse successfully.
+3. **Commands that need input skip the structured form.** After decoding, the payload is a template with `<key>` placeholders,
+   and the whole thing is put directly into the manual-send box, for the user to replace the placeholders with real values themselves before clicking "Send"
+   — this is a different interaction from the existing AT template's (`AT+INTERVAL=<sec>`) auto-substitution + pop-up parameter form
+   ([DeviceCommand::resolve](../src/core/device_library.h:36) +
+   `CommandParamsPanel`). For this batch of JSON protocol commands we deliberately chose the simpler,
+   more direct "edit in the text box and send" approach — see Section 9 for the reasoning and detailed flow.
 
-## 3. 顶层结构
+## 3. Top-level structure
 
-不新增文件，仍是一份 `devices.json`，`models` 数组里 AT 协议和 JSON 协议的
-设备混在一起，靠每个 model 的 `protocol` 字段区分：
+No new file is added — it's still a single `devices.json`. AT-protocol and JSON-protocol
+devices are mixed together in the `models` array, distinguished by each model's `protocol` field:
 
 ```json
 {
   "version": "lib-2026.08.12",
   "models": [
-    { "id": "WS1 Pro", "protocol": "at", "...": "现有 4 款设备，字段不变" },
-    { "id": "GS1-JSON-01", "protocol": "json", "...": "新协议设备" }
+    { "id": "WS1 Pro", "protocol": "at", "...": "existing 4 devices, fields unchanged" },
+    { "id": "GS1-JSON-01", "protocol": "json", "...": "new protocol device" }
   ]
 }
 ```
 
-## 4. model（设备）字段
+## 4. model (device) fields
 
-| 字段 | 类型 | 必填 | 说明 |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| `id` | string | 是 | 设备型号的唯一标识，沿用现状——用作下拉框的值、收藏/设置的 key、内部引用。不做本地化，一般就是型号名，如 `"GS1-JSON-01"`。 |
-| `protocol` | `"at"` \| `"json"` | 否，默认 `"at"` | 该设备的指令协议类型。决定 `commands[]` 里每条指令按第 6 节（`json`）还是原有 `cmd`/`params` 字段（`at`）解析。 |
-| `name` | LocalizedText | 否 | **新增**：设备的展示名（如"GS1 JSON 网关"）。和 `id` 分开，是因为 `id` 要保持稳定不能随便改，但展示名可能需要本地化/以后改文案。不填时 UI 直接显示 `id`。 |
-| `description` | LocalizedText | 是 | 沿用现状：型号的一句话描述，显示在型号下拉框下方的灰字里。 |
-| `serial` | SerialDefaults | 否 | **新增**：该设备的串口参数（波特率/数据位等），见第 5 节。省略时沿用 App 当前的串口设置不变。 |
-| `commands` | Command[] | 是 | 指令列表。数组内每一项的字段由 `protocol` 决定，见第 6 节。 |
+| `id` | string | Yes | Unique identifier for the device model, carried over from the current behavior — used as the dropdown value, favorites/settings key, and internal reference. Not localized; generally just the model name, e.g. `"GS1-JSON-01"`. |
+| `protocol` | `"at"` \| `"json"` | No, defaults to `"at"` | The command protocol type for this device. Determines whether each command in `commands[]` is parsed per Section 6 (`json`) or via the original `cmd`/`params` fields (`at`). |
+| `name` | LocalizedText | No | **New**: the device's display name (e.g. "GS1 JSON Gateway"). Kept separate from `id` because `id` must stay stable and shouldn't be changed casually, while the display name may need localization or copy changes later. When omitted, the UI shows `id` directly. |
+| `description` | LocalizedText | Yes | Carried over from the current behavior: a one-line description of the model, shown as gray text below the model dropdown. |
+| `serial` | SerialDefaults | No | **New**: this device's serial port parameters (baud rate, data bits, etc.), see Section 5. When omitted, the App's current serial settings are left unchanged. |
+| `commands` | Command[] | Yes | The command list. The fields of each entry in the array are determined by `protocol`, see Section 6. |
 
-`LocalizedText` 就是现有的 `{ "zh": "...", "en": "..." }` 结构，不变。
+`LocalizedText` is the existing `{ "zh": "...", "en": "..." }` structure, unchanged.
 
-## 5. serial（串口默认参数，新增）
+## 5. serial (serial port defaults, new)
 
 ```json
 "serial": {
@@ -82,25 +82,25 @@
 }
 ```
 
-| 字段 | 类型 | 允许值 | 默认 |
+| Field | Type | Allowed values | Default |
 |---|---|---|---|
-| `baudRate` | number | 任意正整数（常见 1200~921600） | 115200 |
+| `baudRate` | number | any positive integer (commonly 1200~921600) | 115200 |
 | `dataBits` | number | `5` `6` `7` `8` | 8 |
 | `parity` | string | `"None"` `"Even"` `"Odd"` `"Space"` `"Mark"` | `"None"` |
 | `stopBits` | number | `1` `1.5` `2` | 1 |
 | `flowControl` | string | `"None"` `"Hardware"` `"Software"` | `"None"` |
 
-五个字段都可省略，省略的按上表默认值处理。**行为已确认：只要在设备指令页/
-连接向导里选中了这个型号，串口设置面板就立刻按这份 `serial` 强制覆盖**（波特
-率、数据位等全部改成这里给的值），不管用户之前手动改过什么——选型号即认为
-用户是要按这台设备的规格来，不保留旧值。省略 `serial` 的型号（现有 4 款 AT
-设备都是这样）选中时不改动串口设置，维持现状。
+All five fields may be omitted; omitted ones use the defaults in the table above. **Behavior confirmed: as soon as this model is selected in the
+device command page / connection wizard, the serial settings panel immediately force-overrides according to this `serial` block** (baud
+rate, data bits, etc. are all changed to the values given here), regardless of anything the user changed manually before — selecting a model is taken to mean
+the user wants to follow that device's spec, and old values are not preserved. Models that omit `serial` (all 4 existing AT
+devices are like this) leave the serial settings unchanged when selected, preserving current behavior.
 
-字符串取值和 `Qt::SerialPort` 的枚举名对齐（`QSerialPort::Parity` /
-`QSerialPort::FlowControl`），实现时做一层字符串到枚举值的映射即可，复用
-现有 [SerialOptions](../src/app/serial_options.h) 里已经有的选项列表。
+The string values align with `Qt::SerialPort`'s enum names (`QSerialPort::Parity` /
+`QSerialPort::FlowControl`); implementation just needs a string-to-enum mapping layer, reusing
+the option list already present in [SerialOptions](../src/app/serial_options.h).
 
-## 6. command（指令）字段 —— `protocol: "json"` 时
+## 6. command fields — when `protocol: "json"`
 
 ```json
 {
@@ -113,30 +113,30 @@
 }
 ```
 
-| 字段 | 类型 | 必填 | 说明 |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| `id` | string | 是 | **新增**：指令的稳定标识（如 `"read-product"`）。现有 AT 指令的收藏功能是拿 `name.zh` 当 key（[settings_store.cpp](../src/core/settings_store.cpp)），这样一改中文名收藏就丢了——JSON 协议这批借这次机会给每条指令一个不会变的 `id`，收藏/记录都用它。 |
-| `group` | LocalizedText | 是 | 分组名，沿用现状（"设备信息"/"数据"/"配置"…），列表里按它分节。 |
-| `name` | LocalizedText | 是 | 指令展示名，沿用现状。 |
-| `type` | `"query"` \| `"set"` \| `"action"` | 是 | 指令类型，见下表。 |
-| `needsInput` | boolean | 是 | **决定点击这条指令后的行为**（见第 9 节）：`false` 时立刻发送；`true` 时不发送，而是把解码出的指令文本放进手动发送框，等用户自己改完点「发送」。 |
-| `params` | CommandParam[] | 否，仅作提示用 | ⚠️ **不再驱动参数表单**（原设计里 JSON 协议会像 AT 指令一样弹结构化表单，现已改为直接编辑文本框，见第 9 节）。这个字段保留仅作为文档性说明——记录这条指令里有哪些 `<key>` 占位符、大概该填什么，方便以后在输入框上方显示一行提示文字。结构不强制，建议沿用 `{ "key", "label", "hint", "default" }`。 |
-| `payloadBase64` | string | 是 | 指令内容：写出目标 JSON 文本（**需要输入的指令，用 `<key>` 占位符代替具体值，原样保留、不做程序替换**），UTF-8 编码后做 base64。`needsInput: true` 时，这段解码出的文本（占位符原样保留）就是要放进手动发送框的初始内容。 |
+| `id` | string | Yes | **New**: a stable identifier for the command (e.g. `"read-product"`). The existing AT command favorites feature uses `name.zh` as the key ([settings_store.cpp](../src/core/settings_store.cpp)), so changing the Chinese name breaks favorites — this batch of JSON protocol commands takes the opportunity to give every command a stable `id` that favorites/history both use. |
+| `group` | LocalizedText | Yes | Group name, carried over from current behavior ("Device Info"/"Data"/"Config"...), used to section the list. |
+| `name` | LocalizedText | Yes | Command display name, carried over from current behavior. |
+| `type` | `"query"` \| `"set"` \| `"action"` | Yes | Command type, see table below. |
+| `needsInput` | boolean | Yes | **Determines the behavior after clicking this command** (see Section 9): when `false`, sends immediately; when `true`, does not send but instead puts the decoded command text into the manual-send box, waiting for the user to edit it and click "Send". |
+| `params` | CommandParam[] | No, hint-only | ⚠️ **No longer drives a parameter form** (in the original design, JSON protocol commands would pop up a structured form like AT commands; this has now been changed to direct text-box editing, see Section 9). This field is kept purely as documentation — recording what `<key>` placeholders exist in this command and roughly what should go in them, to make it easy to show a hint line above the input box later. The structure isn't enforced; recommend keeping `{ "key", "label", "hint", "default" }`. |
+| `payloadBase64` | string | Yes | The command content: write out the target JSON text (**for commands that need input, use `<key>` placeholders in place of concrete values — kept as-is, no programmatic substitution**), UTF-8 encode it, then base64. When `needsInput: true`, this decoded text (with placeholders left as-is) is the initial content placed into the manual-send box. |
 
-### `type` 取值说明
+### `type` value meanings
 
-| 值 | 含义 | 一般是否 `needsInput` | 示例 |
+| Value | Meaning | Typically `needsInput` | Example |
 |---|---|---|---|
-| `query` | 只读查询，无副作用，随时可发 | 否 | `{"Command":"ReadProduct"}` |
-| `set` | 写入/修改设备配置 | 通常是 | `{"Command":"SetInterval","Value":"<sec>"}` |
-| `action` | 触发一次性动作，有副作用（重启、复位等），发送前 UI 层面可以考虑二次确认 | 通常否 | `{"Command":"Reboot"}` |
+| `query` | Read-only query, no side effects, can be sent anytime | No | `{"Command":"ReadProduct"}` |
+| `set` | Writes/modifies device configuration | Usually yes | `{"Command":"SetInterval","Value":"<sec>"}` |
+| `action` | Triggers a one-off action with side effects (reboot, reset, etc.); the UI layer may want to consider a confirmation before sending | Usually no | `{"Command":"Reboot"}` |
 
-## 7. base64 编码规则
+## 7. base64 encoding rule
 
-`payloadBase64` = `Base64( UTF8( 目标JSON文本 ) )`。下面几行你可以直接在终端
-里跑，验证和本文档给的示例是否对得上（Windows PowerShell 用
-`[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('...'))`，下面给
-的是 `bash` 版本）：
+`payloadBase64` = `Base64( UTF8( target JSON text ) )`. You can run the lines below directly in a terminal
+to verify they match the examples given in this document (on Windows PowerShell use
+`[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('...'))`; the version below is
+`bash`):
 
 ```bash
 printf '%s' '{"Command":"ReadProduct"}' | base64
@@ -149,17 +149,17 @@ printf '%s' '{"Command":"Reboot"}' | base64
 # eyJDb21tYW5kIjoiUmVib290In0=
 ```
 
-反过来解码校验（`base64 -d`）：
+Decoding the other way for verification (`base64 -d`):
 
 ```bash
 echo 'eyJDb21tYW5kIjoiUmVhZFByb2R1Y3QifQ==' | base64 -d
 # {"Command":"ReadProduct"}
 ```
 
-## 8. 完整示例
+## 8. Full example
 
-一个 JSON 协议设备的完整 model 定义，覆盖 `query` / `set` / `action` 三种
-指令类型：
+A complete model definition for a JSON protocol device, covering all three command types `query` / `set` /
+`action`:
 
 ```json
 {
@@ -221,94 +221,94 @@ echo 'eyJDb21tYW5kIjoiUmVhZFByb2R1Y3QifQ==' | base64 -d
 }
 ```
 
-`set-interval` 解码后是 `{"Command":"SetInterval","Value":"<sec>"}`——因为
-`needsInput: true`，点击这条指令后，这段文本会原样（占位符不替换）放进手动
-发送框，用户自己把 `<sec>` 改成 `600`，再点「发送」，实际发出去的是用户改
-完的那一串文本（是否合法 JSON、`<sec>` 有没有替换干净，都由用户自己保证，
-App 不做校验）。
+`set-interval` decodes to `{"Command":"SetInterval","Value":"<sec>"}` — because
+`needsInput: true`, clicking this command puts this text as-is (placeholder not substituted) into the manual-send
+box, and the user changes `<sec>` to `600` themselves and clicks "Send"; what actually gets sent is the text string as edited by the user
+(whether it's valid JSON, whether `<sec>` was fully replaced — that's all on the user;
+the App does not validate it).
 
-## 9. 发送流程（已确认，但见下方后续修订）
+## 9. Send flow (confirmed, but see revision below)
 
-> **后续修订**：设备指令库现在定位为"快速找指令"，本身不再负责发送、也不
-> 关心串口是否已打开——点击列表里任何一行（不管是不是 JSON 协议、不管
-> `needsInput` 是 `true` 还是 `false`）都只是把指令文本放进手动发送框
-> （`AppController.loadCommandIntoDraft` / 带参数的走
-> `AppController.loadCommandWithParamsIntoDraft`），从不自动发送；真正发送
-> 永远只能通过手动发送框自己的「发送」（`sendManualText()`，会检查串口是否
-> 打开）。下面 `needsInput: false` 直接发送的描述、以及本文档其余处提到的
-> "自动替换、直接发送"，都是这次改动之前的旧行为，仅作历史设计记录保留；
-> `needsInput` 这个字段本身还在，含义不变（`true` 表示 payload 里还留着未
-> 替换的 `<key>` 占位符，需要用户自己填），只是不再驱动"要不要立刻发送"。
+> **Subsequent revision**: The device command library is now positioned as "quickly find a command" — it is no longer
+> responsible for sending, and no longer cares whether the serial port is open. Clicking any row in the list (regardless of
+> JSON protocol or not, regardless of whether `needsInput` is `true` or `false`) only puts the command text into the manual-send box
+> (`AppController.loadCommandIntoDraft` / for parameterized ones,
+> `AppController.loadCommandWithParamsIntoDraft`), and never auto-sends; actually sending
+> is always only possible via the manual-send box's own "Send" (`sendManualText()`, which checks whether the serial port is
+> open). The description below of `needsInput: false` sending directly, and other mentions elsewhere in this document of
+> "auto-substitute, send directly," are the old behavior from before this change and are kept only as a historical design record;
+> the `needsInput` field itself still exists with unchanged meaning (`true` means the payload still has
+> unreplaced `<key>` placeholders that the user needs to fill in themselves) — it just no longer drives "whether to send immediately."
 
-`protocol: "json"` 的指令，点击列表里的一行后分两种情况（**历史记录，当前
-实际行为见上方后续修订**）：
+For `protocol: "json"` commands, clicking a row in the list splits into two cases (**historical record — current
+actual behavior is per the revision above**):
 
-### `needsInput: false`（典型：`query`、`action`）—— 直接发送
+### `needsInput: false` (typically: `query`, `action`) — send directly
 
-1. 从 `payloadBase64` 用 `QByteArray::fromBase64()` 解码，`QString::fromUtf8()`
-   得到 JSON 文本（这类指令本身不含占位符）。
-2. （历史设计，已被上方"后续修订"取代）当时和无参 AT 指令一样的路径：直接
-   把这段文本发出去，**自动追加 `\r\n`**（复用现有
-   [composeAsciiPayload](../src/app/app_controller.cpp:191)，两种协议的指令
-   统一走同一套 framing，不单独定制）。
-3. 按 `echoTx` 设置决定是否回显到数据监视区，行为和现有指令一致。
+1. Decode `payloadBase64` with `QByteArray::fromBase64()`, then `QString::fromUtf8()`
+   to get the JSON text (this class of command has no placeholders).
+2. (Historical design, superseded by the "subsequent revision" above) At the time, this followed the same path as parameterless AT commands: send
+   this text directly, **automatically appending `\r\n`** (reusing the existing
+   [composeAsciiPayload](../src/app/app_controller.cpp:191) — commands from both protocols go through
+   the same unified framing, with no separate customization).
+3. Whether to echo into the data monitor area is decided by the `echoTx` setting, consistent with existing command behavior.
 
-### `needsInput: true`（典型：`set`）—— 放进手动发送框，用户自己完成
+### `needsInput: true` (typically: `set`) — put into manual-send box, user completes it
 
-1. 同样解码 `payloadBase64` 得到 JSON 文本，**占位符 `<key>` 原样保留，不做
-   任何替换**。
-2. 把这段文本整个写入手动发送框（`AppController.draftText`），**不自动发送**，
-   等用户自己把占位符改成真实值。
-   - 如果发送框里已经有用户正在编辑的未发送内容，直接覆盖——和现在「指令
-     历史」面板双击一条历史记录时的行为（[Main.qml](../qml/Main.qml:393)：
-     直接覆盖 draftText）保持一致，不额外弹确认。
-3. 用户改完点「发送」，走的是现有的 `sendManualText()` 路径——同样
-   自动追加 `\r\n`，同样会被记入发送历史。也就是说 `needsInput: true` 的
-   JSON 指令**不需要**现有 [CommandParamsPanel](../qml/CommandParamsPanel.qml)
-   那套结构化参数表单，`params` 字段也就退化成第 6 节说的"仅供参考"。
+1. Likewise decode `payloadBase64` to get the JSON text, **leaving the `<key>` placeholders as-is, with no
+   substitution whatsoever**.
+2. Write this text as a whole into the manual-send box (`AppController.draftText`), **without auto-sending**,
+   waiting for the user to change the placeholders to real values themselves.
+   - If the send box already has unsent content the user is editing, overwrite it directly — consistent with the current behavior of
+     double-clicking a history entry in the "Command History" panel ([Main.qml](../qml/Main.qml:393): overwrites
+     draftText directly), with no extra confirmation pop-up.
+3. Once the user finishes editing and clicks "Send," it goes through the existing `sendManualText()` path — likewise
+   automatically appending `\r\n`, and likewise recorded in send history. In other words, `needsInput: true`
+   JSON commands **do not need** the existing [CommandParamsPanel](../qml/CommandParamsPanel.qml)
+   structured parameter form; the `params` field is thus reduced to the "reference only" role described in Section 6.
 
-AT 协议（`protocol: "at"` 或省略）的指令行为**完全不变**：有参数照样走
-`CommandParamsPanel` 表单 + 自动替换 + 直接发送，这次的改动只影响 JSON
-协议的指令。
+AT protocol (`protocol: "at"` or omitted) command behavior is **completely unchanged**: commands with parameters still go through
+the `CommandParamsPanel` form + auto-substitution + direct send. This change only affects JSON
+protocol commands.
 
-## 10. 与现有格式的差异一览
+## 10. Differences from the existing format
 
-| | 现有 AT 协议 (`protocol: "at"`，或省略) | 新 JSON 协议 (`protocol: "json"`) |
+| | Existing AT protocol (`protocol: "at"`, or omitted) | New JSON protocol (`protocol: "json"`) |
 |---|---|---|
-| 指令内容字段 | `cmd`（明文字符串模板，如 `"AT+INTERVAL=<sec>"`） | `payloadBase64`（目标 JSON 文本的 base64） |
-| 占位符位置 | 直接写在 `cmd` 字符串里 | 写在 base64 解码后的 JSON 文本里 |
-| 指令分类 | 无 | `type`：`query` / `set` / `action` |
-| 需要输入时的交互 | 弹 `CommandParamsPanel` 结构化表单，填完自动替换、直接发送 | 把带占位符的文本放进手动发送框，用户自己改完点「发送」 |
-| `params` 的作用 | 驱动参数表单（label/hint/default 都会渲染成表单项） | 仅文档性说明，不驱动任何 UI |
-| 指令稳定 key | 无（收藏功能借用 `name.zh`，改名会丢收藏） | 显式 `id` 字段 |
-| 设备展示名 | 无独立字段，UI 直接显示 `id` | 新增 `name`（本地化） |
-| 串口参数 | 无，沿用 App 当前设置 | 新增 `serial`，选中型号即强制覆盖 |
-| 帧结束符 | 自动追加 `\r\n` | 自动追加 `\r\n`（两种协议一致） |
+| Command content field | `cmd` (plain-text string template, e.g. `"AT+INTERVAL=<sec>"`) | `payloadBase64` (base64 of the target JSON text) |
+| Placeholder location | Written directly in the `cmd` string | Written in the JSON text after base64 decoding |
+| Command classification | None | `type`: `query` / `set` / `action` |
+| Interaction when input is needed | Pops up the `CommandParamsPanel` structured form; after filling it in, auto-substitutes and sends directly | Puts the text with placeholders into the manual-send box; the user edits it themselves and clicks "Send" |
+| Role of `params` | Drives the parameter form (label/hint/default all render as form fields) | Documentation only, does not drive any UI |
+| Stable command key | None (favorites feature borrows `name.zh`; renaming loses favorites) | Explicit `id` field |
+| Device display name | No separate field, UI shows `id` directly | New `name` field (localized) |
+| Serial port parameters | None, uses the App's current settings | New `serial` field; force-overrides upon model selection |
+| Frame terminator | Automatically appends `\r\n` | Automatically appends `\r\n` (consistent across both protocols) |
 
-现有 4 款设备（WS1 / WS1 Pro / GS1-AL4G1RS / SP1）**不需要改动**，`protocol`
-省略即按 `"at"` 处理，完全向后兼容。
+The existing 4 devices (WS1 / WS1 Pro / GS1-AL4G1RS / SP1) **need no changes** — omitting `protocol`
+is treated as `"at"`, fully backward compatible.
 
-## 11. 已确认 / 待确认
+## 11. Confirmed / Open Questions
 
-**已确认**（本 v2 已按这些更新正文）：
+**Confirmed** (this v2 has updated the body text accordingly):
 
-- 选中带 `serial` 的型号 → 串口设置**强制覆盖**，不管用户之前改过什么。
-- JSON 指令发送**自动追加 `\r\n`**，和 AT 指令一致。
-- `needsInput: true` 的 JSON 指令**不弹参数表单**，改为把指令文本放进手动
-  发送框，用户自己编辑、自己点「发送」；`params` 字段降级为纯文档性说明。
+- Selecting a model with `serial` → serial settings are **force-overridden**, regardless of anything the user changed before.
+- JSON commands **automatically append `\r\n`** when sent, consistent with AT commands.
+- `needsInput: true` JSON commands **do not pop up a parameter form** — instead the command text is put into the manual-send
+  box, for the user to edit and click "Send" themselves; the `params` field is downgraded to purely documentational.
 
-**还剩几个次要问题**，不影响先动手实现，可以边做边定：
+**A few minor questions remain**, which don't block starting implementation and can be settled along the way:
 
-1. **`type` 的三个值（`query`/`set`/`action`）够不够用**？比如要不要单独
-   加一个 `subscribe`（订阅/持续上报）类型？
-2. **现有 4 款 AT 协议设备要不要也补上 `id` 字段**（把收藏 key 从
-   `name.zh` 换成稳定 `id`，顺带修掉"改名丢收藏"这个小问题）？这个和这次
-   的 JSON 协议本身无关，但既然新协议已经引入了 `id`，是否要一并把旧数据
-   也补齐，统一收藏机制。
-3. 要不要给指令加一个"期望响应"相关的字段（比如设备返回的 JSON 里应该有
-   哪个字段），用于以后自动校验回复是否成功？这个明显超出当前范围，先列
-   在这里，你们如果暂时不需要就先不设计。
+1. **Are the three `type` values (`query`/`set`/`action`) enough?** For example, should a separate
+   `subscribe` (subscription/continuous reporting) type be added?
+2. **Should the existing 4 AT protocol devices also get an `id` field added** (switching the favorites key from
+   `name.zh` to a stable `id`, incidentally fixing the minor "renaming loses favorites" issue)? This is
+   unrelated to the JSON protocol itself, but since the new protocol has already introduced `id`, should the old data
+   be backfilled too, to unify the favorites mechanism?
+3. Should an "expected response" related field be added to commands (e.g. which field should be present in the
+   JSON the device returns), for future automatic validation of whether a reply succeeded? This is clearly out of scope for now — listed
+   here for the record; if you don't need it for the time being, it doesn't need to be designed yet.
 
-以上次要问题不影响开工，我可以先按当前设计落地 `DeviceLibrary`/
-`DeviceCommand` 的代码改动和 `devices.json` 的实际数据；`type` 加不加新值、
-旧设备要不要补 `id`，之后随时可以再加，不是破坏性变更。
+None of the minor questions above block starting work — I can go ahead and implement the `DeviceLibrary`/
+`DeviceCommand` code changes and the actual `devices.json` data per the current design. Whether to add new `type` values,
+or backfill `id` on old devices, can be decided and added anytime later; neither is a breaking change.

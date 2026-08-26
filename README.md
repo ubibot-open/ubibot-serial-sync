@@ -1,4 +1,4 @@
-# UbiBot Serial Assistant / UbiBot 串口助手
+# UbiBot Serial Assistant
 
 A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS,
 SP1, …), built with Qt 6.11 / QML / C++17 / CMake. The UI is QML (Qt Quick

@@ -1,37 +1,37 @@
-# 设备指令库 · 模拟服务端
+# Device Command Library · Mock Server
 
-`docs/device-library-update-protocol.md` 描述的两个接口的一个最小实现，仅用于本地联调/演示——**不做任何鉴权**，数据直接从 `data/devices.json` + `data/meta.json` 读取（每次请求都重新读盘，改完文件直接点客户端的「Check for updates」就能看到效果，不用重启这个服务）。
+A minimal implementation of the two endpoints described in `docs/device-library-update-protocol.md`, for local dev/demo purposes only — **no authentication**. Data is read directly from `data/devices.json` + `data/meta.json` (re-read from disk on every request — after editing the files, just click "Check for updates" on the client to see the effect, no need to restart this server).
 
-## 运行
+## Run
 
 ```bash
 cd server
 go run . -addr :8980
 ```
 
-（`-addr`/`-data` 都是可选 flag，默认 `:8980` 和 `./data`。）
+(`-addr`/`-data` are both optional flags, defaulting to `:8980` and `./data`.)
 
-## 接入客户端
+## Connecting the client
 
-在仓库根目录建一个 `.env`（gitignore 了，不会被提交，见 [.env.example](../.env.example)）：
+Create a `.env` in the repo root (gitignored, won't be committed — see [.env.example](../.env.example)):
 
 ```
 DEVICE_LIBRARY_API_BASE_URL=http://127.0.0.1:8980/api/device-library
 DEVICE_LIBRARY_API_KEY=
 ```
 
-把它放到打包产物同目录（`deploy/UbiBotSerialAssistant/.env`）或者项目当前工作目录（开发时直接在构建目录里跑），下次「Check for updates」就会打到这个模拟服务端。
+Put it next to the packaged build (`deploy/UbiBotSerialAssistant/.env`) or in the project's current working directory (during development, just run it from the build directory) — the next "Check for updates" will hit this mock server.
 
-路径里的 `/api/device-library` 是刻意和真实后台（`ubibot-appcenter` 仓库 `server/routes/api.php` 里注册的 `App\Http\Controllers\DeviceLibraryController`）对齐的——两边只是 host:port 不同，路径结构完全一样，`.env` 切换起来不用改别的。
+The `/api/device-library` path is deliberately aligned with the real backend (`App\Http\Controllers\DeviceLibraryController`, registered in `server/routes/api.php` in the `ubibot-appcenter` repo) — the two only differ in host:port, the path structure is identical, so switching `.env` doesn't require changing anything else.
 
-## 数据文件
+## Data files
 
-- `data/devices.json` —— 和 [resources/devices.json](../resources/devices.json) 同一套 schema（见 [docs/device-json-protocol-schema.md](../docs/device-json-protocol-schema.md)），`/latest` 原样把 `models` 透传回去。仓库里预置的这份把 `version` 改成了 `lib-2026.08.25`（比客户端编译期打包的 `lib-2026.08.12` 新），并多加了一条 `reboot` 指令，方便一启动就能看到「有更新」的效果。
-- `data/meta.json` —— `/version` 接口里那几个 `devices.json` 本身没有的字段：`publishedAt`、`minAppVersion`、`changelog`（本地化更新说明）。缺失时对应字段就是空值，不影响接口正常返回。
+- `data/devices.json` — same schema as [resources/devices.json](../resources/devices.json) (see [docs/device-json-protocol-schema.md](../docs/device-json-protocol-schema.md)); `/latest` passes `models` through as-is. The copy bundled in this repo has `version` bumped to `lib-2026.08.25` (newer than the `lib-2026.08.12` baked into the client at build time), plus an extra `reboot` command, so you can see the "update available" effect right after starting the server.
+- `data/meta.json` — the fields on the `/version` endpoint that `devices.json` itself doesn't carry: `publishedAt`, `minAppVersion`, `changelog` (localized release notes). Missing fields just come back empty — it doesn't break the response.
 
-## 两个接口
+## The two endpoints
 
-- `GET /api/device-library/version` —— 元数据（`version`/`publishedAt`/`minAppVersion`/`modelCount`/`commandCount`/`changelog`）。
-- `GET /api/device-library/latest` —— 完整数据（`{ok, version, publishedAt, models}`），响应头带 `X-Content-SHA256`（整个响应体的 SHA-256），客户端会校验。
+- `GET /api/device-library/version` — metadata (`version`/`publishedAt`/`minAppVersion`/`modelCount`/`commandCount`/`changelog`).
+- `GET /api/device-library/latest` — full data (`{ok, version, publishedAt, models}`), response carries an `X-Content-SHA256` header (SHA-256 of the entire response body), which the client verifies.
 
-两个接口的完整字段说明、错误信封格式见 [docs/device-library-update-protocol.md](../docs/device-library-update-protocol.md)。
+For the full field reference and error envelope format for both endpoints, see [docs/device-library-update-protocol.md](../docs/device-library-update-protocol.md).

@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.21)
 # up to four.
 project(UbiBotSerialAssistant
     VERSION 0.2.2.1
-    DESCRIPTION "UbiBot Serial Assistant / UbiBot 串口助手"
+    DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )
 

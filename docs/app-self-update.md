@@ -1,138 +1,201 @@
-# 软件自更新 · 设计说明
+# App Self-Update · Design Notes
 
-状态：**已实现**。本文档记录设计取舍和已知局限，供以后维护/排查参考——和
-[device-library-update-protocol.md](device-library-update-protocol.md)（设备
-指令库那套远程更新）是两个独立功能，这个更新的是 **App 自己**
-（`UbiBotSerialAssistant.exe` 本身），不是设备指令数据。
+Status: **implemented**. This document records the design tradeoffs and known
+limitations, for future maintenance/troubleshooting reference — it is a
+separate feature from
+[device-library-update-protocol.md](device-library-update-protocol.md) (the
+remote update mechanism for the device command library): this update targets
+**the App itself** (`UbiBotSerialAssistant.exe`), not device command data.
 
-## 1. 总览
+## 1. Overview
 
-菜单 `帮助 (&Help) → Check for software update` 触发
-`AppController.checkForAppUpdate()`，弹出 `SoftwareUpdateDialog.qml`。有新版本
-时用户点「Update now」，走完整下载 → 校验 → 解压 → 退出 App → 用一个内置生成的
-批处理脚本把新文件覆盖到安装目录 → 重新拉起 App 的流程，全程不需要用户去浏览器
-手动下载。
+The menu item `Help (&Help) → Check for software update` triggers
+`AppController.checkForAppUpdate()`, which pops up `SoftwareUpdateDialog.qml`.
+When a new version is available and the user clicks "Update now", it runs the
+full download → verify → extract → quit App → overwrite the install directory
+via an internally-generated batch script → relaunch App flow — the user never
+has to open a browser and download anything manually.
 
-两个新类分工明确：
-- [SoftwareUpdateClient](../src/core/software_update_client.h)——只管网络：查
-  版本、下载 zip。
-- [SelfUpdateInstaller](../src/core/self_update_installer.h)——只管本地文件系统：
-  解压、校验、生成并启动那个负责"覆盖安装目录"的批处理脚本。纯静态函数，不
-  依赖 Qt 的信号槽，因为每一步都是同步的本地操作。
+Two new classes with a clean split of responsibilities:
+- [SoftwareUpdateClient](../src/core/software_update_client.h) — handles
+  networking only: checking the version, downloading the zip.
+- [SelfUpdateInstaller](../src/core/self_update_installer.h) — handles the
+  local filesystem only: extraction, verification, generating and launching
+  the batch script responsible for "overwriting the install directory". Pure
+  static functions, no dependency on Qt's signal/slot mechanism, because every
+  step is a synchronous local operation.
 
-`AppController` 把两者串起来，暴露 `appUpdateState`/`appUpdateMessage`/
-`remoteAppVersion`/`appUpdateAvailable`/`appUpdateForced`/`appUpdateProgress`
-这几个属性给 `SoftwareUpdateDialog.qml` 绑定，和设备指令库那套
-`libraryUpdateState` 系列属性是完全同构的设计（特意用不同的属性名/菜单文案，
-避免和"检查指令库更新"混淆）。
+`AppController` wires the two together, exposing `appUpdateState`/
+`appUpdateMessage`/`remoteAppVersion`/`appUpdateAvailable`/`appUpdateForced`/
+`appUpdateProgress` as properties for `SoftwareUpdateDialog.qml` to bind to —
+structurally identical to the `libraryUpdateState` family of properties used
+by the device command library update (deliberately using different property
+names/menu text, to avoid confusion with "check for command library update").
 
-## 2. 复用现有的 Software/Version 系统，而不是新写一套协议
+## 2. Reusing the existing Software/Version system instead of writing a new protocol
 
-`ubibot-appcenter` 后台本来就有一套通用的"软件/版本"分发系统
-（`softwares`/`versions` 两张表，`App\Http\Controllers\Admin\
-SoftwareController::api_list()`，公开路由 `GET /api/software/list`），本来是
-给其他 UbiBot 产品用的，`admin-react` 里也已经有现成的上传界面（版本号、
-更新说明、平台、强制更新开关都能填，上传 zip/exe 直接拿到下载链接）。这次直接
-复用它，而不是像设备指令库那样另起一套协议，理由：
+The `ubibot-appcenter` backend already has a generic "software/version"
+distribution system (`softwares`/`versions` tables,
+`App\Http\Controllers\Admin\SoftwareController::api_list()`, public route
+`GET /api/software/list`), originally built for other UbiBot products —
+`admin-react` already has a ready-made upload UI for it too (version number,
+release notes, platform, and a force-update toggle can all be filled in;
+uploading a zip/exe gets you a download link directly). This update reuses it
+directly, rather than standing up a separate protocol the way the device
+command library did. Reasons:
 
-- 后台管理界面是现成的——运维发新版本，直接去 `admin-react` 的"软件版本管理"
-  页面传文件、填版本号，不需要我们再给这个功能单独做一套上传/管理界面。
-- 唯一要做的一次性接入工作，是 `ubibot-appcenter` 仓库（另一个仓库，和这个不在
-  同一个目录树下）`server/database/migrations/` 里新增的迁移
-  `2026_08_25_010000_register_ubibot_serial_assistant_software.php`，把这个
-  App 注册成 `softwares` 表里 `slug = "ubibot-serial-assistant"` 的一行——
-  **这个迁移需要手动跑一次 `php artisan migrate`**（没有自动帮跑，因为那是
-  一个跑在共享远程数据库上的迁移，不该由脚本代劳）。
+- The backend admin UI already exists — ops just goes to the "Software
+  Version Management" page in `admin-react` to upload a file and fill in the
+  version number; there's no need to build a separate upload/management UI
+  just for this feature.
+- The only one-time integration work needed is the migration added under
+  `ubibot-appcenter` (a separate repository, not part of this one's directory
+  tree) at `server/database/migrations/`:
+  `2026_08_25_010000_register_ubibot_serial_assistant_software.php`, which
+  registers this App as the row with `slug = "ubibot-serial-assistant"` in
+  the `softwares` table — **this migration has to be run manually via
+  `php artisan migrate`** (nothing runs it automatically, because it's a
+  migration against a shared remote database, which a script shouldn't be
+  doing on its own).
 
-**响应不是裸数组**：`SoftwareController` 用的是 `larke-admin` 框架自带的
-`ResponseJson` trait（`$this->success('success', $software)`），所以实际响应
-是这套框架统一的信封格式 `{"success": bool, "code": int, "message": string,
-"data": [...]}`，产品列表本身在 `data` 字段里，不是顶层数组——这是实测
-`curl` 出来确认的（最初照探索报告里"返回数组"的描述直接假设成了裸数组，编译
-能过，第一次真的对着本地起的 Laravel 实例测才发现解析错了，已改正）。
+**The response is not a bare array**: `SoftwareController` uses the
+`larke-admin` framework's built-in `ResponseJson` trait
+(`$this->success('success', $software)`), so the actual response is wrapped
+in that framework's standard envelope format
+`{"success": bool, "code": int, "message": string, "data": [...]}` — the
+product list itself lives in the `data` field, not as a top-level array. This
+was confirmed by actually `curl`-ing the endpoint (the initial implementation
+assumed a bare array based on the exploration report's description of "returns
+an array"; it compiled fine, and it wasn't until testing against a locally
+running Laravel instance that the parsing bug was caught and fixed).
 
-复用还带来两个已知局限，都在客户端做了防御性处理：
+Reuse also brought along two known limitations, both handled defensively on
+the client side:
 
-1. **`/software/list` 的 `product`/`serial` 查询参数验证了但没实际拿来过滤**
-   ——接口会把*所有*注册过的软件产品都返回回来（各自带上按 `os` 过滤出的最新
-   版本），不是只返回我们自己的。`SoftwareUpdateClient::checkForUpdate()` 里
-   自己按 `slug == "ubibot-serial-assistant"` 在返回数组里找到属于自己的那条,
-   找不到就报"这个 App 还没在更新服务器上注册"，不会误把别的产品的版本信息
-   当成自己的。
-2. **`versions.sha256` 字段有，但整条链路（`SoftwareVersionController`、
-   `admin-react` 的上传表单）都没有任何地方会去写它**——目前实际拿到的永远是
-   空值。`SoftwareUpdateClient`/`SelfUpdateInstaller` 依然把校验逻辑写好了
-   （`sha256` 非空时才校验，校验不过直接中止、不解压不覆盖），完全是"有则校验，
-   无则跳过"，等哪天后台真的开始填这个字段，客户端不用改代码就自动生效。
+1. **`/software/list`'s `product`/`serial` query parameters are validated but
+   not actually used to filter** — the endpoint returns *every* registered
+   software product (each with its latest version filtered by `os`), not just
+   ours. `SoftwareUpdateClient::checkForUpdate()` finds its own entry in the
+   returned array by matching `slug == "ubibot-serial-assistant"`; if it can't
+   find one, it reports "this App is not registered on the update server" —
+   it will never mistake another product's version info for its own.
+2. **The `versions.sha256` field exists, but nothing anywhere in the pipeline
+   (`SoftwareVersionController`, the `admin-react` upload form) ever writes to
+   it** — in practice it's currently always empty. `SoftwareUpdateClient`/
+   `SelfUpdateInstaller` still implement the verification logic properly
+   (verify only when `sha256` is non-empty; abort immediately on a mismatch —
+   no extraction, no overwrite), on a strict "verify if present, skip if
+   absent" basis — whenever the backend actually starts populating this
+   field, the client will pick it up automatically with no code changes
+   needed.
 
-## 3. 版本比较 / 强制更新 / 最低版本
+## 3. Version comparison / forced update / minimum version
 
-和设备指令库更新那套的 `minAppVersion` 处理是同一个思路：
+Same approach as the `minAppVersion` handling in the device command library
+update:
 
-- `version.version`（服务端）与 `AppController.appVersion`（本地，来自
-  `CMakeLists.txt` 的 `PROJECT_VERSION`）都用 `QVersionNumber` 比较，不是
-  简单的字符串不等——避免 "1.10.0" 被字典序错误地判定成比 "1.9.0" 旧这种问题。
-- `version.min_required_version`：如果服务端这个新版本要求"必须从某个版本以后
-  才能直接升级"，而本地版本比这个还旧，就不提供"Update now"，改成提示"请先
-  升级到某版本"（和设备指令库的 `minAppVersion` 门槛判断逻辑完全对称，但这里
-  语义反过来——`minAppVersion` 是"这份数据要求的最低 App 版本"，
-  `min_required_version` 是"能直接跳到这个新版本的最低起始版本"，两者字段名
-  容易搞混，注释里已经写清楚）。
-- `version.is_force_update`：为真时 `SoftwareUpdateDialog.qml` 隐藏「Later」
-  按钮、关掉点击遮罩/Esc 关闭（`closePolicy: Popup.NoAutoClose`），逼用户走完
-  更新流程。**当前版本没有做"App 启动时自动检查"**——只有用户手动点了 Help 菜单
-  才会触发检查，所以"强制更新"目前只在用户主动检查时才会生效，不会在后台默默
-  拦住正在使用的用户。要不要加开机自动检查，是一个明显的后续可选项，先没做。
+- `version.version` (server-side) and `AppController.appVersion` (local,
+  sourced from `PROJECT_VERSION` in `CMakeLists.txt`) are both compared as
+  `QVersionNumber`, not as a plain string inequality — this avoids issues
+  like "1.10.0" being incorrectly judged older than "1.9.0" under
+  lexicographic ordering.
+- `version.min_required_version`: if the server's new version requires that
+  the App can only be upgraded directly from some minimum version onward, and
+  the local version is older than that, "Update now" is not offered — instead
+  the user is told to upgrade to some intermediate version first (this mirrors
+  the `minAppVersion` threshold check in the device command library update,
+  but with the semantics flipped — `minAppVersion` is "the minimum App
+  version this data requires", while `min_required_version` is "the minimum
+  starting version that can jump directly to this new version"; the two field
+  names are easy to confuse with each other, so this has been spelled out in
+  the comments).
+- `version.is_force_update`: when true, `SoftwareUpdateDialog.qml` hides the
+  "Later" button and disables closing via click-outside/Esc
+  (`closePolicy: Popup.NoAutoClose`), forcing the user through the update
+  flow. **The current version does not check for updates automatically on App
+  launch** — a check only fires when the user manually opens the Help menu,
+  so "forced update" currently only takes effect when the user actively
+  checks; it won't silently block a user who's already in the middle of using
+  the App. Adding an automatic check-on-launch is an obvious follow-up option,
+  not implemented yet.
 
-## 4. 打包格式：zip 整个目录 + `tar` 解压，没有引入新工具链
+## 4. Package format: zip of the whole directory + `tar` to extract, no new toolchain introduced
 
-现状：客户端发布是纯手工流程（见 [README.md](../README.md)）——
-`windeployqt` 生成一个 `deploy\UbiBotSerialAssistant\` 文件夹（exe + Qt 动态库
-+ qml/翻译资源，~110MB），运维自己压缩成 zip 分发。仓库里没有任何安装包生成
-工具链（Inno Setup / NSIS 都没有），也没有 CI。这次特意**没有**为了这个功能
-去新增安装包工具链，而是直接在现有"zip 整个目录"的基础上做自更新：
+Current state: client releases are a fully manual process (see
+[README.md](../README.md)) — `windeployqt` generates a
+`deploy\UbiBotSerialAssistant\` folder (exe + Qt shared libraries + qml/
+translation resources, ~110MB), and ops compresses it into a zip for
+distribution by hand. The repo has no installer-building toolchain at all (no
+Inno Setup, no NSIS), and no CI. This update deliberately did **not** add an
+installer toolchain just for this feature — instead it builds self-update
+directly on top of the existing "zip the whole directory" approach:
 
-- 下载下来的就是这个 zip；`SelfUpdateInstaller::extractAndValidate()` 用
-  Windows 10 1803+/11 自带的 `tar.exe`（微软从那个版本开始内置了支持 zip 的
-  bsdtar）解压到一个临时目录，不需要额外依赖任何第三方解压库，也不用为了
-  "解压一个 zip" 这么小的需求把 Qt 的 zip 支持模块引进来。
-- 解压后先做健全性检查：临时目录顶层（或恰好深一层，兼容"压缩了整个 deploy
-  文件夹"和"压缩了文件夹里的内容"两种打包习惯）必须能找到
-  `UbiBotSerialAssistant.exe`，找不到就直接报错、不往下走——防止服务器返回的
-  不是真正的发布包（比如一个 HTML 错误页被存成了 .zip）。
-- 校验通过后才会：把 App 自己退出、拉起一个自动生成的 `.bat` 脚本、脚本负责
-  等 App 真正退出、`robocopy /MIR` 把临时目录镜像覆盖到安装目录、重新拉起 App、
-  清理临时文件、自我删除。
+- What gets downloaded is that same zip; `SelfUpdateInstaller::extractAndValidate()`
+  extracts it to a temp directory using the `tar.exe` built into Windows 10
+  1803+/11 (Microsoft has bundled a zip-capable bsdtar since that release),
+  with no need for any third-party unzip library, and no need to pull in Qt's
+  zip support module just to satisfy a need as small as "unzip one zip file".
+- After extraction, a sanity check runs first: `UbiBotSerialAssistant.exe`
+  must be found either at the top level of the temp directory or exactly one
+  level down (to accommodate both packaging habits — "zipped the whole
+  `deploy` folder" and "zipped the contents of the folder") — if it's not
+  found, the process errors out immediately without proceeding, to guard
+  against the server returning something that isn't actually a real release
+  package (e.g. an HTML error page saved as a `.zip`).
+- Only after verification passes does it: quit the App itself, launch an
+  auto-generated `.bat` script, and the script takes over — waiting for the
+  App to actually exit, `robocopy /MIR`-mirroring the temp directory over the
+  install directory, relaunching the App, cleaning up temp files, and deleting
+  itself.
 
-**为什么是批处理脚本而不是真正的安装包**：运行中的 App 自己没法覆盖/删除自己
-正在使用的 exe/dll（Windows 文件锁），标准做法要么是"下载安装包、退出、静默
-运行安装包"（更稳妥，但要新增一整套安装包工具链和相关的运维流程改动），要么是
-"下载压缩包、退出、用一个独立的小进程做文件替换"（不需要新工具链，但机制本身
-更 hacky，出问题时的兜底手段更弱）。这次选的是后者——见下一节的已知局限。
+**Why a batch script instead of a real installer**: a running App can't
+overwrite/delete its own exe/dlls while they're in use (Windows file locking).
+The standard approaches are either "download an installer, quit, run the
+installer silently" (more robust, but requires adding a whole installer
+toolchain and the associated changes to the release process), or "download a
+zip, quit, use a separate small process to do the file swap" (no new
+toolchain needed, but the mechanism itself is hackier, with weaker fallback
+options when something goes wrong). This update went with the latter — see
+the known limitations in the next section.
 
-## 5. `.env` 保护：`robocopy /XF ".env"`
+## 5. `.env` protection: `robocopy /XF ".env"`
 
-安装目录里如果放了 `.env`（设备指令库更新用的那个，见
-[device-library-update-protocol.md](device-library-update-protocol.md)），
-`robocopy /MIR` 默认会把它当成"目标里多出来的文件"直接删掉——因为下载下来的
-发布包里天然不会带这个文件。`SelfUpdateInstaller::writeUpdateScript()` 生成的
-脚本显式加了 `/XF ".env"`，专门排除掉这一个文件，其余镜像行为不变（含删除
-上一版本里已经不存在的旧 DLL/文件）。
+If the install directory has a `.env` file in it (the one used by the device
+command library update, see
+[device-library-update-protocol.md](device-library-update-protocol.md)),
+`robocopy /MIR` would by default treat it as "an extra file present in the
+destination but not the source" and delete it outright — since the downloaded
+release package naturally never contains this file. The script generated by
+`SelfUpdateInstaller::writeUpdateScript()` explicitly adds `/XF ".env"` to
+exclude specifically this one file, leaving the rest of the mirroring
+behavior unchanged (including deleting old DLLs/files from the previous
+version that no longer exist in the new one).
 
-## 6. 已知局限（有意不在这次实现，供以后参考）
+## 6. Known limitations (deliberately out of scope for this implementation, kept here for future reference)
 
-1. **假设安装目录本身可写，不处理需要管理员权限的安装位置**——现在的部署方式
-   是"随便复制这个文件夹到哪都行"，一般不会装在 `Program Files` 这类需要提权
-   的目录下；真要支持装在那种位置，`robocopy` 那一步会因为权限不足静默失败
-   （批处理脚本没有任何机制能把失败反馈回已经退出的 App），需要额外做 UAC
-   提权。
-2. **没有失败回滚**——`extractAndValidate()` 失败会在 App 还在运行、安装目录
-   完全没被动的前提下直接报错退出流程，这部分是安全的；但一旦批处理脚本真的
-   开始跑 `robocopy /MIR`，如果这一步中途被打断（比如系统突然断电），安装目录
-   可能停在一半新一半旧的状态，没有自动检测/修复机制，只能让用户重新走一次
-   "Check for software update" 覆盖回完整版本。
-3. **批处理窗口会短暂闪一下**——`cmd.exe /C script.bat` 会开一个控制台窗口，
-   直到脚本自我删除退出前都可见，纯粹是观感上的瑕疵，不影响功能。
-4. **没有 App 启动时自动检查**——见第 3 节末尾，纯粹是当前范围没做，不是做不到。
-5. **`sha256` 校验目前形同虚设**——见第 2 节，字段本身没人填，等后台补上这块
-   再验证客户端这段代码是否真的按预期工作。
+1. **Assumes the install directory itself is writable; doesn't handle install
+   locations that require administrator privileges** — the current
+   deployment approach is "copy this folder anywhere you like", which
+   normally isn't somewhere requiring elevation like `Program Files`. To
+   properly support installing in such a location, the `robocopy` step would
+   silently fail due to insufficient permissions (the batch script has no way
+   to report failure back to the App, which has already exited by that
+   point), and UAC elevation would need to be added.
+2. **No failure rollback** — if `extractAndValidate()` fails, it errors out
+   and aborts the flow while the App is still running and the install
+   directory hasn't been touched at all, which is safe. But once the batch
+   script actually starts running `robocopy /MIR`, if that step gets
+   interrupted partway through (e.g. a sudden power loss), the install
+   directory can be left in a half-old-half-new state, with no automatic
+   detection/repair mechanism — the only recovery is for the user to run
+   "Check for software update" again to overwrite it back to a complete
+   version.
+3. **The batch window flashes briefly on screen** — `cmd.exe /C script.bat`
+   opens a console window that stays visible until the script deletes itself
+   and exits; this is purely a cosmetic wart and doesn't affect functionality.
+4. **No automatic check on App launch** — see the end of section 3, purely
+   out of scope for now, not a technical limitation.
+5. **`sha256` verification is currently a no-op in practice** — see section 2;
+   nothing populates the field yet, so whether the client-side code actually
+   behaves as intended will need to be verified once the backend starts
+   filling it in.
