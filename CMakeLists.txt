@@ -85,6 +85,7 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/SaveLogDialog.qml
         qml/SettingsAboutDialog.qml
         qml/AboutDialog.qml
+        qml/SoftwareUpdateDialog.qml
         # These seven shadow QtQuick.Controls' own same-named types app-wide
         # (every .qml file above imports UbiBot last, after QtQuick.Controls,
         # so QML's "last import wins" rule for an ambiguous unqualified type
@@ -108,6 +109,10 @@ qt_add_qml_module(UbiBotSerialAssistant
         src/core/device_library.cpp
         src/core/device_library_update_client.h
         src/core/device_library_update_client.cpp
+        src/core/software_update_client.h
+        src/core/software_update_client.cpp
+        src/core/self_update_installer.h
+        src/core/self_update_installer.cpp
         src/core/env_config.h
         src/core/env_config.cpp
         src/core/ansi_text.h

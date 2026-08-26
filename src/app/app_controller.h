@@ -6,6 +6,7 @@
 #include "core/log_manager.h"
 #include "core/serial_manager.h"
 #include "core/settings_store.h"
+#include "core/software_update_client.h"
 #include "models/batch_command_model.h"
 #include "models/command_history_model.h"
 #include "models/command_list_model.h"
@@ -79,6 +80,34 @@ class AppController : public QObject {
     // satisfies that version's minAppVersion -- gates the "Download and
     // apply" button in SettingsAboutDialog.qml.
     Q_PROPERTY(bool libraryUpdateAvailable READ libraryUpdateAvailable NOTIFY libraryUpdateStateChanged)
+
+    // App-itself (self-)update state -- see core/software_update_client.h,
+    // core/self_update_installer.h and docs/app-self-update.md. Separate
+    // from the libraryUpdate* properties above on purpose: those are about
+    // the device command data, these are about UbiBotSerialAssistant.exe
+    // itself. Driven by checkForAppUpdate()/installAppUpdate()/
+    // cancelAppUpdateDownload() below, read by SoftwareUpdateDialog.qml
+    // (opened from Main.qml's Help menu).
+    // "idle" | "checking" | "upToDate" | "updateAvailable" | "downloading" |
+    // "installing" | "error"
+    Q_PROPERTY(QString appUpdateState READ appUpdateState NOTIFY appUpdateStateChanged)
+    Q_PROPERTY(QString appUpdateMessage READ appUpdateMessage NOTIFY appUpdateStateChanged)
+    Q_PROPERTY(QString remoteAppVersion READ remoteAppVersion NOTIFY appUpdateStateChanged)
+    // True only when a check found a newer version AND the running app
+    // itself satisfies that version's minRequiredVersion -- gates the
+    // "Update now" button in SoftwareUpdateDialog.qml (see appTooOld in
+    // SoftwareUpdateClient::checkFinished for the case this is false despite
+    // a newer version existing).
+    Q_PROPERTY(bool appUpdateAvailable READ appUpdateAvailable NOTIFY appUpdateStateChanged)
+    // is_force_update from the server -- when true, SoftwareUpdateDialog.qml
+    // hides/disables its "Later" dismissal so the user has to update now.
+    Q_PROPERTY(bool appUpdateForced READ appUpdateForced NOTIFY appUpdateStateChanged)
+    // 0.0-1.0 while appUpdateState is "downloading"; meaningless otherwise.
+    // Kept on its own NOTIFY (not appUpdateStateChanged) since it fires far
+    // more often (every network chunk) than the coarse state actually
+    // changes, and SoftwareUpdateDialog.qml's progress bar is the only thing
+    // that needs to rebind on every tick.
+    Q_PROPERTY(double appUpdateProgress READ appUpdateProgress NOTIFY appUpdateProgressChanged)
 
     Q_PROPERTY(QString currentLanguage READ currentLanguage WRITE setCurrentLanguage NOTIFY currentLanguageChanged)
 
@@ -309,6 +338,33 @@ public:
     // all visible immediately, no restart required.
     Q_INVOKABLE void downloadLibraryUpdate();
 
+    QString appUpdateState() const { return appUpdateState_; }
+    QString appUpdateMessage() const { return appUpdateMessage_; }
+    QString remoteAppVersion() const { return remoteAppVersion_; }
+    bool appUpdateAvailable() const { return appUpdateAvailable_; }
+    bool appUpdateForced() const { return appUpdateForced_; }
+    double appUpdateProgress() const { return appUpdateProgress_; }
+
+    // Kicks off an async GET {baseUrl}/software/list (see
+    // core/software_update_client.h); results land on the appUpdateState/
+    // appUpdateMessage/remoteAppVersion/appUpdateAvailable/appUpdateForced
+    // properties above via appUpdateStateChanged once the request completes.
+    Q_INVOKABLE void checkForAppUpdate();
+    // Only meaningful once appUpdateAvailable is true. Downloads the release
+    // zip (appUpdateState becomes "downloading", appUpdateProgress ticks up),
+    // extracts and sanity-checks it (appUpdateState becomes "installing"),
+    // then -- Windows only, see core/self_update_installer.h -- writes and
+    // launches a detached helper script that waits for this process to exit,
+    // swaps the installation directory's contents, relaunches the app, and
+    // finally calls QCoreApplication::quit() on this process. Never returns
+    // normally on success (the app is about to exit); on any failure along
+    // the way, appUpdateState becomes "error" and the app keeps running
+    // untouched -- a bad download/extraction/script-write never gets a
+    // chance to touch the actual install directory.
+    Q_INVOKABLE void installAppUpdate();
+    // Safe to call whether or not a download is actually in flight.
+    Q_INVOKABLE void cancelAppUpdateDownload();
+
 signals:
     void connectionChanged();
     void currentModelChanged();
@@ -330,6 +386,8 @@ signals:
     // libraryVersion/modelCount/commandCount all re-read from library_ then.
     void libraryChanged();
     void libraryUpdateStateChanged();
+    void appUpdateStateChanged();
+    void appUpdateProgressChanged();
 
 private:
     // `crc` is explicit (rather than always reading crcEnabled_) so a batch
@@ -352,6 +410,17 @@ private:
     // stopBatchCommand()) once the queue is exhausted, or if the port
     // somehow closed mid-run.
     void sendNextBatchStep();
+
+    // The second half of installAppUpdate() -- called once
+    // SoftwareUpdateClient::downloadFinished reports success. Verifies
+    // pendingUpdateSha256_ (if the server sent one) against `zipPath`,
+    // extracts and sanity-checks it via SelfUpdateInstaller, then either
+    // writes+launches the swap-and-relaunch script and quits the app, or
+    // sets appUpdateState_ to "error" and leaves the app running untouched.
+    // Windows-only (see core/self_update_installer.h); on any other
+    // platform this just reports "not supported here" without touching
+    // anything.
+    void applyDownloadedAppUpdate(const QString &zipPath);
 
     // Raw serial reads land in arbitrary, driver-chosen chunk sizes -- a
     // single logical line from the device routinely arrives as several
@@ -383,6 +452,23 @@ private:
     QString libraryUpdateMessage_;
     QString remoteLibraryVersion_;
     bool libraryUpdateAvailable_ = false;
+
+    SoftwareUpdateClient *softwareUpdateClient_;
+
+    QString appUpdateState_ = QStringLiteral("idle");
+    QString appUpdateMessage_;
+    QString remoteAppVersion_;
+    bool appUpdateAvailable_ = false;
+    bool appUpdateForced_ = false;
+    double appUpdateProgress_ = 0.0;
+    // Captured from the last successful checkFinished(), consumed by
+    // installAppUpdate() -- see app_controller.cpp for why these are plain
+    // members rather than re-fetched: installAppUpdate() must act on
+    // exactly what the user was shown, not risk a second, possibly
+    // different, network response.
+    QString pendingUpdateDownloadUrl_;
+    QString pendingUpdateSha256_;
+    QString pendingUpdateVersion_;
 
     LogListModel *logModel_;
     CommandListModel *commandModel_;

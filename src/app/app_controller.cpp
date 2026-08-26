@@ -3,6 +3,7 @@
 #include "core/crc16.h"
 #include "core/env_config.h"
 #include "core/language_manager.h"
+#include "core/self_update_installer.h"
 #include "models/batch_command_model.h"
 #include "models/command_history_model.h"
 #include "models/command_list_model.h"
@@ -12,6 +13,7 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QStandardPaths>
@@ -143,6 +145,66 @@ AppController::AppController(QObject *parent) : QObject(parent) {
                 libraryUpdateMessage_ = tr("Updated to %1.").arg(version);
                 libraryUpdateAvailable_ = false;
                 emit libraryUpdateStateChanged();
+            });
+
+    // Deliberately its own EnvConfig keys (not shared with
+    // DEVICE_LIBRARY_API_BASE_URL/_API_KEY above) -- see
+    // docs/app-self-update.md#1. Points at the API root (e.g.
+    // ".../api"), not a product-specific path, since
+    // SoftwareUpdateClient::checkForUpdate() appends "/software/list"
+    // itself.
+    softwareUpdateClient_ =
+        new SoftwareUpdateClient(EnvConfig::instance().value(QStringLiteral("APP_UPDATE_API_BASE_URL")),
+                                  EnvConfig::instance().value(QStringLiteral("APP_UPDATE_API_KEY")), this);
+
+    connect(softwareUpdateClient_, &SoftwareUpdateClient::checkFinished, this,
+            [this](bool ok, bool updateAvailable, bool appTooOld, const QString &version, const QString &downloadUrl,
+                   qint64 /*fileSize*/, const QString &changelog, bool forceUpdate, const QString &minRequiredVersion,
+                   const QString &sha256, const QString &error) {
+                remoteAppVersion_ = version;
+                appUpdateForced_ = forceUpdate;
+                pendingUpdateDownloadUrl_ = downloadUrl;
+                pendingUpdateSha256_ = sha256;
+                pendingUpdateVersion_ = version;
+
+                if (!ok) {
+                    appUpdateState_ = QStringLiteral("error");
+                    appUpdateMessage_ = error;
+                    appUpdateAvailable_ = false;
+                } else if (!updateAvailable) {
+                    appUpdateState_ = QStringLiteral("upToDate");
+                    appUpdateMessage_ = tr("You're on the latest version (%1).").arg(appVersion());
+                    appUpdateAvailable_ = false;
+                } else if (appTooOld) {
+                    appUpdateState_ = QStringLiteral("error");
+                    appUpdateMessage_ =
+                        tr("Version %1 is available, but requires updating from version %2 or later first -- "
+                           "please reinstall the app before trying again.")
+                            .arg(version, minRequiredVersion);
+                    appUpdateAvailable_ = false;
+                } else {
+                    appUpdateState_ = QStringLiteral("updateAvailable");
+                    appUpdateMessage_ = changelog.isEmpty() ? tr("Version %1 is available.").arg(version) : changelog;
+                    appUpdateAvailable_ = true;
+                }
+                emit appUpdateStateChanged();
+            });
+
+    connect(softwareUpdateClient_, &SoftwareUpdateClient::downloadProgress, this,
+            [this](qint64 received, qint64 total) {
+                appUpdateProgress_ = total > 0 ? double(received) / double(total) : 0.0;
+                emit appUpdateProgressChanged();
+            });
+
+    connect(softwareUpdateClient_, &SoftwareUpdateClient::downloadFinished, this,
+            [this](bool ok, const QString &filePath, const QString &error) {
+                if (!ok) {
+                    appUpdateState_ = QStringLiteral("error");
+                    appUpdateMessage_ = error;
+                    emit appUpdateStateChanged();
+                    return;
+                }
+                applyDownloadedAppUpdate(filePath);
             });
 }
 
@@ -693,4 +755,110 @@ void AppController::downloadLibraryUpdate() {
     libraryUpdateMessage_ = tr("Downloading…");
     emit libraryUpdateStateChanged();
     libraryUpdateClient_->fetchLatest();
+}
+
+void AppController::checkForAppUpdate() {
+    if (!softwareUpdateClient_->isConfigured()) {
+        appUpdateState_ = QStringLiteral("error");
+        appUpdateMessage_ = tr("No update server configured (.env).");
+        appUpdateAvailable_ = false;
+        emit appUpdateStateChanged();
+        return;
+    }
+
+    appUpdateState_ = QStringLiteral("checking");
+    appUpdateMessage_ = tr("Checking for updates…");
+    emit appUpdateStateChanged();
+    softwareUpdateClient_->checkForUpdate(appVersion());
+}
+
+void AppController::installAppUpdate() {
+    if (!appUpdateAvailable_) return;  // nothing to apply -- see appUpdateAvailable's own doc comment
+
+    const QString tempDir =
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QStringLiteral("/UbiBotSerialAssistant-update");
+    QDir().mkpath(tempDir);
+    const QString zipPath = tempDir + QStringLiteral("/update.zip");
+
+    appUpdateState_ = QStringLiteral("downloading");
+    appUpdateMessage_ = tr("Downloading update…");
+    appUpdateProgress_ = 0.0;
+    emit appUpdateStateChanged();
+    emit appUpdateProgressChanged();
+    softwareUpdateClient_->download(pendingUpdateDownloadUrl_, zipPath);
+}
+
+void AppController::cancelAppUpdateDownload() {
+    softwareUpdateClient_->cancelDownload();
+    if (appUpdateState_ == QStringLiteral("downloading")) {
+        appUpdateState_ = QStringLiteral("updateAvailable");
+        appUpdateMessage_ = tr("Download cancelled.");
+        emit appUpdateStateChanged();
+    }
+}
+
+void AppController::applyDownloadedAppUpdate(const QString &zipPath) {
+#ifdef Q_OS_WIN
+    // Verified before anything else touches the file -- a bad/tampered
+    // download must never reach extraction, let alone the install
+    // directory. sha256 is presently almost always empty in practice (see
+    // docs/app-self-update.md#2), in which case this is skipped entirely --
+    // same "best-effort, not a hard requirement" stance as the device-
+    // library updater's own checksum handling.
+    if (!pendingUpdateSha256_.isEmpty()) {
+        const QString actual = SelfUpdateInstaller::sha256OfFile(zipPath);
+        if (actual.compare(pendingUpdateSha256_, Qt::CaseInsensitive) != 0) {
+            appUpdateState_ = QStringLiteral("error");
+            appUpdateMessage_ = tr("Downloaded file failed checksum verification -- update not applied.");
+            emit appUpdateStateChanged();
+            return;
+        }
+    }
+
+    appUpdateState_ = QStringLiteral("installing");
+    appUpdateMessage_ = tr("Preparing update…");
+    emit appUpdateStateChanged();
+
+    const QString exeName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    QString stagingDir;
+    const SelfUpdateInstaller::Result extractResult =
+        SelfUpdateInstaller::extractAndValidate(zipPath, exeName, stagingDir);
+    if (!extractResult.ok) {
+        appUpdateState_ = QStringLiteral("error");
+        appUpdateMessage_ = extractResult.error;
+        emit appUpdateStateChanged();
+        return;
+    }
+
+    QString scriptError;
+    const QString scriptPath =
+        SelfUpdateInstaller::writeUpdateScript(stagingDir, QCoreApplication::applicationDirPath(), exeName, zipPath,
+                                                QCoreApplication::applicationPid(), scriptError);
+    if (scriptPath.isEmpty()) {
+        appUpdateState_ = QStringLiteral("error");
+        appUpdateMessage_ = scriptError;
+        emit appUpdateStateChanged();
+        return;
+    }
+
+    if (!SelfUpdateInstaller::launchDetached(scriptPath)) {
+        appUpdateState_ = QStringLiteral("error");
+        appUpdateMessage_ = tr("Failed to launch the updater script.");
+        emit appUpdateStateChanged();
+        return;
+    }
+
+    // The helper script is now waiting on this process's PID -- the sooner
+    // this exits, the sooner it can proceed. Nothing past this point runs;
+    // there's no "success" state to show, the window just closes.
+    appUpdateMessage_ = tr("Restarting to apply update…");
+    emit appUpdateStateChanged();
+    QCoreApplication::quit();
+#else
+    Q_UNUSED(zipPath);
+    appUpdateState_ = QStringLiteral("error");
+    appUpdateMessage_ =
+        tr("Self-update isn't supported on this platform yet -- please download the new version manually.");
+    emit appUpdateStateChanged();
+#endif
 }

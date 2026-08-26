@@ -290,6 +290,20 @@ ApplicationWindow {
                 }
                 Menu {
                     title: qsTr("&Help")
+                    // Named "software update" (not just "Check for
+                    // updates") specifically to not collide with the
+                    // unrelated "Check for updates" button already living
+                    // in Settings & About's "Command library" section
+                    // (device command data, not the app itself -- see
+                    // SettingsAboutDialog.qml).
+                    MenuItem {
+                        text: qsTr("Check for software update")
+                        onTriggered: {
+                            AppController.checkForAppUpdate();
+                            softwareUpdateDialog.open();
+                        }
+                    }
+                    MenuSeparator {}
                     // Was a copy-pasted duplicate of the Tools menu's own
                     // "Settings" item (same text, same handler) -- Settings
                     // already has its proper home under Tools, so this slot
@@ -812,6 +826,7 @@ ApplicationWindow {
     SaveLogDialog { id: saveLogDialog }
     SettingsAboutDialog { id: settingsDialog }
     AboutDialog { id: aboutDialog }
+    SoftwareUpdateDialog { id: softwareUpdateDialog }
 
     Dialog {
         id: portErrorDialog
