@@ -1,22 +1,30 @@
 name: Release
 
-# Builds a standalone Windows package (the same windeployqt-produced folder
-# described in README.md's "Releasing a Windows build" section, just done by
-# CI instead of by hand) and publishes it as a GitHub Release.
+# Builds standalone Windows/macOS/Linux packages and publishes them together
+# as one GitHub Release. Windows uses windeployqt (the same manual process
+# described in README.md's "Releasing a Windows build" section); macOS uses
+# Qt's own macdeployqt to produce a .dmg; Linux has no first-party Qt
+# deployment tool, so it uses the de facto standard third-party
+# linuxdeployqt (https://github.com/probonopd/linuxdeployqt) to produce a
+# self-contained AppImage. See README.md's "Publishing a release build via
+# GitHub Actions" section for the known caveats on each platform (mainly:
+# neither the Windows .exe nor the macOS .app/.dmg here are code-signed, so
+# both trigger a first-run OS warning users have to click through).
 #
 # Two ways to run this:
 #   1. Push a tag like "v0.2.3.0" (the "v" plus CMakeLists.txt's exact
-#      project(VERSION ...) string) -- this builds AND publishes a public
-#      Release with the zip attached.
+#      project(VERSION ...) string) -- this builds all three platforms AND
+#      publishes a public Release with all their packages attached.
 #   2. Run it manually from the Actions tab ("workflow_dispatch") with a
-#      version input -- this builds and uploads the zip as a workflow
-#      artifact for a quick sanity check, but does NOT publish a Release
-#      (see the `if:` guard on the last step), so it's safe to use to test
-#      the build itself without cutting a real release.
+#      version input -- this builds all three and uploads them as workflow
+#      artifacts for a sanity check, but does NOT publish a Release (see the
+#      `publish` job's `if:` guard), so it's safe to use to test the builds
+#      without cutting a real release.
 #
-# Either way, the job fails fast if the version doesn't match CMakeLists.txt
-# -- see "Verify version matches CMakeLists.txt" below -- so a release can
-# never accidentally go out under the wrong version number.
+# Either way, the very first job fails fast if the version doesn't match
+# CMakeLists.txt -- see its "Verify version matches CMakeLists.txt" step --
+# so a release can never accidentally go out under the wrong version number,
+# and none of the (expensive) platform builds even start if it's wrong.
 on:
   push:
     tags:
@@ -34,52 +42,63 @@ env:
   # Not 6.11.x (what README.md's manual release process was actually
   # verified against) on purpose: jurplel/install-qt-action installs Qt via
   # aqtinstall, and aqtinstall 3.3.0 (the latest release as of this writing)
-  # can't resolve ANY 6.11.x version on Windows desktop -- Qt restructured
+  # can't resolve ANY 6.11.x version on any platform -- Qt restructured
   # download.qt.io's directory layout for that line (arch-specific
   # subdirectories, e.g. .../qt6_6111/qt6_6111_msvc2022_64/Updates.xml,
   # instead of the older combined .../qt6_6111/Updates.xml aqt still looks
   # for), and aqtinstall hasn't shipped support for the new layout yet.
   # Confirmed directly: `aqt list-qt windows desktop --arch 6.11.1` fails
   # with "Failed to download checksum for the file 'Updates.xml'" while the
-  # same command against 6.10.3 succeeds. 6.10.3 is the newest version this
-  # project's actual floor (6.7+, see README.md's Requirements section)
-  # allows and aqtinstall can still fetch -- once aqtinstall adds 6.11.x
-  # support (https://github.com/miurahr/aqtinstall), this can move back up
-  # to match README.md's 6.11.1.
+  # same command against 6.10.3 succeeds (same story on mac/linux). 6.10.3
+  # is the newest version this project's actual floor (6.7+, see README.md's
+  # Requirements section) allows and aqtinstall can still fetch -- once
+  # aqtinstall adds 6.11.x support (https://github.com/miurahr/aqtinstall),
+  # this can move back up to match README.md's 6.11.1.
   QT_VERSION: '6.10.3'
+  APP_NAME: 'UbiBotSerialAssistant'
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  # Single source of truth for "what version is this" and "is it even
+  # legitimate" -- computed once here rather than duplicated (and
+  # potentially drifting) across three separate platform jobs.
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Determine version
         id: version
-        shell: pwsh
+        shell: bash
         run: |
-          if ($env:GITHUB_REF -like 'refs/tags/v*') {
-            $version = $env:GITHUB_REF -replace '^refs/tags/v', ''
-          } else {
-            $version = '${{ github.event.inputs.version }}'
-          }
-          if ([string]::IsNullOrWhiteSpace($version)) {
-            Write-Error "No version determined -- push a 'vX.Y.Z.W' tag or supply the 'version' input."
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF#refs/tags/v}"
+          else
+            version="${{ github.event.inputs.version }}"
+          fi
+          if [[ -z "$version" ]]; then
+            echo "::error::No version determined -- push a 'vX.Y.Z.W' tag or supply the 'version' input."
             exit 1
-          }
-          Write-Output "version=$version" >> $env:GITHUB_OUTPUT
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Verify version matches CMakeLists.txt
-        shell: pwsh
+        shell: bash
         run: |
-          $match = Select-String -Path CMakeLists.txt -Pattern '^\s*VERSION\s+([\d.]+)' | Select-Object -First 1
-          $cmakeVersion = $match.Matches.Groups[1].Value
-          $tagVersion = '${{ steps.version.outputs.version }}'
-          if ($cmakeVersion -ne $tagVersion) {
-            Write-Error "Version mismatch: tag/input says '$tagVersion' but CMakeLists.txt's project(VERSION ...) says '$cmakeVersion'. Bump CMakeLists.txt (the single source of truth for the version, per its own top-of-file comment) and commit that before tagging."
+          cmake_version=$(grep -oP '^\s*VERSION\s+\K[\d.]+' CMakeLists.txt | head -1)
+          tag_version="${{ steps.version.outputs.version }}"
+          if [[ "$cmake_version" != "$tag_version" ]]; then
+            echo "::error::Version mismatch: tag/input says '$tag_version' but CMakeLists.txt's project(VERSION ...) says '$cmake_version'. Bump CMakeLists.txt (the single source of truth for the version, per its own top-of-file comment) and commit that before tagging."
             exit 1
-          }
-          Write-Output "Version check OK: $cmakeVersion"
+          fi
+          echo "Version check OK: $cmake_version"
+
+  build-windows:
+    needs: prepare
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -111,11 +130,11 @@ jobs:
       - name: Assemble deploy folder
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path deploy\UbiBotSerialAssistant | Out-Null
-          Copy-Item build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
+          New-Item -ItemType Directory -Force -Path deploy\${{ env.APP_NAME }} | Out-Null
+          Copy-Item build\Release\${{ env.APP_NAME }}.exe deploy\${{ env.APP_NAME }}\
           # install-qt-action puts Qt's own bin/ on PATH, so this resolves
           # without needing to know QT_ROOT_DIR's exact layout.
-          windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --qmldir qml --release
+          windeployqt.exe deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe --qmldir qml --release
 
       # Two zips of the identical contents, not one -- see "Stable download
       # link" in README.md. $zipName carries the version in its name (kept
@@ -129,34 +148,179 @@ jobs:
         id: zip
         shell: pwsh
         run: |
-          $zipName = "UbiBotSerialAssistant-${{ steps.version.outputs.version }}-windows-x64.zip"
-          $latestZipName = "UbiBotSerialAssistant-windows-x64.zip"
-          Compress-Archive -Path deploy\UbiBotSerialAssistant\* -DestinationPath $zipName
+          $zipName = "${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-windows-x64.zip"
+          $latestZipName = "${{ env.APP_NAME }}-windows-x64.zip"
+          Compress-Archive -Path deploy\${{ env.APP_NAME }}\* -DestinationPath $zipName
           Copy-Item $zipName $latestZipName
           Write-Output "zipName=$zipName" >> $env:GITHUB_OUTPUT
           Write-Output "latestZipName=$latestZipName" >> $env:GITHUB_OUTPUT
 
-      - name: Upload build artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: UbiBotSerialAssistant-windows-${{ steps.version.outputs.version }}
-          path: ${{ steps.zip.outputs.zipName }}
-
-      # Only a real tag push publishes a public Release -- a manual
-      # workflow_dispatch run stops at the artifact upload above, so it can
-      # be used to test the build without putting anything public out.
-      #
-      # make_latest: true is explicit rather than relying on the API's own
-      # default -- this is exactly the guarantee the stable download link
-      # depends on (this release becomes the one /releases/latest points
-      # at), so it shouldn't be left implicit.
-      - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          name: v${{ steps.version.outputs.version }}
-          files: |
+          name: release-windows
+          path: |
             ${{ steps.zip.outputs.zipName }}
             ${{ steps.zip.outputs.latestZipName }}
+
+  build-macos:
+    needs: prepare
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: 'mac'
+          target: 'desktop'
+          modules: 'qtserialport'
+          cache: true
+
+      # mac's default CMake generator (Unix Makefiles, or Ninja if present)
+      # is single-config, unlike Windows' VS generator above -- hence
+      # -DCMAKE_BUILD_TYPE here instead of a --config build flag.
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      # macdeployqt is Qt's own official mac deployment tool (ships with
+      # every Qt install, same idea as windeployqt) -- it bundles Qt's
+      # frameworks/plugins into the .app produced by the MACOSX_BUNDLE flag
+      # in CMakeLists.txt's qt_add_executable() call, and -dmg additionally
+      # wraps the result in a compressed, distributable disk image.
+      - name: Package (macdeployqt)
+        id: pkg
+        shell: bash
+        run: |
+          macdeployqt "build/${{ env.APP_NAME }}.app" -qmldir=qml -dmg
+          dmgName="${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-macos.dmg"
+          latestDmgName="${{ env.APP_NAME }}-macos.dmg"
+          mv "build/${{ env.APP_NAME }}.dmg" "$dmgName"
+          cp "$dmgName" "$latestDmgName"
+          echo "dmgName=$dmgName" >> "$GITHUB_OUTPUT"
+          echo "latestDmgName=$latestDmgName" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: |
+            ${{ steps.pkg.outputs.dmgName }}
+            ${{ steps.pkg.outputs.latestDmgName }}
+
+  build-linux:
+    needs: prepare
+    # Deliberately an older LTS, not ubuntu-latest -- an AppImage built
+    # against a newer glibc than the user's own system has will refuse to
+    # run (glibc is backward- but not forward-compatible), so AppImage
+    # builds conventionally target the oldest still-supported base they
+    # reasonably can for the widest reach.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # libgl1-mesa-dev/libxkbcommon-dev: Qt Quick/Qt Gui link against
+      # OpenGL and libxkbcommon at build time on Linux; neither is present
+      # on a bare runner image.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libxkbcommon-dev
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: 'linux'
+          target: 'desktop'
+          modules: 'qtserialport'
+          cache: true
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      # linuxdeployqt (https://github.com/probonopd/linuxdeployqt) needs a
+      # standard AppDir layout to work from: the binary under usr/bin/, a
+      # .desktop file under usr/share/applications/ pointing at it, and an
+      # icon under the hicolor theme path the .desktop file's Icon= key
+      # names -- resources/linux/ubibot-serial-assistant.desktop and
+      # resources/icons/app.png (already 256x256, the exact size hicolor
+      # expects at this path) are what get copied into place here.
+      - name: Assemble AppDir
+        run: |
+          mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
+          cp "build/${{ env.APP_NAME }}" AppDir/usr/bin/
+          cp resources/linux/ubibot-serial-assistant.desktop AppDir/usr/share/applications/
+          cp resources/icons/app.png AppDir/usr/share/icons/hicolor/256x256/apps/ubibot-serial-assistant.png
+
+      # linuxdeployqt ships only as an AppImage itself, and GitHub's Ubuntu
+      # runners don't have FUSE (which AppImages normally need to mount
+      # themselves) -- APPIMAGE_EXTRACT_AND_RUN=1 is the standard workaround,
+      # making every AppImage invocation (this one, and whatever it calls
+      # internally to actually build the output AppImage) extract itself to
+      # a temp dir and run from there instead of trying to FUSE-mount.
+      # linuxdeployqt is downloaded into its own tools/ directory, kept
+      # separate from the repo root, so the final `*.AppImage` glob below
+      # only ever matches the one AppImage this step actually produced.
+      - name: Package (linuxdeployqt AppImage)
+        id: pkg
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p tools
+          wget -q "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O tools/linuxdeployqt.AppImage
+          chmod +x tools/linuxdeployqt.AppImage
+          ./tools/linuxdeployqt.AppImage AppDir/usr/share/applications/ubibot-serial-assistant.desktop -qmldir=qml -appimage
+
+          appimageName="${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-linux-x86_64.AppImage"
+          latestAppimageName="${{ env.APP_NAME }}-linux-x86_64.AppImage"
+          producedFile=$(ls ./*.AppImage)
+          mv "$producedFile" "$appimageName"
+          cp "$appimageName" "$latestAppimageName"
+          echo "appimageName=$appimageName" >> "$GITHUB_OUTPUT"
+          echo "latestAppimageName=$latestAppimageName" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: |
+            ${{ steps.pkg.outputs.appimageName }}
+            ${{ steps.pkg.outputs.latestAppimageName }}
+
+  # Aggregates all three platforms' packages into ONE Release rather than
+  # having each platform job publish/edit the same Release concurrently
+  # (which would race). Only a real tag push gets here -- a manual
+  # workflow_dispatch run stops at each build job's artifact upload, so it
+  # can be used to test all three builds without publishing anything public.
+  #
+  # make_latest: true is explicit rather than relying on the API's own
+  # default -- this is exactly the guarantee the stable download links
+  # depend on (this release becomes the one /releases/latest points at), so
+  # it shouldn't be left implicit.
+  publish:
+    needs: [prepare, build-windows, build-macos, build-linux]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ needs.prepare.outputs.version }}
+          files: dist/*
           generate_release_notes: true
           make_latest: true

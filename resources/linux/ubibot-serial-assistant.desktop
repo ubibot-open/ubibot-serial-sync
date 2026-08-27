@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=UbiBot Serial Assistant
+Comment=Serial-port debugging tool for UbiBot IoT devices
+Exec=UbiBotSerialAssistant
+Icon=ubibot-serial-assistant
+Categories=Development;Electronics;
+Terminal=false

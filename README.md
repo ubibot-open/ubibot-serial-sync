@@ -139,49 +139,82 @@ hardcoded anywhere else to keep in sync.
 
 ### Publishing a release build via GitHub Actions
 
-[.github/workflows/release.yml](.github/workflows/release.yml) automates
-exactly the manual Windows release process above (install Qt, build Release,
-`windeployqt`, zip) and publishes the result as a GitHub Release:
+[.github/workflows/release.yml](.github/workflows/release.yml) builds
+**Windows, macOS, and Linux** packages in parallel and publishes all three
+together as one GitHub Release:
 
 1. Bump `VERSION` as above, commit it.
 2. Tag that commit `vX.Y.Z.W` — the tag's version (after the `v`) **must
    match `CMakeLists.txt`'s `project(VERSION ...)` exactly**, or the
-   workflow fails fast before building anything (see its "Verify version
-   matches CMakeLists.txt" step).
+   workflow's `prepare` job fails fast before any of the (expensive)
+   platform builds even start (see its "Verify version matches
+   CMakeLists.txt" step).
 3. `git push --tags`.
 
-The workflow builds on a `windows-latest` runner (MSVC 2022, Qt 6.10.3 —
-older than the 6.11.1 the manual process above was verified against; see the
-workflow's own `QT_VERSION` comment for why: aqtinstall, which
-`jurplel/install-qt-action` uses to fetch Qt, doesn't yet support Qt's
-restructured download layout for the whole 6.11.x line), attaches two
-identical zips to a new Release on that tag, and auto-generates release
-notes from the commits since the previous tag:
+Each platform builds on its own runner and packages the result the way
+that platform's own tooling expects, then a final `publish` job collects all
+of them onto one Release once every build has finished:
 
-- `UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` — this release's own,
-  permanent copy.
-- `UbiBotSerialAssistant-windows-x64.zip` — same contents, fixed filename,
-  re-uploaded to whichever release is newest. This is what makes the stable
-  download link below work.
+| Platform | Runner | Qt install | Packaging tool | Output |
+|---|---|---|---|---|
+| Windows | `windows-latest` (MSVC 2022) | Qt 6.10.3 | `windeployqt` | `.zip` (a folder of the .exe + its Qt DLLs, per [Releasing a Windows build](#releasing-a-windows-build-mingw) above) |
+| macOS | `macos-latest` | Qt 6.10.3 | `macdeployqt -dmg` | `.dmg` |
+| Linux | `ubuntu-22.04` | Qt 6.10.3 | [linuxdeployqt](https://github.com/probonopd/linuxdeployqt) | `.AppImage` (self-contained, no install needed — `chmod +x`, run) |
 
-To test the build itself without publishing anything public, run the
+(Qt 6.10.3, not the 6.11.1 the manual Windows process above was verified
+against, on all three platforms for the same reason: see the workflow's own
+`QT_VERSION` comment — aqtinstall, which `jurplel/install-qt-action` uses to
+fetch Qt, doesn't yet support Qt's restructured download layout for the
+whole 6.11.x line, on any platform.)
+
+Each platform job attaches two identical copies of its package to the
+Release — one with the version baked into the filename (kept forever, one
+per release) and one under a fixed, version-free name that gets overwritten
+by every new release (this is what the stable download links below rely
+on): `UbiBotSerialAssistant-X.Y.Z.W-<platform>.<ext>` and
+`UbiBotSerialAssistant-<platform>.<ext>`.
+
+To test all three builds without publishing anything public, run the
 workflow manually from the Actions tab (`workflow_dispatch`, supplying a
-`version` input) — it builds and uploads the zip as a plain workflow
-artifact but skips the "publish a Release" step entirely (gated on the run
-actually being a tag push).
+`version` input) — every platform still builds and uploads its package as a
+plain workflow artifact, but the final `publish` job is skipped entirely
+(gated on the run actually being a tag push), so nothing goes out.
 
-#### Stable "latest" download link
+**Known caveats**, none of which block a release, but worth knowing about:
+
+- **Neither the Windows .exe nor the macOS .app/.dmg is code-signed** (no
+  certificate/Apple Developer account wired into this workflow) — Windows
+  SmartScreen and macOS Gatekeeper will both warn first-run users that the
+  app is from an "unknown publisher"/"unidentified developer". Users click
+  through ("More info → Run anyway" / right-click → Open, or
+  `xattr -cr UbiBotSerialAssistant.app` on macOS) same as any other unsigned
+  open-source binary.
+- **The Linux AppImage needs FUSE to run directly** (most desktop distros
+  ship it; some newer/minimal ones don't) — if double-clicking or running it
+  does nothing, `./UbiBotSerialAssistant-*.AppImage --appimage-extract-and-run`
+  works everywhere regardless of FUSE.
+- **The macOS and Linux packaging steps are less battle-tested than the
+  Windows one** — the Windows workflow has actually been run successfully;
+  macdeployqt/linuxdeployqt's exact CLI behavior here was verified against
+  their documentation and (for linuxdeployqt's download URL/module
+  availability) live, but not against an actual run of this workflow yet.
+  Worth a `workflow_dispatch` test run before trusting them for a real
+  release.
+
+#### Stable "latest" download links
 
 GitHub redirects `.../releases/latest/download/<filename>` to the asset
 with that exact filename on whichever release is currently marked
 "Latest" — so as long as every release keeps attaching an asset under the
-same fixed name (`UbiBotSerialAssistant-windows-x64.zip`, per the workflow
-above, with `make_latest: true` making sure each new tagged release
-actually becomes "Latest"), this single URL always resolves to the newest
-build without needing to know its version number:
+same fixed name per platform (per the workflow above, with `make_latest:
+true` making sure each new tagged release actually becomes "Latest"), these
+URLs always resolve to the newest build without needing to know its version
+number:
 
 ```
 https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-windows-x64.zip
+https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-macos.dmg
+https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-linux-x86_64.AppImage
 ```
 
 (The release notes page itself is the same idea, one level up:
