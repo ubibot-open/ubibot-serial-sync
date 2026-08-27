@@ -1,0 +1,131 @@
+name: Release
+
+# Builds a standalone Windows package (the same windeployqt-produced folder
+# described in README.md's "Releasing a Windows build" section, just done by
+# CI instead of by hand) and publishes it as a GitHub Release.
+#
+# Two ways to run this:
+#   1. Push a tag like "v0.2.3.0" (the "v" plus CMakeLists.txt's exact
+#      project(VERSION ...) string) -- this builds AND publishes a public
+#      Release with the zip attached.
+#   2. Run it manually from the Actions tab ("workflow_dispatch") with a
+#      version input -- this builds and uploads the zip as a workflow
+#      artifact for a quick sanity check, but does NOT publish a Release
+#      (see the `if:` guard on the last step), so it's safe to use to test
+#      the build itself without cutting a real release.
+#
+# Either way, the job fails fast if the version doesn't match CMakeLists.txt
+# -- see "Verify version matches CMakeLists.txt" below -- so a release can
+# never accidentally go out under the wrong version number.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (must match CMakeLists.txt''s project(VERSION ...) exactly, no leading "v")'
+        required: true
+
+permissions:
+  contents: write  # softprops/action-gh-release needs this to create the Release
+
+env:
+  # Bump alongside README.md's own "Requirements" section if this project's
+  # floor ever moves past 6.7 -- this is pinned to the exact version the
+  # manual release process in README.md has actually been verified against.
+  QT_VERSION: '6.11.1'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $version = $env:GITHUB_REF -replace '^refs/tags/v', ''
+          } else {
+            $version = '${{ github.event.inputs.version }}'
+          }
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            Write-Error "No version determined -- push a 'vX.Y.Z.W' tag or supply the 'version' input."
+            exit 1
+          }
+          Write-Output "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Verify version matches CMakeLists.txt
+        shell: pwsh
+        run: |
+          $match = Select-String -Path CMakeLists.txt -Pattern '^\s*VERSION\s+([\d.]+)' | Select-Object -First 1
+          $cmakeVersion = $match.Matches.Groups[1].Value
+          $tagVersion = '${{ steps.version.outputs.version }}'
+          if ($cmakeVersion -ne $tagVersion) {
+            Write-Error "Version mismatch: tag/input says '$tagVersion' but CMakeLists.txt's project(VERSION ...) says '$cmakeVersion'. Bump CMakeLists.txt (the single source of truth for the version, per its own top-of-file comment) and commit that before tagging."
+            exit 1
+          }
+          Write-Output "Version check OK: $cmakeVersion"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          # Quick/QuickControls2/Network/LinguistTools all ship as part of
+          # the base "essential" Qt install -- SerialPort is the one add-on
+          # module this project needs (see CMakeLists.txt's find_package
+          # call and its own comment about it being opt-in in the online
+          # installer too).
+          modules: 'qtserialport'
+          cache: true
+
+      # Default generator on a Windows runner with Visual Studio already
+      # installed (windows-latest always has VS2022) is the VS generator,
+      # which is multi-config -- hence `--config Release` below rather than
+      # a separate -DCMAKE_BUILD_TYPE configure-time flag. This also means
+      # no ilammy/msvc-dev-cmd or Developer Command Prompt setup is needed:
+      # CMake drives MSBuild directly, it doesn't need cl.exe on PATH itself.
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Assemble deploy folder
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path deploy\UbiBotSerialAssistant | Out-Null
+          Copy-Item build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
+          # install-qt-action puts Qt's own bin/ on PATH, so this resolves
+          # without needing to know QT_ROOT_DIR's exact layout.
+          windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --qmldir qml --release
+
+      - name: Zip
+        id: zip
+        shell: pwsh
+        run: |
+          $zipName = "UbiBotSerialAssistant-${{ steps.version.outputs.version }}-windows-x64.zip"
+          Compress-Archive -Path deploy\UbiBotSerialAssistant\* -DestinationPath $zipName
+          Write-Output "zipName=$zipName" >> $env:GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UbiBotSerialAssistant-windows-${{ steps.version.outputs.version }}
+          path: ${{ steps.zip.outputs.zipName }}
+
+      # Only a real tag push publishes a public Release -- a manual
+      # workflow_dispatch run stops at the artifact upload above, so it can
+      # be used to test the build without putting anything public out.
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.version.outputs.version }}
+          files: ${{ steps.zip.outputs.zipName }}
+          generate_release_notes: true

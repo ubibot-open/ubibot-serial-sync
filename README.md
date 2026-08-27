@@ -137,6 +137,30 @@ flows automatically to everywhere the app shows its own version:
 Nothing else needs editing; there's no second copy of the version number
 hardcoded anywhere else to keep in sync.
 
+### Publishing a release build via GitHub Actions
+
+[.github/workflows/release.yml](.github/workflows/release.yml) automates
+exactly the manual Windows release process above (install Qt, build Release,
+`windeployqt`, zip) and publishes the result as a GitHub Release:
+
+1. Bump `VERSION` as above, commit it.
+2. Tag that commit `vX.Y.Z.W` — the tag's version (after the `v`) **must
+   match `CMakeLists.txt`'s `project(VERSION ...)` exactly**, or the
+   workflow fails fast before building anything (see its "Verify version
+   matches CMakeLists.txt" step).
+3. `git push --tags`.
+
+The workflow builds on a `windows-latest` runner (MSVC 2022, Qt 6.11.1),
+attaches `UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` to a new Release on
+that tag, and auto-generates release notes from the commits since the
+previous tag.
+
+To test the build itself without publishing anything public, run the
+workflow manually from the Actions tab (`workflow_dispatch`, supplying a
+`version` input) — it builds and uploads the zip as a plain workflow
+artifact but skips the "publish a Release" step entirely (gated on the run
+actually being a tag push).
+
 ## Project layout
 
 ```

@@ -121,14 +121,18 @@ update:
 
 ## 4. Package format: zip of the whole directory + `tar` to extract, no new toolchain introduced
 
-Current state: client releases are a fully manual process (see
-[README.md](../README.md)) — `windeployqt` generates a
-`deploy\UbiBotSerialAssistant\` folder (exe + Qt shared libraries + qml/
-translation resources, ~110MB), and ops compresses it into a zip for
-distribution by hand. The repo has no installer-building toolchain at all (no
-Inno Setup, no NSIS), and no CI. This update deliberately did **not** add an
-installer toolchain just for this feature — instead it builds self-update
-directly on top of the existing "zip the whole directory" approach:
+Current state (true when this feature was built; see
+[.github/workflows/release.yml](../.github/workflows/release.yml) for
+whether CI packaging has since replaced the manual steps): client releases
+were a fully manual process (see [README.md](../README.md)) — `windeployqt`
+generates a `deploy\UbiBotSerialAssistant\` folder (exe + Qt shared
+libraries + qml/translation resources, ~110MB), and ops compresses it into a
+zip for distribution by hand. The repo has no installer-building toolchain
+at all (no Inno Setup, no NSIS) — CI (added afterward, see the workflow
+linked above) automates *producing* that same zip, but still doesn't turn it
+into an installer. This update deliberately did **not** add an installer
+toolchain just for this feature — instead it builds self-update directly on
+top of the existing "zip the whole directory" approach:
 
 - What gets downloaded is that same zip; `SelfUpdateInstaller::extractAndValidate()`
   extracts it to a temp directory using the `tar.exe` built into Windows 10
