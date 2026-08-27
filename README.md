@@ -154,15 +154,38 @@ The workflow builds on a `windows-latest` runner (MSVC 2022, Qt 6.10.3 —
 older than the 6.11.1 the manual process above was verified against; see the
 workflow's own `QT_VERSION` comment for why: aqtinstall, which
 `jurplel/install-qt-action` uses to fetch Qt, doesn't yet support Qt's
-restructured download layout for the whole 6.11.x line), attaches
-`UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` to a new Release on that tag,
-and auto-generates release notes from the commits since the previous tag.
+restructured download layout for the whole 6.11.x line), attaches two
+identical zips to a new Release on that tag, and auto-generates release
+notes from the commits since the previous tag:
+
+- `UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` — this release's own,
+  permanent copy.
+- `UbiBotSerialAssistant-windows-x64.zip` — same contents, fixed filename,
+  re-uploaded to whichever release is newest. This is what makes the stable
+  download link below work.
 
 To test the build itself without publishing anything public, run the
 workflow manually from the Actions tab (`workflow_dispatch`, supplying a
 `version` input) — it builds and uploads the zip as a plain workflow
 artifact but skips the "publish a Release" step entirely (gated on the run
 actually being a tag push).
+
+#### Stable "latest" download link
+
+GitHub redirects `.../releases/latest/download/<filename>` to the asset
+with that exact filename on whichever release is currently marked
+"Latest" — so as long as every release keeps attaching an asset under the
+same fixed name (`UbiBotSerialAssistant-windows-x64.zip`, per the workflow
+above, with `make_latest: true` making sure each new tagged release
+actually becomes "Latest"), this single URL always resolves to the newest
+build without needing to know its version number:
+
+```
+https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-windows-x64.zip
+```
+
+(The release notes page itself is the same idea, one level up:
+`https://github.com/ubibot-open/ubibot-serial-sync/releases/latest`.)
 
 ## Project layout
 

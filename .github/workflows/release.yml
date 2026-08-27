@@ -117,13 +117,24 @@ jobs:
           # without needing to know QT_ROOT_DIR's exact layout.
           windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --qmldir qml --release
 
+      # Two zips of the identical contents, not one -- see "Stable download
+      # link" in README.md. $zipName carries the version in its name (kept
+      # forever, one per release, for anyone who wants a specific past
+      # version); $latestZipName has a fixed, version-free name, re-uploaded
+      # to whichever release is current -- GitHub's own
+      # /releases/latest/download/<filename> redirect resolves a fixed
+      # filename against whatever release is currently "latest", which only
+      # works because this second file's name never changes between runs.
       - name: Zip
         id: zip
         shell: pwsh
         run: |
           $zipName = "UbiBotSerialAssistant-${{ steps.version.outputs.version }}-windows-x64.zip"
+          $latestZipName = "UbiBotSerialAssistant-windows-x64.zip"
           Compress-Archive -Path deploy\UbiBotSerialAssistant\* -DestinationPath $zipName
+          Copy-Item $zipName $latestZipName
           Write-Output "zipName=$zipName" >> $env:GITHUB_OUTPUT
+          Write-Output "latestZipName=$latestZipName" >> $env:GITHUB_OUTPUT
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -134,10 +145,18 @@ jobs:
       # Only a real tag push publishes a public Release -- a manual
       # workflow_dispatch run stops at the artifact upload above, so it can
       # be used to test the build without putting anything public out.
+      #
+      # make_latest: true is explicit rather than relying on the API's own
+      # default -- this is exactly the guarantee the stable download link
+      # depends on (this release becomes the one /releases/latest points
+      # at), so it shouldn't be left implicit.
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           name: v${{ steps.version.outputs.version }}
-          files: ${{ steps.zip.outputs.zipName }}
+          files: |
+            ${{ steps.zip.outputs.zipName }}
+            ${{ steps.zip.outputs.latestZipName }}
           generate_release_notes: true
+          make_latest: true
