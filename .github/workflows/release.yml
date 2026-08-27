@@ -260,6 +260,21 @@ jobs:
           cp resources/linux/ubibot-serial-assistant.desktop AppDir/usr/share/applications/
           cp resources/icons/app.png AppDir/usr/share/icons/hicolor/256x256/apps/ubibot-serial-assistant.png
 
+      # linuxdeployqt unconditionally bundles every plugin under Qt's
+      # sqldrivers/ (see appendPluginToList(..., "sqldrivers", ...) in its
+      # own shared.cpp) regardless of whether the app links QtSql at all --
+      # this app doesn't. libqsqlmimer.so (Qt's plugin for the proprietary
+      # Mimer SQL) needs libmimerapi.so, which nothing installs by default,
+      # and linuxdeployqt hard-aborts the whole run the moment `ldd` can't
+      # resolve ANY plugin dependency, even one this app will never load.
+      # Removing the entire sqldrivers/ directory up front avoids that
+      # (and whatever the next similarly-unavailable vendor client library
+      # would have been -- ODBC/PostgreSQL/etc. drivers have the same kind
+      # of external dependency) rather than fixing them one at a time via
+      # -exclude-libs= as each surfaces.
+      - name: Remove unused Qt SQL driver plugins
+        run: rm -rf "${{ env.QT_ROOT_DIR }}/plugins/sqldrivers"
+
       # linuxdeployqt ships only as an AppImage itself, and GitHub's Ubuntu
       # runners don't have FUSE (which AppImages normally need to mount
       # themselves) -- APPIMAGE_EXTRACT_AND_RUN=1 is the standard workaround,
