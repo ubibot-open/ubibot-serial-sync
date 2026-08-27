@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.21)
 # that's what was asked for -- CMake's project(VERSION ...) already supports
 # up to four.
 project(UbiBotSerialAssistant
-    VERSION 0.3.1.1
+    VERSION 0.3.2.1
     DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )
