@@ -31,10 +31,22 @@ permissions:
   contents: write  # softprops/action-gh-release needs this to create the Release
 
 env:
-  # Bump alongside README.md's own "Requirements" section if this project's
-  # floor ever moves past 6.7 -- this is pinned to the exact version the
-  # manual release process in README.md has actually been verified against.
-  QT_VERSION: '6.11.1'
+  # Not 6.11.x (what README.md's manual release process was actually
+  # verified against) on purpose: jurplel/install-qt-action installs Qt via
+  # aqtinstall, and aqtinstall 3.3.0 (the latest release as of this writing)
+  # can't resolve ANY 6.11.x version on Windows desktop -- Qt restructured
+  # download.qt.io's directory layout for that line (arch-specific
+  # subdirectories, e.g. .../qt6_6111/qt6_6111_msvc2022_64/Updates.xml,
+  # instead of the older combined .../qt6_6111/Updates.xml aqt still looks
+  # for), and aqtinstall hasn't shipped support for the new layout yet.
+  # Confirmed directly: `aqt list-qt windows desktop --arch 6.11.1` fails
+  # with "Failed to download checksum for the file 'Updates.xml'" while the
+  # same command against 6.10.3 succeeds. 6.10.3 is the newest version this
+  # project's actual floor (6.7+, see README.md's Requirements section)
+  # allows and aqtinstall can still fetch -- once aqtinstall adds 6.11.x
+  # support (https://github.com/miurahr/aqtinstall), this can move back up
+  # to match README.md's 6.11.1.
+  QT_VERSION: '6.10.3'
 
 jobs:
   build-windows:

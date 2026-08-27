@@ -150,10 +150,13 @@ exactly the manual Windows release process above (install Qt, build Release,
    matches CMakeLists.txt" step).
 3. `git push --tags`.
 
-The workflow builds on a `windows-latest` runner (MSVC 2022, Qt 6.11.1),
-attaches `UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` to a new Release on
-that tag, and auto-generates release notes from the commits since the
-previous tag.
+The workflow builds on a `windows-latest` runner (MSVC 2022, Qt 6.10.3 —
+older than the 6.11.1 the manual process above was verified against; see the
+workflow's own `QT_VERSION` comment for why: aqtinstall, which
+`jurplel/install-qt-action` uses to fetch Qt, doesn't yet support Qt's
+restructured download layout for the whole 6.11.x line), attaches
+`UbiBotSerialAssistant-X.Y.Z.W-windows-x64.zip` to a new Release on that tag,
+and auto-generates release notes from the commits since the previous tag.
 
 To test the build itself without publishing anything public, run the
 workflow manually from the Actions tab (`workflow_dispatch`, supplying a
