@@ -124,7 +124,7 @@ update:
 Current state (true when this feature was built; see
 [.github/workflows/release.yml](../.github/workflows/release.yml) for
 whether CI packaging has since replaced the manual steps): client releases
-were a fully manual process (see [README.md](../README.md)) — `windeployqt`
+were a fully manual process (see [BUILD.md](../BUILD.md)) — `windeployqt`
 generates a `deploy\UbiBotSerialAssistant\` folder (exe + Qt shared
 libraries + qml/translation resources, ~110MB), and ops compresses it into a
 zip for distribution by hand. The repo has no installer-building toolchain
