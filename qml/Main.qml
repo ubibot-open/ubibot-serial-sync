@@ -290,20 +290,30 @@ ApplicationWindow {
                 }
                 Menu {
                     title: qsTr("&Help")
+                    // Commented out (not removed) -- the self-update feature
+                    // needs ubibot-appcenter's Software/Version backend to
+                    // actually have this app registered (see
+                    // docs/app-self-update.md#2) plus a real Version row
+                    // uploaded for it, and neither has been deployed yet.
+                    // Re-enable by uncommenting once that's live; nothing
+                    // else needs to change -- AppController/
+                    // SoftwareUpdateClient/SoftwareUpdateDialog.qml are all
+                    // still fully wired up, this menu item was the only
+                    // user-facing entry point into any of it.
                     // Named "software update" (not just "Check for
                     // updates") specifically to not collide with the
                     // unrelated "Check for updates" button already living
                     // in Settings & About's "Command library" section
                     // (device command data, not the app itself -- see
                     // SettingsAboutDialog.qml).
-                    MenuItem {
-                        text: qsTr("Check for software update")
-                        onTriggered: {
-                            AppController.checkForAppUpdate();
-                            softwareUpdateDialog.open();
-                        }
-                    }
-                    MenuSeparator {}
+                    // MenuItem {
+                    //     text: qsTr("Check for software update")
+                    //     onTriggered: {
+                    //         AppController.checkForAppUpdate();
+                    //         softwareUpdateDialog.open();
+                    //     }
+                    // }
+                    // MenuSeparator {}
                     // Was a copy-pasted duplicate of the Tools menu's own
                     // "Settings" item (same text, same handler) -- Settings
                     // already has its proper home under Tools, so this slot
