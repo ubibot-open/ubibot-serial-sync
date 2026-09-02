@@ -1,11 +1,10 @@
 # UbiBot Serial Assistant
 
-A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS,
-SP1, …), built with Qt 6.11 / QML / C++17. A native, lightweight desktop app
-— not a bundled browser runtime — that speaks both plain-text AT commands
-and JSON-payload device protocols, with a server-maintained, remotely
-updatable command library so new devices don't require a new app build to
-reach people who already have it installed.
+A cross-platform, lightweight desktop serial-port tool built with Qt 6 —
+fully open-source and free. Purpose-built and optimized for UbiBot IoT
+devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, …), with cloud-synced UbiBot
+device commands so new devices don't require a new app build to reach
+people who already have it installed.
 
 ## Download
 
