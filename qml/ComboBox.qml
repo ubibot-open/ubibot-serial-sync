@@ -30,7 +30,7 @@ Fusion.ComboBox {
     // available space -- the stray white border reported after picking a
     // value. Growing implicitHeight directly instead (Fusion's own formula,
     // just floored higher) gets a taller box without disturbing that.
-    implicitHeight: Math.max(34, implicitBackgroundHeight + topInset + bottomInset,
+    implicitHeight: Math.max(32, implicitBackgroundHeight + topInset + bottomInset,
                               implicitContentHeight + topPadding + bottomPadding,
                               implicitIndicatorHeight + topPadding + bottomPadding)
 
