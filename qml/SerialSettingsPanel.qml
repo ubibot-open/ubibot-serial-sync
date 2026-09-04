@@ -217,6 +217,48 @@ Flickable {
             }
         }
 
+        // Open/close port, right under the settings that determine what it
+        // connects with -- per user feedback, having this button on the
+        // opposite side of the window (the toolbar) from the port settings
+        // it depends on meant a "pick port settings, then reach across to
+        // the far side to open it" motion every time. Deliberately outside
+        // the GridLayout above (which disables itself while the port is
+        // open) since this button must stay clickable either way -- it's
+        // also how the user closes an already-open port.
+        Button {
+            id: openPortButton
+            text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
+            highlighted: true
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+            Layout.preferredHeight: 44
+            // Fusion's default "highlighted" look wasn't enough to make this
+            // stand out from the settings above it -- per user feedback it
+            // read as just another row in the panel. An explicit fill (plus
+            // the taller height above) makes it read as the one actionable
+            // button in the sidebar instead of one more control among many.
+            background: Rectangle {
+                radius: 3
+                color: openPortButton.pressed || openPortButton.hovered ? Theme.accent700 : Theme.accent
+            }
+            contentItem: Text {
+                text: openPortButton.text
+                font: openPortButton.font
+                color: Theme.accentForeground
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+            onClicked: {
+                if (AppController.portOpen) {
+                    AppController.closePort()
+                } else {
+                    AppController.openPort(root.selectedPort, root.selectedBaud,
+                                            root.selectedDataBits, root.selectedParity,
+                                            root.selectedStopBits, root.selectedFlowControl)
+                }
+            }
+        }
+
         SectionHeading { text: qsTr("Receive · RECEIVE") }
 
         RowLayout {

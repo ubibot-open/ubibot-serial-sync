@@ -9,9 +9,11 @@ ApplicationWindow {
     // Bumped from 1200x800 -- this session's own control-size/font-size/
     // spacing increases (bigger buttons, +2px spacing tokens, a larger
     // default base font, ...) grew the toolbar row's natural content width
-    // past what 1200 has room for, clipping the right-aligned "Open port"
-    // button off the edge at that size. A modest bump gives that room back
-    // without the window opening noticeably larger on a normal desktop.
+    // past what 1200 has room for, clipping its right-aligned buttons off
+    // the edge at that size (true when the "Open port" button still lived
+    // here too, before it moved into the Port sidebar -- see
+    // SerialSettingsPanel.qml). A modest bump gives that room back without
+    // the window opening noticeably larger on a normal desktop.
     width: 1320
     height: 860
     // Nothing below stops the window from being dragged narrower/shorter
@@ -19,8 +21,9 @@ ApplicationWindow {
     // file call the real window.startSystemResize(), so minimumWidth/
     // minimumHeight are enforced by the OS during that drag exactly like a
     // normal titled window's would be. Below ~860 the fixed-width sidebar
-    // (330px) leaves the icon toolbar/"Open port" button/data monitor no
-    // room left to lay out in, and a language with longer translations
+    // (330px, home to the "Open port" button among other things) leaves the
+    // icon toolbar/data monitor no room left to lay out in, and a language
+    // with longer translations
     // squeezes the Serial/Device commands tab labels down to unreadable
     // ellipsis well before that -- this is the width below which the layout
     // has nowhere left to give, not a number tuned to look nice.
@@ -377,29 +380,6 @@ ApplicationWindow {
                     }
 
                     Item { Layout.fillWidth: true }
-
-                    // Was a "Current device"/model-id badge shown here, right
-                    // next to the port button -- misleading now that the device
-                    // command library doesn't drive the port connection at all
-                    // (see CommandLibraryPanel.qml); the currently-picked model
-                    // is still visible in the "Device commands" panel's own
-                    // combo box, it just doesn't need repeating next to a
-                    // button it has nothing to do with.
-                    Button {
-                        text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
-                        highlighted: true
-                        Layout.preferredWidth: 112
-                        Layout.leftMargin: 12
-                        onClicked: {
-                            if (AppController.portOpen) {
-                                AppController.closePort()
-                            } else {
-                                AppController.openPort(serialPanel.selectedPort, serialPanel.selectedBaud,
-                                                        serialPanel.selectedDataBits, serialPanel.selectedParity,
-                                                        serialPanel.selectedStopBits, serialPanel.selectedFlowControl)
-                            }
-                        }
-                    }
                 }
             }
         } // headerColumn
