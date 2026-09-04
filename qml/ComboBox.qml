@@ -64,6 +64,27 @@ Fusion.ComboBox {
         }
     }
 
+    // An empty combo box (e.g. the port picker showing "No ports found")
+    // used to still pop open on click -- an empty, borderless rectangle
+    // with nothing in it to pick, since ComboBox's own click handling
+    // doesn't check count before opening. Per user feedback this should
+    // do nothing instead. A MouseArea only enabled while count === 0, with
+    // a z high enough to sit above background/contentItem/indicator
+    // regardless of their own insertion order, intercepts and swallows the
+    // press before ComboBox's own (C++-level, not a child MouseArea of its
+    // own) open-on-click handling ever sees it; with items present it's
+    // disabled and becomes transparent to mouse events, so every normal
+    // click passes straight through to the control underneath exactly as
+    // before. Applies to every ComboBox in the app (this file is what
+    // every plain `ComboBox { ... }` here actually resolves to -- see the
+    // note at the top), not just the port picker.
+    MouseArea {
+        z: 10
+        anchors.fill: parent
+        enabled: control.count === 0
+        cursorShape: Qt.ArrowCursor
+    }
+
     // Fusion's own popup delegate (reproduced below, only the `background:`
     // is new) only ever bolds the text of the row matching currentIndex --
     // easy to miss at a glance in a longer list (baud rate, font family,
