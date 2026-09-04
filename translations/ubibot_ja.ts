@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>No batch commands yet</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>ms</source>
-        <translation type="unfinished">ミリ秒</translation>
+        <translation>ミリ秒</translation>
     </message>
     <message>
         <source>Steps</source>
@@ -211,7 +211,7 @@
     </message>
     <message>
         <source>Device model · Model</source>
-        <translation type="unfinished"></translation>
+        <translation>デバイスモデル · Model</translation>
     </message>
     <message>
         <source>Save</source>
@@ -237,15 +237,15 @@
     <name>DataMonitorView</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Clear log</source>
-        <translation type="unfinished"></translation>
+        <translation>ログをクリア</translation>
     </message>
     <message>
         <source>Save log…</source>
-        <translation type="unfinished"></translation>
+        <translation>ログを保存…</translation>
     </message>
     <message>
         <source>Data monitor</source>

@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <source>No batch commands yet</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>ms</source>
-        <translation type="unfinished">мс</translation>
+        <translation>мс</translation>
     </message>
     <message>
         <source>Steps</source>
@@ -211,7 +211,7 @@
     </message>
     <message>
         <source>Device model · Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Модель устройства · Model</translation>
     </message>
     <message>
         <source>Save</source>
@@ -237,15 +237,15 @@
     <name>DataMonitorView</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <source>Clear log</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить журнал</translation>
     </message>
     <message>
         <source>Save log…</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить журнал…</translation>
     </message>
     <message>
         <source>Data monitor</source>

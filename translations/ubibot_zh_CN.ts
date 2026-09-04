@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>No batch commands yet</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>ms</source>
-        <translation type="unfinished">毫秒</translation>
+        <translation>毫秒</translation>
     </message>
     <message>
         <source>Steps</source>
@@ -211,7 +211,7 @@
     </message>
     <message>
         <source>Device model · Model</source>
-        <translation type="unfinished"></translation>
+        <translation>设备型号 · Model</translation>
     </message>
     <message>
         <source>Save</source>
@@ -237,15 +237,15 @@
     <name>DataMonitorView</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Clear log</source>
-        <translation type="unfinished"></translation>
+        <translation>清空记录</translation>
     </message>
     <message>
         <source>Save log…</source>
-        <translation type="unfinished"></translation>
+        <translation>保存记录…</translation>
     </message>
     <message>
         <source>Data monitor</source>
