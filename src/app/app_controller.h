@@ -217,6 +217,15 @@ public:
     QString selectedPortName() const { return selectedPortName_; }
     void setSelectedPortName(const QString &name);
 
+    // Re-queries the port list (via portListModel_->refresh(), which itself
+    // no-ops when nothing actually changed) and, only when it did change,
+    // reconciles the current selection against it -- see
+    // reconcileSelectedPort() below. Also what portRefreshTimer_ calls every
+    // few seconds; SerialSettingsPanel.qml's manual refresh button calls
+    // this too (rather than portListModel->refresh() directly) so a
+    // manual click gets the same reconciliation an automatic poll would.
+    Q_INVOKABLE void refreshPorts();
+
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);
     bool echoTx() const { return echoTx_; }
@@ -441,6 +450,26 @@ private:
     void flushRxLineBuffer();
     QByteArray rxLineBuffer_;
     QTimer *rxFlushTimer_;
+
+    // Called after every refresh that actually changed the port list (see
+    // refreshPorts() above). Qt/QtSerialPort has no cross-platform "device
+    // plugged/unplugged" notification to hook instead, so a short poll is
+    // the only portable way to catch this -- see portRefreshTimer_ below.
+    //
+    // Two cases, handled as strict alternatives (never both in one call):
+    // - The currently selected port is no longer in the list: it got
+    //   unplugged (or otherwise disappeared) since it was picked. Per user
+    //   feedback, silently falling back to whatever other port happens to
+    //   still be there would read as "the port is still fine" when it
+    //   isn't -- someone still sending to it via the stale selection would
+    //   have no way to notice. Drop back to no selection instead and make
+    //   the user actively re-pick, the same as if they'd never chosen one.
+    // - Nothing is selected (never chosen, or just cleared by the case
+    //   above on some earlier refresh) and a port is now available: offer
+    //   it up directly rather than leaving "No ports found" showing when
+    //   there's something to pick already.
+    void reconcileSelectedPort();
+    QTimer *portRefreshTimer_;
 
     DeviceLibrary library_;
     SettingsStore settings_;

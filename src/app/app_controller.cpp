@@ -45,6 +45,12 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     logModel_ = new LogListModel(&logManager_, this);
     commandModel_ = new CommandListModel(&library_, &settings_, this);
     portListModel_ = new PortListModel(this);
+    // portListModel_'s own constructor already populated it from whatever
+    // ports are plugged in right now -- reconcile against that immediately
+    // rather than leaving the picker on "No ports found" until the first
+    // portRefreshTimer_ tick (up to 5s away) just because nothing has
+    // changed *since* startup to trigger one.
+    reconcileSelectedPort();
     commandHistoryModel_ = new CommandHistoryModel(&settings_, this);
     batchCommandModel_ = new BatchCommandModel(&settings_, this);
 
@@ -57,6 +63,19 @@ AppController::AppController(QObject *parent) : QObject(parent) {
     rxFlushTimer_ = new QTimer(this);
     rxFlushTimer_->setSingleShot(true);
     connect(rxFlushTimer_, &QTimer::timeout, this, &AppController::flushRxLineBuffer);
+
+    // Polling, not a native hot-plug notification -- QtSerialPort has no
+    // cross-platform "device attached/removed" signal (Windows/macOS/Linux
+    // each have their own OS-level mechanism for that, none of it behind a
+    // shared Qt API), and this app ships on all three. 5 seconds is short
+    // enough that plugging in a device reads as "basically immediate" to a
+    // person, without polling so often it'd matter for battery/CPU on a
+    // background app. portListModel_->refresh() itself no-ops (no model
+    // reset, no reconcile) whenever the port set hasn't actually changed.
+    portRefreshTimer_ = new QTimer(this);
+    portRefreshTimer_->setInterval(2000);
+    connect(portRefreshTimer_, &QTimer::timeout, this, &AppController::refreshPorts);
+    portRefreshTimer_->start();
 
     connect(&serial_, &SerialManager::dataReceived, this, &AppController::handleIncomingData);
     connect(&serial_, &SerialManager::errorOccurred, this,
@@ -349,6 +368,18 @@ void AppController::setSelectedPortName(const QString &name) {
     if (selectedPortName_ == name) return;
     selectedPortName_ = name;
     emit selectedPortNameChanged();
+}
+
+void AppController::refreshPorts() {
+    if (portListModel_->refresh()) reconcileSelectedPort();
+}
+
+void AppController::reconcileSelectedPort() {
+    if (!selectedPortName_.isEmpty()) {
+        if (portListModel_->indexOfPortName(selectedPortName_) < 0) setSelectedPortName(QString());
+        return;
+    }
+    if (portListModel_->rowCount() > 0) setSelectedPortName(portListModel_->portNameAt(0));
 }
 
 void AppController::setDraftText(const QString &text) {

@@ -1,5 +1,7 @@
 #include "models/port_list_model.h"
 
+#include <utility>
+
 PortListModel::PortListModel(QObject *parent) : QAbstractListModel(parent) {
     refresh();
 }
@@ -33,10 +35,13 @@ QHash<int, QByteArray> PortListModel::roleNames() const {
     };
 }
 
-void PortListModel::refresh() {
+bool PortListModel::refresh() {
+    QVector<SerialManager::PortInfo> updated = SerialManager::availablePorts();
+    if (updated == ports_) return false;
     beginResetModel();
-    ports_ = SerialManager::availablePorts();
+    ports_ = std::move(updated);
     endResetModel();
+    return true;
 }
 
 QString PortListModel::portNameAt(int row) const {

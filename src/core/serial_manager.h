@@ -36,6 +36,14 @@ public:
         // -- this is what actually tells the two apart in the picker.
         QString chipLabel;
         PortHint hint = PortHint::Available;
+
+        // Lets PortListModel::refresh() tell "the port set actually changed"
+        // apart from "polled again, nothing plugged/unplugged" -- see its
+        // own comment for why that distinction matters.
+        bool operator==(const PortInfo &other) const {
+            return portName == other.portName && description == other.description &&
+                   chipLabel == other.chipLabel && hint == other.hint;
+        }
     };
 
     static QVector<PortInfo> availablePorts();

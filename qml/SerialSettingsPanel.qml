@@ -161,16 +161,32 @@ Flickable {
                 PortComboBox {
                     id: portCombo
                     Layout.fillWidth: true
-                    currentIndex: {
-                        const byName = AppController.portListModel.indexOfPortName(AppController.selectedPortName)
-                        return byName >= 0 ? byName : (count > 0 ? 0 : -1)
-                    }
+                    // No "fall back to row 0 when the name doesn't match
+                    // anything" here on purpose (there used to be one) --
+                    // AppController.selectedPortName is now the single
+                    // source of truth for which port is picked, kept
+                    // reconciled against the live port list by
+                    // AppController::reconcileSelectedPort() (see
+                    // app_controller.cpp): it already clears itself when
+                    // the port it named disappears, and already fills
+                    // itself in with a newly-appeared port when nothing was
+                    // selected. Re-adding a QML-side fallback here would
+                    // just let this combo show a port AppController itself
+                    // doesn't think is selected -- exactly the "silently
+                    // jumped to some other port" behavior that logic exists
+                    // to avoid.
+                    currentIndex: AppController.portListModel.indexOfPortName(AppController.selectedPortName)
                     onActivated: AppController.selectedPortName = AppController.portListModel.portNameAt(currentIndex)
                 }
                 ToolButton {
                     icon.source: "qrc:/icons/refresh.svg"
                     icon.color: Theme.text
-                    onClicked: AppController.portListModel.refresh()
+                    // Goes through AppController.refreshPorts() (not
+                    // AppController.portListModel.refresh() directly) so a
+                    // manual click reconciles the current selection exactly
+                    // like the automatic poll does -- see
+                    // AppController::refreshPorts()'s own comment.
+                    onClicked: AppController.refreshPorts()
                 }
             }
 
