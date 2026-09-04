@@ -331,14 +331,6 @@
         <translation>시리얼</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>포트 닫기</translation>
-    </message>
-    <message>
-        <source>Open port</source>
-        <translation>포트 열기</translation>
-    </message>
-    <message>
         <source>Type data to send…</source>
         <translation>전송할 데이터 입력…</translation>
     </message>
@@ -367,11 +359,11 @@
     <name>PortComboBox</name>
     <message>
         <source>No ports found</source>
-        <translation type="unfinished"></translation>
+        <translation>포트를 찾을 수 없습니다</translation>
     </message>
     <message>
         <source>Unknown device</source>
-        <translation type="unfinished"></translation>
+        <translation>알 수 없는 장치</translation>
     </message>
 </context>
 <context>
@@ -510,7 +502,7 @@
     <name>SerialSettingsPanel</name>
     <message>
         <source>Port · PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>포트 · PORT</translation>
     </message>
     <message>
         <source>Port</source>
@@ -537,12 +529,20 @@
         <translation>흐름 제어</translation>
     </message>
     <message>
+        <source>Close port</source>
+        <translation>포트 닫기</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>포트 열기</translation>
+    </message>
+    <message>
         <source>Receive · RECEIVE</source>
-        <translation type="unfinished"></translation>
+        <translation>수신 · RECEIVE</translation>
     </message>
     <message>
         <source>Transmit · TRANSMIT</source>
-        <translation type="unfinished"></translation>
+        <translation>송신 · TRANSMIT</translation>
     </message>
     <message>
         <source>Show timestamp</source>

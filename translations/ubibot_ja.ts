@@ -331,14 +331,6 @@
         <translation>シリアル</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>ポートを閉じる</translation>
-    </message>
-    <message>
-        <source>Open port</source>
-        <translation>ポートを開く</translation>
-    </message>
-    <message>
         <source>Type data to send…</source>
         <translation>送信するデータを入力…</translation>
     </message>
@@ -367,11 +359,11 @@
     <name>PortComboBox</name>
     <message>
         <source>No ports found</source>
-        <translation type="unfinished"></translation>
+        <translation>ポートが見つかりません</translation>
     </message>
     <message>
         <source>Unknown device</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なデバイス</translation>
     </message>
 </context>
 <context>
@@ -510,7 +502,7 @@
     <name>SerialSettingsPanel</name>
     <message>
         <source>Port · PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>ポート · PORT</translation>
     </message>
     <message>
         <source>Port</source>
@@ -537,12 +529,20 @@
         <translation>フロー制御</translation>
     </message>
     <message>
+        <source>Close port</source>
+        <translation>ポートを閉じる</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>ポートを開く</translation>
+    </message>
+    <message>
         <source>Receive · RECEIVE</source>
-        <translation type="unfinished"></translation>
+        <translation>受信 · RECEIVE</translation>
     </message>
     <message>
         <source>Transmit · TRANSMIT</source>
-        <translation type="unfinished"></translation>
+        <translation>送信 · TRANSMIT</translation>
     </message>
     <message>
         <source>Show timestamp</source>

@@ -331,14 +331,6 @@
         <translation>Série</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>Fermer le port</translation>
-    </message>
-    <message>
-        <source>Open port</source>
-        <translation>Ouvrir le port</translation>
-    </message>
-    <message>
         <source>Type data to send…</source>
         <translation>Saisissez les données à envoyer…</translation>
     </message>
@@ -367,11 +359,11 @@
     <name>PortComboBox</name>
     <message>
         <source>No ports found</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun port trouvé</translation>
     </message>
     <message>
         <source>Unknown device</source>
-        <translation type="unfinished"></translation>
+        <translation>Appareil inconnu</translation>
     </message>
 </context>
 <context>
@@ -510,7 +502,7 @@
     <name>SerialSettingsPanel</name>
     <message>
         <source>Port · PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>Port · PORT</translation>
     </message>
     <message>
         <source>Port</source>
@@ -537,12 +529,20 @@
         <translation>Contrôle de flux</translation>
     </message>
     <message>
+        <source>Close port</source>
+        <translation>Fermer le port</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>Ouvrir le port</translation>
+    </message>
+    <message>
         <source>Receive · RECEIVE</source>
-        <translation type="unfinished"></translation>
+        <translation>Réception · RECEIVE</translation>
     </message>
     <message>
         <source>Transmit · TRANSMIT</source>
-        <translation type="unfinished"></translation>
+        <translation>Émission · TRANSMIT</translation>
     </message>
     <message>
         <source>Show timestamp</source>

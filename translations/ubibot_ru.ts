@@ -331,14 +331,6 @@
         <translation>Последовательный порт</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>Закрыть порт</translation>
-    </message>
-    <message>
-        <source>Open port</source>
-        <translation>Открыть порт</translation>
-    </message>
-    <message>
         <source>Type data to send…</source>
         <translation>Введите данные для отправки…</translation>
     </message>
@@ -367,11 +359,11 @@
     <name>PortComboBox</name>
     <message>
         <source>No ports found</source>
-        <translation type="unfinished"></translation>
+        <translation>Порты не найдены</translation>
     </message>
     <message>
         <source>Unknown device</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестное устройство</translation>
     </message>
 </context>
 <context>
@@ -510,7 +502,7 @@
     <name>SerialSettingsPanel</name>
     <message>
         <source>Port · PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>Порт · PORT</translation>
     </message>
     <message>
         <source>Port</source>
@@ -537,12 +529,20 @@
         <translation>Управление потоком</translation>
     </message>
     <message>
+        <source>Close port</source>
+        <translation>Закрыть порт</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>Открыть порт</translation>
+    </message>
+    <message>
         <source>Receive · RECEIVE</source>
-        <translation type="unfinished"></translation>
+        <translation>Приём · RECEIVE</translation>
     </message>
     <message>
         <source>Transmit · TRANSMIT</source>
-        <translation type="unfinished"></translation>
+        <translation>Передача · TRANSMIT</translation>
     </message>
     <message>
         <source>Show timestamp</source>

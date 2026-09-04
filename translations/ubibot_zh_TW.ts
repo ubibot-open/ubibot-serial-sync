@@ -331,14 +331,6 @@
         <translation>序列埠</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>關閉序列埠</translation>
-    </message>
-    <message>
-        <source>Open port</source>
-        <translation>開啟序列埠</translation>
-    </message>
-    <message>
         <source>Type data to send…</source>
         <translation>輸入要傳送的資料…</translation>
     </message>
@@ -367,11 +359,11 @@
     <name>PortComboBox</name>
     <message>
         <source>No ports found</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到連接埠</translation>
     </message>
     <message>
         <source>Unknown device</source>
-        <translation type="unfinished"></translation>
+        <translation>未知裝置</translation>
     </message>
 </context>
 <context>
@@ -510,7 +502,7 @@
     <name>SerialSettingsPanel</name>
     <message>
         <source>Port · PORT</source>
-        <translation type="unfinished"></translation>
+        <translation>連接埠 · PORT</translation>
     </message>
     <message>
         <source>Port</source>
@@ -537,12 +529,20 @@
         <translation>流量控制</translation>
     </message>
     <message>
+        <source>Close port</source>
+        <translation>關閉序列埠</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>開啟序列埠</translation>
+    </message>
+    <message>
         <source>Receive · RECEIVE</source>
-        <translation type="unfinished"></translation>
+        <translation>接收 · RECEIVE</translation>
     </message>
     <message>
         <source>Transmit · TRANSMIT</source>
-        <translation type="unfinished"></translation>
+        <translation>傳送 · TRANSMIT</translation>
     </message>
     <message>
         <source>Show timestamp</source>
