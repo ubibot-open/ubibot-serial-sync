@@ -261,6 +261,9 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: templateDialog.title
             font.bold: true
@@ -353,6 +356,9 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: batchListDialog.title
             font.bold: true
@@ -490,6 +496,9 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: batchEditDialog.title
             font.bold: true

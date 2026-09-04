@@ -76,6 +76,7 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/Main.qml
         qml/Theme.qml
         qml/DialogCard.qml
+        qml/ModalDim.qml
         qml/PortComboBox.qml
         qml/SerialSettingsPanel.qml
         qml/CommandLibraryPanel.qml

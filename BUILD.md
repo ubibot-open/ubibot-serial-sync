@@ -340,11 +340,22 @@ A few implementation choices worth knowing about before you dig in:
   design mockup, and means the whole window (not just its contents) follows
   the app's light/dark theme instead of the OS always drawing a plain white
   title bar regardless. Losing the native frame also loses the OS's own
-  resize cursors/border and (Windows 11) drop shadow/rounded corners; the
-  1px outline + resize-grip `MouseArea`s in `Main.qml` stand in for the
-  former, there's no attempt at the latter. The visual style of everything
-  *inside* the window is Qt Quick Controls' "Fusion" style (set in
-  `main.cpp` via `QQuickStyle::setStyle()`), chosen for a native-desktop
+  resize cursors/border and drop shadow; the resize-grip `MouseArea`s stand
+  in for the former. The shadow is repainted from QML instead of via a
+  native per-platform call, so it works the same on Windows/macOS/Linux:
+  the window itself is oversized by `shadowMargin` on every side and made
+  fully transparent (`color: "transparent"`), `frame` (a plain `Item`, not
+  `ApplicationWindow`'s own `header:`/`contentItem` slots — those always sit
+  flush against the window's *true* edges with no way to inset them) holds
+  the actual visible UI inset from those true edges by that same margin, and
+  a `MultiEffect` (see `DialogCard.qml`'s own comment for why MultiEffect
+  over a stacked-rectangle approximation) paints a real blurred drop shadow
+  into the resulting empty ring — all collapsing to zero while maximized,
+  same as a native window's shadow would. `frame`'s own 1px outline border
+  stands in for the lost native window border on top of that. The visual
+  style of everything *inside* the window is Qt Quick Controls' "Fusion"
+  style (set in `main.cpp` via `QQuickStyle::setStyle()`), chosen for a
+  native-desktop
   look rather than the touch-oriented default.
 - **Remote support is a UI placeholder, and currently unreachable besides.**
   Generating a session code/OTP and setting permissions all work (entirely

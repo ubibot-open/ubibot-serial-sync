@@ -21,6 +21,9 @@ Dialog {
     font.family: Theme.baseFontFamily
     font.pixelSize: Theme.baseFontSize
     background: DialogCard {}
+    // See ModalDim.qml -- keeps this modal's dimming out of the frameless
+    // main window's shadow-margin ring.
+    Overlay.modal: ModalDim {}
     header: Label {
         text: root.title
         font.bold: true

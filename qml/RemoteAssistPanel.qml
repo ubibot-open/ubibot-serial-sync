@@ -131,6 +131,9 @@ Flickable {
         // See DialogCard.qml for why this dialog needs its own elevated
         // surface + border + shadow instead of a plain Theme.background fill.
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: notImplementedDialog.title
             font.bold: true

@@ -1,11 +1,23 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Window
 import UbiBot
 
 ApplicationWindow {
     id: window
+
+    // Space around the visible UI reserved for the soft drop shadow (see
+    // `frame` below) to bleed into -- the window's own true OS-level bounds
+    // are this much bigger than what actually looks like "the window" on
+    // screen in every direction. Collapses to 0 while maximized (no room
+    // for a shadow then, and none is wanted -- a maximized window doesn't
+    // have one natively either).
+    readonly property int shadowMargin: 18
+    readonly property bool shadowActive: visibility !== Window.Maximized
+    readonly property int activeMargin: shadowActive ? shadowMargin : 0
+
     // Bumped from 1200x800 -- this session's own control-size/font-size/
     // spacing increases (bigger buttons, +2px spacing tokens, a larger
     // default base font, ...) grew the toolbar row's natural content width
@@ -13,45 +25,62 @@ ApplicationWindow {
     // the edge at that size (true when the "Open port" button still lived
     // here too, before it moved into the Port sidebar -- see
     // SerialSettingsPanel.qml). A modest bump gives that room back without
-    // the window opening noticeably larger on a normal desktop.
-    width: 1320
-    height: 860
+    // the window opening noticeably larger on a normal desktop. The extra
+    // `+ shadowMargin * 2` on every size below is new -- these four numbers
+    // used to describe the visible UI's own size directly, back when the
+    // window's true OS-level bounds and the visible UI's bounds were the
+    // same rectangle; now that `frame` (see below) sits inset from the
+    // window's real edges, the window itself has to be that much bigger so
+    // `frame` still ends up the same visible size as before.
+    width: 1320 + shadowMargin * 2
+    height: 860 + shadowMargin * 2
     // Nothing below stops the window from being dragged narrower/shorter
     // than this on its own -- the custom resize grips near the end of this
     // file call the real window.startSystemResize(), so minimumWidth/
     // minimumHeight are enforced by the OS during that drag exactly like a
-    // normal titled window's would be. Below ~860 the fixed-width sidebar
+    // normal titled window's would be. Below ~860 (visible-content terms;
+    // see the `+ shadowMargin * 2` note above) the fixed-width sidebar
     // (330px, home to the "Open port" button among other things) leaves the
     // icon toolbar/data monitor no room left to lay out in, and a language
-    // with longer translations
-    // squeezes the Serial/Device commands tab labels down to unreadable
-    // ellipsis well before that -- this is the width below which the layout
-    // has nowhere left to give, not a number tuned to look nice.
-    minimumWidth: 860
-    minimumHeight: 600
+    // with longer translations squeezes the Serial/Device commands tab
+    // labels down to unreadable ellipsis well before that -- this is the
+    // width below which the layout has nowhere left to give, not a number
+    // tuned to look nice.
+    minimumWidth: 860 + shadowMargin * 2
+    minimumHeight: 600 + shadowMargin * 2
     visible: true
     title: qsTr("UbiBot Serial Assistant")
-    color: Theme.background
+    // Transparent, not Theme.background -- this window now has real empty
+    // (alpha) space around `frame` for the shadow below to occupy, and a
+    // window can't selectively be "opaque here, see-through there": once
+    // any part of it needs to show the desktop through, the whole surface
+    // has to support per-pixel alpha. `frame` below draws its own opaque
+    // Theme.background fill first thing, so nothing that used to assume an
+    // opaque window backdrop (e.g. transparent-filled Rectangles layered on
+    // top of it) changed as far as they can tell.
+    color: "transparent"
 
     // Drops the OS-native title bar -- on Windows that's always a plain
     // white/system-colored strip no matter what theme the app itself is
     // in, so it stayed a jarring bright band above an otherwise fully dark
-    // UI. TitleBar below (declared as part of `header`) replaces it with
-    // one styled off Theme like everything else. The trade-off: Windows'
-    // own resize cursors/borders and (on Windows 11) the DWM drop
-    // shadow/rounded corners disappear along with the native frame -- the
-    // resizeGrip MouseAreas near the end of this file and TitleBar's own
-    // top-edge strip stand in for the resize borders, and the 1px outline
-    // Rectangles (one in the header block, three more near the resize
-    // grips) stand in for the lost native border -- without ANY visible
-    // edge, this window was impossible to tell apart from whatever sat
-    // directly behind it once that happened to be a similar color. There
-    // is still no attempt at reproducing the DWM drop shadow itself (a soft
-    // blur bleeding onto whatever's behind the window) -- that needs a
-    // translucent, oversized-past-its-own-content window, which would also
-    // need reworking how the resize grips/maximize above are positioned;
-    // a plain, solid outline was the lower-risk fix for "can't see the
-    // window's edge at all," which is the actual problem this solves.
+    // UI. TitleBar below replaces it with one styled off Theme like
+    // everything else. The trade-off: Windows' own resize cursors/borders
+    // and the DWM drop shadow disappear along with the native frame -- the
+    // resize-grip MouseAreas inside `frame` below stand in for the resize
+    // borders, `frame`'s own 1px outline stands in for the lost native
+    // border (without ANY visible edge, this window was impossible to tell
+    // apart from whatever sat directly behind it once that happened to be a
+    // similar color), and the shadowMargin/MultiEffect setup below stands in
+    // for the DWM shadow itself -- painted here in QML (a real, per-pixel
+    // alpha-blurred shadow via MultiEffect, not an approximation) rather
+    // than via a native per-platform call, since this app ships on
+    // Windows/macOS/Linux and a from-QML shadow is the one approach that
+    // doesn't need separate native code for each. This is also *why*
+    // `header:`/ApplicationWindow's own automatic content layout isn't used
+    // any more -- that mechanism always pins the header/content flush
+    // against the window's own true edges with no way to inset it, which is
+    // exactly what a shadow-margin window needs to not do; `frame` below
+    // (a plain child, manually laid out) replaces it.
     flags: Qt.Window | Qt.FramelessWindowHint
 
     // Fusion (set in main.cpp) is one of the few built-in styles that
@@ -79,7 +108,7 @@ ApplicationWindow {
     // text+icon buttons); the design's toolbar is a tight row of plain
     // 32x32 icon squares, so the toolbar below uses this instead of relying
     // on the style default. Inline components must live at the document's
-    // top level, hence declaring it here rather than inside `header:`.
+    // top level, hence declaring it here rather than inside `frame` below.
     component CompactToolButton: ToolButton {
         display: AbstractButton.IconOnly
         implicitWidth: 32
@@ -105,47 +134,17 @@ ApplicationWindow {
         implicitHeight: 32
         color: Theme.surface
 
-        // Thickness of the invisible top-edge/top-corner resize grips
-        // below -- matches Windows' own default resize-border thickness.
-        // These live here rather than alongside the left/right/bottom
-        // resize MouseAreas near the end of this file because this is the
-        // one strip of the window that sits *above* `contentItem` (which
-        // is what ApplicationWindow lays its other plain children into);
-        // contentItem's own top edge starts below this header, not at the
-        // window's true top, so a resize handle placed there could never
-        // reach row 0.
-        property int edgeGrip: 4
-
-        // Declared before the drag-to-move area below so the drag area's
-        // full-bar hit region doesn't steal these thin edge strips --
-        // later siblings win overlapping hit-tests, so these need to want
-        // it *less* than nothing here, i.e. come first and let something
-        // later override just this sliver. Order after this: drag area,
-        // then the caption buttons (which must win over the drag area
-        // wherever they overlap it).
-        MouseArea {
-            visible: window.visibility !== Window.Maximized
-            height: titleBar.edgeGrip
-            anchors { top: parent.top; left: parent.left; right: parent.right }
-            cursorShape: Qt.SizeVerCursor
-            onPressed: window.startSystemResize(Qt.TopEdge)
-        }
-        MouseArea {
-            visible: window.visibility !== Window.Maximized
-            width: titleBar.edgeGrip * 2
-            height: titleBar.edgeGrip * 2
-            anchors { top: parent.top; left: parent.left }
-            cursorShape: Qt.SizeFDiagCursor
-            onPressed: window.startSystemResize(Qt.TopEdge | Qt.LeftEdge)
-        }
-        MouseArea {
-            visible: window.visibility !== Window.Maximized
-            width: titleBar.edgeGrip * 2
-            height: titleBar.edgeGrip * 2
-            anchors { top: parent.top; right: parent.right }
-            cursorShape: Qt.SizeBDiagCursor
-            onPressed: window.startSystemResize(Qt.TopEdge | Qt.RightEdge)
-        }
+        // The top-edge/top-corner resize grips used to live here rather
+        // than alongside frame's other resize MouseAreas, back when this
+        // was the one strip of the window that sat *above* `contentItem`
+        // (what ApplicationWindow's automatic `header:` layout put a plain
+        // child's own top edge below, not at the window's true top). Now
+        // that TitleBar is just an ordinary first row inside `frame`'s own
+        // manually-laid-out content (see the `flags:` comment up top for
+        // why), there's no more coordinate-space split to work around --
+        // the top edge/corners moved out to sit with the other five grips
+        // (bottom/left/right + two bottom corners) instead, all uniformly
+        // relative to `frame` now.
 
         // Drag-to-move: covers the whole bar. startSystemMove() on a plain
         // press (not a drag gesture of our own) is the standard QtQuick
@@ -245,23 +244,48 @@ ApplicationWindow {
         }
     }
 
-    // menuBar/header used to be two separate ApplicationWindow slots (Qt
-    // stacks menuBar above header automatically) -- now that TitleBar
-    // needs to sit above *both* of them, they're combined into one
-    // `header:` ColumnLayout instead so the stacking order is explicit:
-    // TitleBar, then the menu row, then the icon toolbar.
-    header: Item {
-        id: headerRoot
-        // ColumnLayout below drives the actual size (title bar + menu +
-        // toolbar); this wrapper only exists so the border Rectangle at the
-        // bottom can anchors.fill it and get a real, non-zero size to draw
-        // into -- see that Rectangle's own comment for why it needs this.
-        implicitWidth: headerColumn.implicitWidth
-        implicitHeight: headerColumn.implicitHeight
+    // `frame` is everything that used to be split across ApplicationWindow's
+    // automatic `header:` slot and its plain `contentItem` children -- see
+    // the `flags:` comment up top for why that split is gone now (in short:
+    // `header:` always sits flush against the window's own true edges, with
+    // no way to inset it for shadowMargin). Manually laid out here instead:
+    // one ColumnLayout with the title bar/menu/toolbar block as its first
+    // row and the existing body content (sidebar + data monitor) as its
+    // second, wrapped in a plain Item sized `activeMargin` in from the
+    // window's real edges on all four sides.
+    Rectangle {
+        id: frameBackdrop
+        anchors.fill: frame
+        // Itself invisible -- drawn only *through* the MultiEffect below
+        // (same reasoning as DialogCard.qml's own `card`: MultiEffect
+        // already renders an unmodified copy of its `source` plus the
+        // shadow behind it, so drawing this a second time on top would be
+        // redundant; staying invisible doesn't stop it from being a valid
+        // effect source, see DialogCard.qml's comment for why).
+        //
+        // What it's actually for: frame's own children each paint their
+        // own opaque backgrounds already (Theme.surface for the header
+        // block, Theme.background/surface for the body panels below) --
+        // this exists only as an opaque backstop behind the handful of
+        // deliberately `color: "transparent"` Rectangles among them (the
+        // sidebar container, the status-bar strip, ...), which used to see
+        // `window.color`'s own opaque Theme.background showing through
+        // directly. Now that window.color is "transparent" (see above),
+        // nothing sits behind `frame` any more unless this does.
+        visible: false
+        color: Theme.background
+    }
+
+    Item {
+        id: frame
+        anchors.fill: parent
+        anchors.margins: window.activeMargin
 
         ColumnLayout {
             id: headerColumn
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
             spacing: 0
 
             TitleBar { Layout.fillWidth: true }
@@ -384,38 +408,19 @@ ApplicationWindow {
             }
         } // headerColumn
 
-        // Top/left/right of the window-perimeter border -- see the
-        // `flags:` comment above: going frameless dropped the OS's own
-        // window border/drop shadow along with its title bar, and without
-        // some edge of its own this window visually disappears into
-        // whatever's directly behind it once that happens to be a similar
-        // color. Declared last (topmost, as a sibling of headerColumn
-        // rather than a child of it -- a plain child of a ColumnLayout
-        // with no Layout.fillWidth/fillHeight of its own collapses to a
-        // 0x0 cell and draws nothing, which is what silently broke this
-        // before) and anchored to fill headerRoot, which is sized to this
-        // whole header block (title bar + menu + toolbar together, the one
-        // region that reaches the window's true top edge) rather than
-        // window-level, for the same reason the resize grips are split the
-        // same way -- window's own plain children only reach down to
-        // contentItem, which starts below all of this. The matching
-        // left/right/bottom pieces below (window-level, reaching
-        // contentItem's true edges) pick up exactly where this leaves off,
-        // tracing one continuous outline with no gap at the seam.
-        // transparent fill + border-only, so it doesn't intercept clicks
-        // meant for the title bar buttons/menu/toolbar underneath.
-        Rectangle {
-            anchors.fill: parent
-            visible: window.visibility !== Window.Maximized
-            color: "transparent"
-            border.color: Theme.dialogBorder
-            border.width: 1
-        }
-    } // headerRoot
-
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
+        // Body: sidebar + data monitor, filling everything below the
+        // title/menu/toolbar block above. Used to be `anchors.fill: parent`
+        // as its own separate plain child of the window (contentItem's only
+        // real content, everything above having lived in the `header:`
+        // slot instead) -- now that both live inside `frame` together, this
+        // is anchored to headerColumn's own bottom instead of independently
+        // filling its parent, so the two stack without overlapping.
+        ColumnLayout {
+            anchors.top: headerColumn.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            spacing: 0
 
         // --- body: left mode-specific panel + right data monitor -------------
         RowLayout {
@@ -737,79 +742,124 @@ ApplicationWindow {
                 }
             }
         }
-    }
+        } // closes the body ColumnLayout (re-anchored below headerColumn, see its own comment above)
 
-    // --- frameless-window resize grips ------------------------------------
-    // Stand in for the native resize borders lost along with the OS frame
-    // (see the `flags:` comment above). These cover left/right/bottom plus
-    // their two bottom corners; the top edge and its two corners are
-    // handled inside TitleBar instead, since this window's actual content
-    // area (what plain children like these get placed into) starts below
-    // the header, not at the window's true top.
+        // --- frameless-window resize grips ----------------------------------
+        // Stand in for the native resize borders lost along with the OS frame
+        // (see the `flags:` comment up top). All eight (four edges, four
+        // corners) are relative to `frame` now -- there's no more
+        // header/contentItem coordinate-space split to work around (see
+        // TitleBar's own comment, where the top-edge/top-corner three of
+        // these used to live instead).
+        MouseArea {
+            visible: window.shadowActive
+            height: window.resizeGrip
+            anchors { top: parent.top; left: parent.left; right: parent.right }
+            cursorShape: Qt.SizeVerCursor
+            onPressed: window.startSystemResize(Qt.TopEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            height: window.resizeGrip
+            anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+            cursorShape: Qt.SizeVerCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip
+            anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+            cursorShape: Qt.SizeHorCursor
+            onPressed: window.startSystemResize(Qt.LeftEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip
+            anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+            cursorShape: Qt.SizeHorCursor
+            onPressed: window.startSystemResize(Qt.RightEdge)
+        }
+        // Corners declared after the edges above so they win the overlapping
+        // hit-test area (later siblings take hit-test priority).
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip * 2
+            height: window.resizeGrip * 2
+            anchors { top: parent.top; left: parent.left }
+            cursorShape: Qt.SizeFDiagCursor
+            onPressed: window.startSystemResize(Qt.TopEdge | Qt.LeftEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip * 2
+            height: window.resizeGrip * 2
+            anchors { top: parent.top; right: parent.right }
+            cursorShape: Qt.SizeBDiagCursor
+            onPressed: window.startSystemResize(Qt.TopEdge | Qt.RightEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip * 2
+            height: window.resizeGrip * 2
+            anchors { bottom: parent.bottom; left: parent.left }
+            cursorShape: Qt.SizeBDiagCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge | Qt.LeftEdge)
+        }
+        MouseArea {
+            visible: window.shadowActive
+            width: window.resizeGrip * 2
+            height: window.resizeGrip * 2
+            anchors { bottom: parent.bottom; right: parent.right }
+            cursorShape: Qt.SizeFDiagCursor
+            onPressed: window.startSystemResize(Qt.BottomEdge | Qt.RightEdge)
+        }
+
+        // Whole-window perimeter border -- see the `flags:` comment up top:
+        // going frameless dropped the OS's own window border/drop shadow
+        // along with its title bar, and without some edge of its own this
+        // window visually disappears into whatever's directly behind it
+        // once that happens to be a similar color. One single Rectangle
+        // now (used to be split into a header piece + three more at
+        // window level, purely because `header:`/contentItem were
+        // different coordinate spaces) -- declared last (topmost) so it
+        // draws over the content, transparent fill + border-only so it
+        // doesn't intercept clicks meant for anything underneath.
+        Rectangle {
+            anchors.fill: parent
+            visible: window.shadowActive
+            color: "transparent"
+            border.color: Theme.dialogBorder
+            border.width: 1
+        }
+    } // frame
+
     readonly property int resizeGrip: 4
 
-    MouseArea {
-        visible: window.visibility !== Window.Maximized
-        height: window.resizeGrip
-        anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-        cursorShape: Qt.SizeVerCursor
-        onPressed: window.startSystemResize(Qt.BottomEdge)
-    }
-    MouseArea {
-        visible: window.visibility !== Window.Maximized
-        width: window.resizeGrip
-        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-        cursorShape: Qt.SizeHorCursor
-        onPressed: window.startSystemResize(Qt.LeftEdge)
-    }
-    MouseArea {
-        visible: window.visibility !== Window.Maximized
-        width: window.resizeGrip
-        anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
-        cursorShape: Qt.SizeHorCursor
-        onPressed: window.startSystemResize(Qt.RightEdge)
-    }
-    // Corners declared after the edges above so they win the overlapping
-    // hit-test area (later siblings take hit-test priority).
-    MouseArea {
-        visible: window.visibility !== Window.Maximized
-        width: window.resizeGrip * 2
-        height: window.resizeGrip * 2
-        anchors { bottom: parent.bottom; left: parent.left }
-        cursorShape: Qt.SizeBDiagCursor
-        onPressed: window.startSystemResize(Qt.BottomEdge | Qt.LeftEdge)
-    }
-    MouseArea {
-        visible: window.visibility !== Window.Maximized
-        width: window.resizeGrip * 2
-        height: window.resizeGrip * 2
-        anchors { bottom: parent.bottom; right: parent.right }
-        cursorShape: Qt.SizeFDiagCursor
-        onPressed: window.startSystemResize(Qt.BottomEdge | Qt.RightEdge)
-    }
-
-    // Left/right/bottom of the window-perimeter border -- picks up exactly
-    // where the header's own top/left/right piece leaves off (see that
-    // comment for the full explanation); these three reach contentItem's
-    // true left/right/bottom edges, which do line up with the window's own,
-    // unlike contentItem's top.
-    Rectangle {
-        visible: window.visibility !== Window.Maximized
-        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-        width: 1
-        color: Theme.dialogBorder
-    }
-    Rectangle {
-        visible: window.visibility !== Window.Maximized
-        anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
-        width: 1
-        color: Theme.dialogBorder
-    }
-    Rectangle {
-        visible: window.visibility !== Window.Maximized
-        anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-        height: 1
-        color: Theme.dialogBorder
+    // The actual drop shadow -- MultiEffect draws frameBackdrop's alpha
+    // silhouette (a plain opaque rectangle the same size/position as
+    // `frame`, see its own comment above) blurred and offset behind it, a
+    // real per-pixel blur rather than an approximation. Same technique
+    // DialogCard.qml uses for every dialog/popup's own shadow; see that
+    // file's comment for why MultiEffect over the older stacked-rectangle
+    // trick. Hidden (not just zero-opacity -- no reason to keep it costing
+    // anything) whenever `frame` itself has no margin to cast a shadow
+    // into, i.e. while maximized.
+    MultiEffect {
+        anchors.fill: frameBackdrop
+        source: frameBackdrop
+        visible: window.shadowActive
+        autoPaddingEnabled: true
+        shadowEnabled: true
+        shadowColor: "black"
+        shadowOpacity: 0.35
+        shadowBlur: 0.6
+        shadowHorizontalOffset: 0
+        shadowVerticalOffset: 3
+        // frameBackdrop and frame are both declared *before* this in the
+        // document, so without an explicit z this (declared later) would
+        // win the default paint order and cover frame's own real content
+        // instead of sitting behind it -- z: -1 overrides that.
+        z: -1
     }
 
     // --- dialogs ---------------------------------------------------------
@@ -830,6 +880,9 @@ ApplicationWindow {
         // See DialogCard.qml for why this dialog needs its own elevated
         // surface + border + shadow instead of a plain Theme.background fill.
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: portErrorDialog.title
             font.bold: true

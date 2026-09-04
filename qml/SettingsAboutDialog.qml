@@ -25,6 +25,9 @@ Dialog {
     // See DialogCard.qml for why this dialog needs its own elevated
     // surface + border + shadow instead of a plain Theme.background fill.
     background: DialogCard {}
+    // See ModalDim.qml -- keeps this modal's dimming out of the frameless
+    // main window's shadow-margin ring.
+    Overlay.modal: ModalDim {}
     // Same rebind gap as `background` above, but for the title strip --
     // Fusion's default Dialog header is its own separately-drawn piece.
     // Uses Theme.surface (not Theme.background) to match DialogCard's fill
@@ -291,6 +294,9 @@ Dialog {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
+        // See ModalDim.qml -- keeps this modal's dimming out of the
+        // frameless main window's shadow-margin ring.
+        Overlay.modal: ModalDim {}
         header: Label {
             text: updateResultDialog.title
             font.bold: true
