@@ -255,7 +255,19 @@ Flickable {
             // button in the sidebar instead of one more control among many.
             background: Rectangle {
                 radius: 3
-                color: openPortButton.pressed || openPortButton.hovered ? Theme.accent700 : Theme.accent
+                // Per user feedback, an already-open port needs its own look
+                // here, not just its own label -- Theme.error (the same red
+                // already used elsewhere for "needs attention", e.g. the
+                // toolbar's connection-status dot) reads as "click to stop/
+                // close" the way a recording-style red button usually does,
+                // clearly distinct from the blue "click to start" look below
+                // at a glance. Qt.darker() for hover/press since there's no
+                // ready-made "emphasized" variant of Theme.error the way
+                // accent700 is for Theme.accent.
+                readonly property color base: AppController.portOpen ? Theme.error : Theme.accent
+                color: openPortButton.pressed || openPortButton.hovered
+                       ? (AppController.portOpen ? Qt.darker(base, 1.2) : Theme.accent700)
+                       : base
             }
             contentItem: Text {
                 text: openPortButton.text
