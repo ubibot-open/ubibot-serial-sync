@@ -143,6 +143,10 @@ and Linux, all produced automatically on every tagged release — see
   published by CI from a clean checkout, not hand-assembled on someone's
   laptop.
 
+## Contributing
+
+See the [org-wide CONTRIBUTING.md](https://github.com/ubibot-open/.github/blob/main/CONTRIBUTING.md).
+
 ## License
 
 This project is licensed under the **GNU Lesser General Public License v3.0
