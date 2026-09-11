@@ -17,15 +17,10 @@ Dialog {
     modal: true
     anchors.centerIn: Overlay.overlay
     width: 440
-    // Dialogs don't reliably inherit ApplicationWindow's own palette/font --
-    // see Theme.qml's file-level comment -- so both need the explicit
-    // assignment here too, same as every other standalone Dialog/Popup.
     palette: Theme.palette
     font.family: Theme.baseFontFamily
     font.pixelSize: Theme.baseFontSize
     background: DialogCard {}
-    // See ModalDim.qml -- keeps this modal's dimming out of the frameless
-    // main window's shadow-margin ring.
     Overlay.modal: ModalDim {}
     header: Label {
         text: root.title
@@ -109,16 +104,7 @@ Dialog {
                     onLinkActivated: (link) => Qt.openUrlExternally(link)
                 }
             }
-
             Rectangle { Layout.fillWidth: true; height: 1; color: Theme.divider }
-
-            // See README.md's "License"/"Qt 6 module licensing" sections for
-            // the full compatibility check this summarizes -- every Qt
-            // module this app actually links against ships under LGPLv3
-            // (same as this project itself), and the release process
-            // (windeployqt) links Qt dynamically rather than statically, so
-            // end users can substitute a compatible Qt build per LGPLv3
-            // §4(d) without this app needing a Qt commercial license.
             Label {
                 Layout.fillWidth: true
                 wrapMode: Text.WordWrap

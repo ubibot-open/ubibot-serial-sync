@@ -42,19 +42,10 @@ Item {
             color: Theme.textMuted
         }
 
-        // Was a "Port · PORT" picker (PortComboBox) here too, shared with
-        // the "Serial" panel's own one -- this panel doesn't drive the port
-        // connection at all anymore (see the row-click handler below), so
-        // a port picker here just implied a connection this tab has
-        // nothing to do with. Pick/open the port from the "Serial" panel;
-        // this one is purely for finding a command's text.
         TextField {
             id: searchField
             Layout.fillWidth: true
             placeholderText: qsTr("Search commands")
-            // Fusion's default placeholder color barely shows up against
-            // this field's dark-mode background -- see Main.qml's
-            // inputField for the same fix.
             placeholderTextColor: Theme.textMuted
             text: AppController.commandModel.searchText
             onTextChanged: AppController.commandModel.searchText = text
@@ -84,45 +75,15 @@ Item {
 
                 width: listView.width
                 height: 56
-                // Rises above sibling rows while being dragged so it draws
-                // over them instead of underneath as it moves past.
                 z: dragArea.drag.active ? 2 : 0
                 color: dragArea.containsMouse ? Qt.rgba(0, 0, 0, 0.04) : "transparent"
-
-                // Set on press, checked in onClicked -- distinguishes an
-                // actual drag from a plain click, both of which end in a
-                // MouseArea release. Without this, dropping a dragged row
-                // would also fire the click behavior below (load it into
-                // the send box) since the press and release both still
-                // land inside this MouseArea's bounds (it moves with the
-                // row it's dragging).
                 property bool dragMoved: false
-                // Row index captured when the drag started -- moveRow()'s
-                // "from" argument on release. Not just `index` at drop time:
-                // nothing reorders the model *during* the drag (see below),
-                // so index stays exactly this value throughout the whole
-                // gesture anyway, but capturing it explicitly reads clearer
-                // than relying on that.
                 property int dragStartIndex: -1
-
-                // Reordering only touches the *currently displayed* set of
-                // rows (see moveRow()'s doc comment) -- disabled while a
-                // search filter is narrowing that set, so a drag can't
-                // quietly drop every non-matching row to the bottom of the
-                // saved order.
                 readonly property bool reorderable: searchField.text.length === 0
-
-                // Declared before the right-click MouseArea/context menu
-                // below, so those take priority for their own button/area
-                // over this one's left-click/drag handling.
                 MouseArea {
                     id: dragArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    // Otherwise the ListView (a Flickable) steals the
-                    // gesture as a flick/scroll the moment it exceeds the
-                    // platform's drag threshold, cutting the reorder drag
-                    // short.
                     preventStealing: true
                     drag.target: delegateRoot.reorderable ? delegateRoot : null
                     drag.axis: Drag.YAxis
@@ -134,63 +95,23 @@ Item {
                         delegateRoot.dragStartIndex = delegateRoot.index
                     }
                     onPositionChanged: (mouse) => {
-                        // Purely visual while the drag is in progress --
-                        // moving the underlying model live (once per row
-                        // the drag passes over) sounds nicer but actually
-                        // fights this same `drag.target` override: every
-                        // moveRow() makes the ListView re-lay-out, which
-                        // reasserts every delegate's position (including
-                        // this dragged one) and stomps on the manual `y`
-                        // drag.target had just set, snapping the drag back
-                        // to wherever the view thinks index*height belongs
-                        // *before* the next mouse-move event can re-drag it.
-                        // Committing once on release avoids that fight.
                         if (drag.active) delegateRoot.dragMoved = true
                     }
                     onReleased: {
                         if (delegateRoot.dragMoved) {
-                            // Rows are a fixed, uniform height with no
-                            // spacing/section headers, so the dragged
-                            // item's own final y position converts straight
-                            // to a target row index -- no dependency on
-                            // ListView.indexAt(), which needs the mapped
-                            // point to land within an actual delegate's
-                            // hit-test bounds and was unreliable right at a
-                            // row's edge.
                             const targetIndex = Math.max(0, Math.min(listView.count - 1,
                                 Math.round(delegateRoot.y / delegateRoot.height)))
                             if (targetIndex !== delegateRoot.dragStartIndex)
                                 AppController.moveCommandRow(delegateRoot.dragStartIndex, targetIndex)
                         }
-                        // Snap back into the position the ListView itself
-                        // assigns this index -- rows are a fixed height with
-                        // no spacing/section headers, so that's just
-                        // index * height. Needed whether or not the drag
-                        // actually moved anything: `index` itself may have
-                        // changed (moveCommandRow above), or the item may
-                        // just need releasing back to its unchanged spot.
                         delegateRoot.y = delegateRoot.index * delegateRoot.height
                     }
                     onClicked: {
                         if (delegateRoot.dragMoved) return
-                        // The device command library is just a quick way to
-                        // find a command's text, not to fire it at the
-                        // port -- every row stages its text into the
-                        // manual-send box for the user to review/edit and
-                        // send themselves. Params-bearing commands go
-                        // through the params panel first so the user can
-                        // fill in <key> values before it lands in the box.
                         if (delegateRoot.hasParams) root.openParams(delegateRoot.index)
                         else AppController.loadCommandIntoDraft(delegateRoot.index)
                     }
                 }
-
-                // "My templates" rows only -- edit/delete used to be a
-                // permanent pair of buttons on every custom row, which read
-                // as cluttered; a right-click menu (same pattern as
-                // DataMonitorView.qml's own context menu) keeps the row
-                // itself identical to a bundled command until you actually
-                // want to manage it.
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton
@@ -249,11 +170,6 @@ Item {
         }
     }
 
-    // Add/edit form for "My templates" -- a plain {name, content} pair with
-    // no protocol/params concept (see CommandListModel::addCustomTemplate).
-    // Nested here rather than a separate file/registered top-level dialog,
-    // since only this panel ever opens it -- same reasoning as
-    // SettingsAboutDialog's own nested updateResultDialog.
     Dialog {
         id: templateDialog
         title: editRow >= 0 ? qsTr("Edit template") : qsTr("New template")
@@ -264,8 +180,6 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
-        // See ModalDim.qml -- keeps this modal's dimming out of the
-        // frameless main window's shadow-margin ring.
         Overlay.modal: ModalDim {}
         header: Label {
             text: templateDialog.title
@@ -294,12 +208,6 @@ Item {
                 }
             }
         }
-
-        // -1 means "creating a new template"; otherwise the row index
-        // (captured when "Edit" was clicked) to update on save. Safe to
-        // hold across the dialog's whole open/save lifetime since it's
-        // modal -- nothing in this panel can reorder/refilter the list
-        // while it has focus to invalidate that index.
         property int editRow: -1
 
         function openForNew() {
@@ -340,14 +248,6 @@ Item {
         }
     }
 
-    // "Batch commands" management -- lists the user's saved batches (each a
-    // named sequence of {text, isHex, crc} steps plus a send interval), with
-    // play/stop, edit, and delete. Nested here (not a separate top-level
-    // file) for the same reasoning as templateDialog above: only this panel
-    // ever opens it. Starting/stopping a batch is a plain AppController call
-    // (startBatchCommand/stopBatchCommand own the actual send timer) so a
-    // run keeps going even if this dialog is closed mid-send -- runningBatchRow/
-    // batchProgressText below reflect that live regardless of who started it.
     Dialog {
         id: batchListDialog
         title: qsTr("Batch commands")
@@ -359,8 +259,6 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
-        // See ModalDim.qml -- keeps this modal's dimming out of the
-        // frameless main window's shadow-margin ring.
         Overlay.modal: ModalDim {}
         header: Label {
             text: batchListDialog.title
@@ -401,13 +299,6 @@ Item {
                     required property string name
                     required property int stepCount
                     required property int intervalMs
-
-                    // Whether this row is the one AppController is actively
-                    // sending -- compared by row index since batchCommandModel
-                    // has no reorder feature (add always appends, remove is
-                    // the only thing that can shift indices, and
-                    // AppController.removeBatchCommand keeps runningBatchRow
-                    // pointing at the right row when that happens).
                     readonly property bool running: batchDelegate.index === AppController.runningBatchRow
 
                     width: batchListView.width
@@ -482,12 +373,6 @@ Item {
         }
     }
 
-    // Add/edit form for one batch command -- name, send interval, and a
-    // dynamic list of steps (each its own literal text + ASCII/HEX + CRC
-    // option, independent of the app-wide sendAsHex/crcEnabled toggles --
-    // see core/batch_command.h). stepsModel is a plain ListModel (not a JS
-    // array) specifically so each step row's fields can be mutated in place
-    // via setProperty() without rebuilding the whole list on every keystroke.
     Dialog {
         id: batchEditDialog
         title: editRow >= 0 ? qsTr("Edit batch command") : qsTr("New batch command")
@@ -499,8 +384,6 @@ Item {
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
         background: DialogCard {}
-        // See ModalDim.qml -- keeps this modal's dimming out of the
-        // frameless main window's shadow-margin ring.
         Overlay.modal: ModalDim {}
         header: Label {
             text: batchEditDialog.title
@@ -518,12 +401,6 @@ Item {
             Button {
                 text: qsTr("Save")
                 palette: Theme.palette
-                // Only checks step *count* -- a step whose text is still
-                // blank is legal to click Save with (see onClicked below,
-                // which just leaves the dialog open rather than silently
-                // discarding it), since tracking "does any row have real
-                // text" reactively would need each row's own binding to
-                // reach back out to this button.
                 enabled: batchNameField.text.trim().length > 0 && stepsModel.count > 0
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
                 onClicked: {

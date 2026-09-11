@@ -22,15 +22,8 @@ Flickable {
     readonly property int selectedParity: parityCombo.currentValue
     readonly property int selectedStopBits: stopBitsCombo.currentValue
     readonly property int selectedFlowControl: flowCombo.currentValue
-    // Purely a display concern (no serial behavior implied), so it lives
-    // entirely in QML rather than round-tripping through AppController.
     property bool wrapLines: true
 
-    // Called both at startup and on every language change. The combos' data
-    // (QSerialPort enum values) doesn't depend on language, only the
-    // labels do -- so this preserves whatever the user already picked by
-    // value, re-locating it in the freshly-relabeled model, instead of
-    // resetting every field to its default each time the language changes.
     function rebuildOptions() {
         const previousDataBits = dataBitsCombo.currentValue
         const previousParity = parityCombo.currentValue
@@ -48,20 +41,9 @@ Flickable {
         flowCombo.currentIndex = previousFlowControl !== undefined ? flowCombo.indexOfValue(previousFlowControl) : 0
     }
 
-    // See docs/device-json-protocol-schema.md#5 -- selecting a model with a
-    // "serial" block in devices.json unconditionally overwrites these
-    // fields with its recommended values, regardless of whatever the user
-    // had picked before. A model without one (every existing AT device)
-    // leaves these fields untouched.
     function applyModelSerialDefaults() {
         const d = AppController.serialDefaultsForModel(AppController.currentModelId)
         if (!d.present) return
-        // baudCombo is selection-only (see its own comment below) -- find()
-        // returns -1 (a blank/unselected box) for a rate that isn't one of
-        // SerialOptions.baudRateOptions()'s fixed choices. Every model
-        // shipped in devices.json today recommends 115200, which is one of
-        // them; a future model recommending something else would need that
-        // rate added to the fixed list too, or it'd show up unselected here.
         baudCombo.currentIndex = baudCombo.find(String(d.baudRate))
         dataBitsCombo.currentIndex = dataBitsCombo.indexOfValue(d.dataBits)
         parityCombo.currentIndex = parityCombo.indexOfValue(d.parity)
@@ -76,15 +58,9 @@ Flickable {
     }
     Component.onCompleted: {
         rebuildOptions()
-        // Covers the case where the app starts up already on a model that
-        // has serial defaults (e.g. it was the last one selected).
         applyModelSerialDefaults()
     }
 
-    // Design lays these three groups out as flat sections -- a small-caps
-    // heading directly above its rows, no surrounding border/box -- rather
-    // than GroupBox's bordered frame, so the heading style is hand-rolled
-    // to match instead of relying on GroupBox.title.
     component SectionHeading: Label {
         Layout.fillWidth: true
         Layout.topMargin: 8
@@ -92,38 +68,6 @@ Flickable {
         font.letterSpacing: 1
         color: Theme.textMuted
     }
-
-    // The Port/Baud rate/.../Flow control label column below used to pin
-    // every row to a fixed Layout.preferredWidth: 70 -- comfortably wide
-    // enough for the English/Chinese originals, but some of this app's
-    // other shipped languages translate these into noticeably longer
-    // words/phrases ("Flow control" -> "Управление потоком" in Russian,
-    // say), which just got clipped at that fixed width.
-    //
-    // Letting the column auto-size to its widest label (no preferredWidth
-    // at all) fixed that clipping, but only traded it for a worse one: this
-    // sidebar's own width is fixed (Main.qml), so a label wide enough to
-    // want more room than the sidebar has just takes it from the combo box
-    // next to it -- which is how "no margin left, and the label text still
-    // ran past the sidebar's own edge" showed up for Russian. A label
-    // column can borrow space from its neighbor; it can't invent space the
-    // sidebar doesn't have.
-    //
-    // maximumWidth is the actual fix: it caps how far GridLayout will *let*
-    // the column grow, guaranteeing the combo box column always keeps a
-    // livable minimum regardless of translation length. elide is what
-    // makes that cap safe to hit -- past it, the label truncates with an
-    // ellipsis instead of overflowing the column GridLayout capped it at.
-    //
-    // Deliberately no Layout.fillWidth here -- that would make this label
-    // compete with the combo box column for GridLayout's leftover space,
-    // and once the label maxes out at 120 that offered share doesn't get
-    // handed back to the combo box, it just goes unused -- the dead gap
-    // (and lost right-edge margin) reported after the first version of
-    // this fix. Left at its own natural (short-text) or capped
-    // (long-text) size, every bit of leftover space in the row goes to the
-    // combo box's own fillWidth instead, same as before this label column
-    // needed a cap at all.
     component RowLabel: Label {
         Layout.maximumWidth: 120
         Layout.minimumWidth: 80
@@ -164,31 +108,12 @@ Flickable {
                 PortComboBox {
                     id: portCombo
                     Layout.fillWidth: true
-                    // No "fall back to row 0 when the name doesn't match
-                    // anything" here on purpose (there used to be one) --
-                    // AppController.selectedPortName is now the single
-                    // source of truth for which port is picked, kept
-                    // reconciled against the live port list by
-                    // AppController::reconcileSelectedPort() (see
-                    // app_controller.cpp): it already clears itself when
-                    // the port it named disappears, and already fills
-                    // itself in with a newly-appeared port when nothing was
-                    // selected. Re-adding a QML-side fallback here would
-                    // just let this combo show a port AppController itself
-                    // doesn't think is selected -- exactly the "silently
-                    // jumped to some other port" behavior that logic exists
-                    // to avoid.
                     currentIndex: AppController.portListModel.indexOfPortName(AppController.selectedPortName)
                     onActivated: AppController.selectedPortName = AppController.portListModel.portNameAt(currentIndex)
                 }
                 ToolButton {
                     icon.source: "qrc:/icons/refresh.svg"
                     icon.color: Theme.text
-                    // Goes through AppController.refreshPorts() (not
-                    // AppController.portListModel.refresh() directly) so a
-                    // manual click reconciles the current selection exactly
-                    // like the automatic poll does -- see
-                    // AppController::refreshPorts()'s own comment.
                     onClicked: AppController.refreshPorts()
                 }
             }
@@ -207,8 +132,6 @@ Flickable {
                 Layout.fillWidth: true
                 textRole: "label"
                 valueRole: "value"
-                // Initial selection (and re-selection after a language
-                // change) is handled by rebuildOptions().
             }
 
             RowLabel { text: qsTr("Parity") }
@@ -235,15 +158,6 @@ Flickable {
                 valueRole: "value"
             }
         }
-
-        // Open/close port, right under the settings that determine what it
-        // connects with -- per user feedback, having this button on the
-        // opposite side of the window (the toolbar) from the port settings
-        // it depends on meant a "pick port settings, then reach across to
-        // the far side to open it" motion every time. Deliberately outside
-        // the GridLayout above (which disables itself while the port is
-        // open) since this button must stay clickable either way -- it's
-        // also how the user closes an already-open port.
         Button {
             id: openPortButton
             text: AppController.portOpen ? qsTr("Close port") : qsTr("Open port")
@@ -251,22 +165,8 @@ Flickable {
             Layout.fillWidth: true
             Layout.topMargin: 4
             Layout.preferredHeight: 44
-            // Fusion's default "highlighted" look wasn't enough to make this
-            // stand out from the settings above it -- per user feedback it
-            // read as just another row in the panel. An explicit fill (plus
-            // the taller height above) makes it read as the one actionable
-            // button in the sidebar instead of one more control among many.
             background: Rectangle {
                 radius: 3
-                // Per user feedback, an already-open port needs its own look
-                // here, not just its own label -- Theme.error (the same red
-                // already used elsewhere for "needs attention", e.g. the
-                // toolbar's connection-status dot) reads as "click to stop/
-                // close" the way a recording-style red button usually does,
-                // clearly distinct from the blue "click to start" look below
-                // at a glance. Qt.darker() for hover/press since there's no
-                // ready-made "emphasized" variant of Theme.error the way
-                // accent700 is for Theme.accent.
                 readonly property color base: AppController.portOpen ? Theme.error : Theme.accent
                 color: openPortButton.pressed || openPortButton.hovered
                        ? (AppController.portOpen ? Qt.darker(base, 1.2) : Theme.accent700)
@@ -331,18 +231,9 @@ Flickable {
                 onToggled: AppController.repeatSendEnabled = checked
             }
             SpinBox {
-                // Deliberately not tied to repeatSendEnabled -- per user
-                // feedback, the interval should be settable *before*
-                // ticking "Repeat send" on, not only after, so someone
-                // enabling the feature doesn't have to fight a disabled
-                // field first.
                 from: 0
                 to: 3600000
                 stepSize: 50
-                // SpinBox defaults to editable: false (arrows/scroll only,
-                // no typing) -- per user feedback, that's the only way to
-                // reach an interval right now. IntValidator (Fusion's own
-                // SpinBox.qml) still enforces the from/to range either way.
                 editable: true
                 value: AppController.repeatIntervalMs
                 onValueModified: AppController.repeatIntervalMs = value

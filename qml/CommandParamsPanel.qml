@@ -77,9 +77,6 @@ Rectangle {
                     TextField {
                         Layout.fillWidth: true
                         placeholderText: modelData.hint
-                        // Fusion's default placeholder color barely shows up
-                        // against this field's dark-mode background -- see
-                        // Main.qml's inputField for the same fix.
                         placeholderTextColor: Theme.textMuted
                         text: root.values[modelData.key] !== undefined ? root.values[modelData.key] : ""
                         font.family: Theme.monoFont
@@ -100,10 +97,6 @@ Rectangle {
                 Layout.fillWidth: true
             }
             Button {
-                // Was "Send" -- this panel (like the rest of the device
-                // command library) only stages text into the manual-send
-                // box now, it doesn't write to the port itself. See
-                // AppController::loadCommandWithParamsIntoDraft.
                 text: qsTr("Insert")
                 highlighted: true
                 onClicked: {

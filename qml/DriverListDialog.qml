@@ -24,8 +24,6 @@ Dialog {
     font.family: Theme.baseFontFamily
     font.pixelSize: Theme.baseFontSize
     background: DialogCard {}
-    // See ModalDim.qml -- keeps this modal's dimming out of the frameless
-    // main window's shadow-margin ring.
     Overlay.modal: ModalDim {}
     header: Label {
         text: root.title
@@ -42,12 +40,6 @@ Dialog {
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
     }
-
-    // Re-read every time the dialog opens rather than bound live -- install
-    // state itself is only ever checked once per process (see
-    // AppController.ch340DriverInstalled), so there's nothing to react to
-    // mid-session; onAboutToShow just avoids paying for the (cheap, but
-    // non-zero) file-existence checks while the dialog isn't even open.
     property var drivers: []
     onAboutToShow: drivers = AppController.availableDrivers()
 
@@ -97,9 +89,6 @@ Dialog {
 
                     Button {
                         text: qsTr("Download")
-                        // Hidden (not disabled) when this platform has no
-                        // known link for this driver -- same reasoning as
-                        // DriverHintDialog.qml's own Download button.
                         visible: driverRow.modelData.url.length > 0
                         onClicked: Qt.openUrlExternally(driverRow.modelData.url)
                     }

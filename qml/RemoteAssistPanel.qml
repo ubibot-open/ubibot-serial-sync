@@ -6,16 +6,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import UbiBot
 
-// Left-hand panel for "Remote support" mode.
-//
-// NOTE: this is a UI placeholder, same as the old Widgets version. The
-// design calls for a support agent to enter a code and connect directly to
-// this app, which needs a relay/signaling server or a peer-to-peer
-// transport -- neither exists yet. Everything here (code/OTP generation,
-// permission toggles) is cosmetic local state; "Start session" says so
-// explicitly instead of pretending to connect anyone. There's no backend
-// logic to speak of, so unlike the other panels this one has no
-// AppController involvement at all.
+
 Flickable {
     id: root
     contentWidth: width
@@ -94,11 +85,7 @@ Flickable {
                 }
             }
         }
-
-        // Off-screen helper: QML has no clipboard API of its own, but a
-        // hidden TextEdit's copy() does the job without any C++.
         TextEdit { id: clipboardHelper; visible: false }
-
         Label { text: qsTr("One-time password"); font.pixelSize: Theme.baseFontSize; color: Theme.textMuted }
         TextField {
             Layout.fillWidth: true
@@ -119,7 +106,6 @@ Flickable {
             Layout.fillWidth: true
             onClicked: notImplementedDialog.open()
         }
-
         Label { text: qsTr("Not connected"); font.pixelSize: Theme.baseFontSize - 1; color: Theme.textMuted }
     }
 
@@ -131,11 +117,7 @@ Flickable {
         palette: Theme.palette
         font.family: Theme.baseFontFamily
         font.pixelSize: Theme.baseFontSize
-        // See DialogCard.qml for why this dialog needs its own elevated
-        // surface + border + shadow instead of a plain Theme.background fill.
         background: DialogCard {}
-        // See ModalDim.qml -- keeps this modal's dimming out of the
-        // frameless main window's shadow-margin ring.
         Overlay.modal: ModalDim {}
         header: Label {
             text: notImplementedDialog.title
@@ -144,9 +126,6 @@ Flickable {
             color: Theme.text
             background: Rectangle { color: Theme.surface }
         }
-        // Was `standardButtons: Dialog.Ok` -- see SettingsAboutDialog.qml's
-        // root footer for why that auto-generated button had to be spelled
-        // out explicitly instead (needs its own `palette:`).
         footer: DialogButtonBox {
             palette: Theme.palette
             background: Rectangle { color: Theme.surface }

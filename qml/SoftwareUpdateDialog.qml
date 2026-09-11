@@ -6,13 +6,6 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import UbiBot
 
-// "Check for software update" -- opened from Main.qml's Help menu, which
-// also kicks off AppController.checkForAppUpdate() right before open()
-// (this dialog itself never triggers a check -- it only ever reflects
-// whatever AppController.appUpdateState/appUpdateMessage/etc. already are,
-// so re-opening it after a check without re-triggering one just shows the
-// last result again). See core/software_update_client.h and
-// docs/app-self-update.md for the full mechanism this drives.
 Dialog {
     id: root
     title: qsTr("Software Update")
@@ -23,8 +16,6 @@ Dialog {
     font.family: Theme.baseFontFamily
     font.pixelSize: Theme.baseFontSize
     background: DialogCard {}
-    // See ModalDim.qml -- keeps this modal's dimming out of the frameless
-    // main window's shadow-margin ring.
     Overlay.modal: ModalDim {}
     header: Label {
         text: root.title
@@ -33,10 +24,6 @@ Dialog {
         color: Theme.text
     }
 
-    // Force-updates (server-side is_force_update) can't be dismissed short
-    // of actually updating -- no titlebar close glyph, no closing on Esc/
-    // outside click, and the "Later" button below is hidden for the same
-    // reason. Every other state closes normally.
     readonly property bool forced: AppController.appUpdateForced && AppController.appUpdateState === "updateAvailable"
     closePolicy: forced ? Popup.NoAutoClose : (Popup.CloseOnEscape | Popup.CloseOnPressOutside)
 
