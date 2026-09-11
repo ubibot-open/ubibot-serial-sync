@@ -288,6 +288,37 @@
     </message>
 </context>
 <context>
+    <name>DriverListDialog</name>
+    <message>
+        <source>Driver downloads</source>
+        <translation>驅動程式下載</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>關閉</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>已安裝</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>未偵測到</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>下載</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>此平台沒有相關驅動程式。</translation>
+    </message>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>大多數 UbiBot 裝置使用的 USB 轉序列埠驅動程式</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Serial driver not installed — click for details</source>
@@ -344,6 +375,10 @@
     <message>
         <source>&amp;Help</source>
         <translation>說明(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Driver downloads</source>
+        <translation>驅動程式下載</translation>
     </message>
     <message>
         <source>About</source>

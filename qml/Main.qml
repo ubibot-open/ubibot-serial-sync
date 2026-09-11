@@ -341,6 +341,15 @@ ApplicationWindow {
                     //     }
                     // }
                     // MenuSeparator {}
+                    // Always available regardless of whether the driver-
+                    // hint banner (below the toolbar) has ever shown or
+                    // been dismissed -- per user feedback, someone who
+                    // clicked the banner's "✕" shouldn't lose access to
+                    // this altogether. Opens the same DriverListDialog the
+                    // banner's own hint dialog's "Download driver" button
+                    // does -- see docs/ch340-driver-hint.md.
+                    MenuItem { text: qsTr("Driver downloads"); onTriggered: driverListDialog.open() }
+                    MenuSeparator {}
                     // Was a copy-pasted duplicate of the Tools menu's own
                     // "Settings" item (same text, same handler) -- Settings
                     // already has its proper home under Tools, so this slot
@@ -925,7 +934,8 @@ ApplicationWindow {
     SettingsAboutDialog { id: settingsDialog }
     AboutDialog { id: aboutDialog }
     SoftwareUpdateDialog { id: softwareUpdateDialog }
-    DriverHintDialog { id: driverHintDialog }
+    DriverHintDialog { id: driverHintDialog; onDownloadRequested: driverListDialog.open() }
+    DriverListDialog { id: driverListDialog }
 
     Dialog {
         id: portErrorDialog

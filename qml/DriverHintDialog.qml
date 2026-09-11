@@ -12,6 +12,14 @@ import UbiBot
 // happen to hit the wall it explains.
 Dialog {
     id: root
+
+    // Main.qml listens for this and opens its own shared DriverListDialog
+    // instance -- kept as one dialog app-wide (also reachable from the
+    // Help menu) rather than a second copy nested in here, same pattern
+    // CommandLibraryPanel.qml's own openParams(row) uses to reach a panel
+    // that lives in Main.qml instead.
+    signal downloadRequested()
+
     title: qsTr("Serial driver may be missing")
     modal: true
     anchors.centerIn: Overlay.overlay
@@ -32,16 +40,16 @@ Dialog {
 
     footer: DialogButtonBox {
         palette: Theme.palette
-        // Hidden rather than disabled when no URL is available for this
-        // platform (see AppController.ch340DriverUrl /
-        // DriverCheck::downloadUrl()) -- a visibly-dead button invites
-        // clicking it to see what happens; no button at all doesn't.
+        // Opens DriverListDialog (see downloadRequested above) rather than
+        // jumping straight to AppController.ch340DriverUrl itself -- always
+        // visible now, since that dialog handles "no link for this
+        // platform" per-row on its own instead of this button needing to
+        // know about it.
         Button {
             text: qsTr("Download driver")
             palette: Theme.palette
-            visible: AppController.ch340DriverUrl.length > 0
             DialogButtonBox.buttonRole: DialogButtonBox.ActionRole
-            onClicked: Qt.openUrlExternally(AppController.ch340DriverUrl)
+            onClicked: root.downloadRequested()
         }
         Button {
             text: qsTr("Close")

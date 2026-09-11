@@ -56,3 +56,15 @@ QString DriverCheck::downloadUrl() {
     return QString();
 #endif
 }
+
+QList<DriverCheck::DriverInfo> DriverCheck::knownDrivers() {
+    return {
+        {QStringLiteral("CH340 / CH341"), QStringLiteral("USB-to-serial driver used by most UbiBot devices"),
+         downloadUrl(), isCh340DriverInstalled()},
+        // Add future drivers (CP210x, FTDI, ...) as one more entry here --
+        // each just needs its own installed-check function and per-platform
+        // URL, same shape as the CH340 one above; nothing about
+        // AppController::availableDrivers() or DriverListDialog.qml needs
+        // to change to pick it up.
+    };
+}

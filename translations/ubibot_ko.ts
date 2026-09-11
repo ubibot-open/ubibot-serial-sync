@@ -288,6 +288,37 @@
     </message>
 </context>
 <context>
+    <name>DriverListDialog</name>
+    <message>
+        <source>Driver downloads</source>
+        <translation>드라이버 다운로드</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>설치됨</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>감지되지 않음</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>다운로드</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>이 플랫폼에 해당하는 드라이버가 없습니다.</translation>
+    </message>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>대부분의 UbiBot 장치에서 사용하는 USB-시리얼 드라이버</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Serial driver not installed — click for details</source>
@@ -344,6 +375,10 @@
     <message>
         <source>&amp;Help</source>
         <translation>도움말(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Driver downloads</source>
+        <translation>드라이버 다운로드</translation>
     </message>
     <message>
         <source>About</source>

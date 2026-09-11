@@ -251,6 +251,14 @@ public:
     // "Don't show this again" checkbox both write this.
     bool ch340DriverHintDismissed() const;
     void setCh340DriverHintDismissed(bool dismissed);
+    // DriverListDialog.qml's row model -- {name, description, url,
+    // installed} maps, one per DriverCheck::DriverInfo (see
+    // core/driver_check.h). Opened from Main.qml's Help menu ("Driver
+    // downloads") and from DriverHintDialog.qml's own "Download driver"
+    // button -- re-fetched by the dialog each time it opens (not cached
+    // here) rather than exposed as a Q_PROPERTY, since there's no single
+    // moment installed-state would need to invalidate a cached copy.
+    Q_INVOKABLE QVariantList availableDrivers() const;
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);

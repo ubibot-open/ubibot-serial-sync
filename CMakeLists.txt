@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.21)
 # that's what was asked for -- CMake's project(VERSION ...) already supports
 # up to four.
 project(UbiBotSerialAssistant
-    VERSION 0.7.6.1
+    VERSION 0.7.7.1
     DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )
@@ -88,6 +88,7 @@ qt_add_qml_module(UbiBotSerialAssistant
         qml/AboutDialog.qml
         qml/SoftwareUpdateDialog.qml
         qml/DriverHintDialog.qml
+        qml/DriverListDialog.qml
         # These seven shadow QtQuick.Controls' own same-named types app-wide
         # (every .qml file above imports UbiBot last, after QtQuick.Controls,
         # so QML's "last import wins" rule for an ambiguous unqualified type

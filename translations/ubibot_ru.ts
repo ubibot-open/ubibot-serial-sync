@@ -288,6 +288,37 @@
     </message>
 </context>
 <context>
+    <name>DriverListDialog</name>
+    <message>
+        <source>Driver downloads</source>
+        <translation>Загрузка драйверов</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>Установлен</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>Не обнаружен</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Скачать</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>На этой платформе нет подходящих драйверов.</translation>
+    </message>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>Драйвер USB-to-serial, используемый большинством устройств UbiBot</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Serial driver not installed — click for details</source>
@@ -344,6 +375,10 @@
     <message>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
+    </message>
+    <message>
+        <source>Driver downloads</source>
+        <translation>Загрузка драйверов</translation>
     </message>
     <message>
         <source>About</source>

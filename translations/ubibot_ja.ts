@@ -288,6 +288,37 @@
     </message>
 </context>
 <context>
+    <name>DriverListDialog</name>
+    <message>
+        <source>Driver downloads</source>
+        <translation>ドライバーのダウンロード</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>インストール済み</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>未検出</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>ダウンロード</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>このプラットフォームに関連するドライバーはありません。</translation>
+    </message>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>ほとんどの UbiBot デバイスで使用される USB-シリアル変換ドライバー</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>Serial driver not installed — click for details</source>
@@ -344,6 +375,10 @@
     <message>
         <source>&amp;Help</source>
         <translation>ヘルプ(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Driver downloads</source>
+        <translation>ドライバーのダウンロード</translation>
     </message>
     <message>
         <source>About</source>

@@ -210,7 +210,8 @@ qml/
   SettingsAboutDialog.qml
   AboutDialog.qml
   SoftwareUpdateDialog.qml
-  DriverHintDialog.qml   # CH340 driver install suggestion (see docs/ch340-driver-hint.md)
+  DriverHintDialog.qml   # driver-missing explanation, opened from Main.qml's own banner
+  DriverListDialog.qml   # per-driver download list (Help menu + the dialog above; see docs/ch340-driver-hint.md)
 src/
   main.cpp
   core/                  # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates

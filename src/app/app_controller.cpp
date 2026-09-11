@@ -395,6 +395,19 @@ void AppController::setCh340DriverHintDismissed(bool dismissed) {
     emit ch340DriverHintDismissedChanged();
 }
 
+QVariantList AppController::availableDrivers() const {
+    QVariantList result;
+    for (const DriverCheck::DriverInfo &driver : DriverCheck::knownDrivers()) {
+        result.append(QVariantMap{
+            {QStringLiteral("name"), driver.name},
+            {QStringLiteral("description"), driver.description},
+            {QStringLiteral("url"), driver.url},
+            {QStringLiteral("installed"), driver.installed},
+        });
+    }
+    return result;
+}
+
 void AppController::setDraftText(const QString &text) {
     if (draftText_ == text) return;
     draftText_ = text;

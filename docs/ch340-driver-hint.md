@@ -46,27 +46,55 @@ Returns `true` unconditionally on Linux (the in-tree `ch341` kernel module
 needs no separate install) and any other platform, so the hint (see below)
 can never fire there.
 
-## 3. When the hint actually fires
+## 3. Where the hint shows up
 
-Not proactively on launch (would nag someone who simply hasn't plugged
-anything in yet, the overwhelmingly common case, and wrongly imply their
-setup is broken). Instead, `AppController::openPort()` offers it only when
-someone actually tries to use serial and hits the exact wall this is about:
-"Open port" clicked with **no port name** (nothing to select from) **and**
-`portListModel_->rowCount() == 0` (not just "nothing currently selected" --
-genuinely no ports exist) **and** the driver file(s) above aren't found.
-That combination is a much stronger signal than any one of them alone. When
-it doesn't hold, the existing plain `portOpenFailed(tr("Select a serial port
-first."))` behavior is unchanged.
+Checked once at app launch (`AppController.ch340DriverInstalled`, a
+`CONSTANT` property -- driver install state realistically never changes
+mid-session), then surfaced in three places, all ultimately reading that
+same value:
 
-`SettingsStore::suppressCh340DriverHint()` (persisted, `DriverHintDialog.qml`'s
-own "Don't show this again" checkbox) is checked alongside the above --
-scoped to just this dialog, not a general mute switch for other port errors.
+1. **`Main.qml`'s own banner**, a thin row docked under the toolbar
+   (`Layout.fillWidth`, part of `headerColumn` so it's visible above
+   whichever sidebar tab -- Serial or Device commands -- is active), shown
+   whenever `ch340DriverInstalled` is false and
+   `AppController.ch340DriverHintDismissed` is false. This *used* to be a
+   modal dialog popped up reactively from `AppController::openPort()` the
+   moment "Open port" was clicked with nothing to select and the driver
+   missing -- moved to a persistent, non-interrupting banner instead, per
+   user feedback that only surfacing this after the user already hit a
+   wall (and, worse, a dialog with no other way back to it once dismissed)
+   read as unfriendly. Clicking the banner opens `DriverHintDialog.qml`; a
+   "✕" on the banner itself calls `AppController.ch340DriverHintDismissed = true`.
+2. **`DriverHintDialog.qml`** -- the explanation dialog, opened only from
+   the banner above (not popped up on its own). Its own "Don't show this
+   again" checkbox writes/reads the same `ch340DriverHintDismissed`
+   property the banner's "✕" does, so whichever one the user reaches for
+   first, the other stays in sync. `ch340DriverHintDismissed` is persisted
+   via `SettingsStore::ch340DriverHintDismissed()`/`setCh340DriverHintDismissed()`
+   so a dismissal survives a restart.
+3. **The Help menu's "Driver downloads" item** (`Main.qml`), always present
+   regardless of whether the banner has ever shown or been dismissed --
+   added specifically so dismissing the banner doesn't lock someone out of
+   coming back to this later if it turns out they did need the driver
+   after all.
 
-## 4. The download link
+## 4. The driver list + download links
 
-`AppController.ch340DriverUrl` reads `DriverCheck::downloadUrl()`
-(`core/driver_check.cpp`), which returns a hardcoded, per-platform URL --
+Both `DriverHintDialog.qml`'s "Download driver" button and the Help menu
+item above open the same `DriverListDialog.qml` (a `signal
+downloadRequested()` on the former, listened for in `Main.qml`, same
+pattern `CommandLibraryPanel.qml`'s own `openParams(row)` uses to reach a
+sibling panel) -- one dialog, not a URL opened directly from two different
+places. It lists every entry from `AppController.availableDrivers()`
+(`core/driver_check.h`'s `DriverCheck::knownDrivers()`), each with its
+detected install state and a per-row "Download" button. Just one entry
+exists today (CH340), but this was deliberately built as a list from the
+start -- adding a future driver (CP210x, FTDI, ...) is "one more
+`DriverInfo` entry in `knownDrivers()`", not a second dialog or a reworked
+single-driver one.
+
+Each driver's URL (`DriverInfo::url`, e.g. CH340's
+`DriverCheck::downloadUrl()`) is a hardcoded, per-platform value --
 `https://www.ubibot.io/download/3168` on Windows,
 `https://www.ubibot.io/download/3166` on macOS, empty everywhere else. This
 was originally a `.env` entry (`CH340_DRIVER_DOWNLOAD_URL`, same mechanism
@@ -76,12 +104,12 @@ and nothing in `.github/workflows/release.yml` creates one, so a
 GitHub-Actions-built release package would silently have shipped with this
 value empty -- fine for the *server* URLs, which genuinely need to differ
 per deployment and default to "feature disabled" when unset, but wrong here,
-where the two real links are unlikely to ever need be different for a
+where the real links are unlikely to ever need be different for a
 from-source build vs. an official release. Hardcoding them into the binary
 means they're simply always present, in a CI-built release exactly the same
-as a local dev build. `DriverHintDialog.qml` hides its "Download driver"
-button entirely if this is ever empty (e.g. a future platform this hasn't
-been given a link for yet) rather than showing a dead one.
+as a local dev build. `DriverListDialog.qml` hides a row's "Download" button
+entirely when its URL is empty (e.g. a future platform/driver combination
+with no known link yet) rather than showing a dead one.
 
 ## 5. Known limitations
 

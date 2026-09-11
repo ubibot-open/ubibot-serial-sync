@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QList>
 #include <QString>
 
 // Detects whether the WCH CH340/CH341 USB-to-serial driver -- the chip
@@ -39,5 +40,33 @@ bool isCh340DriverInstalled();
 // than Windows/macOS (Linux never reaches DriverHintDialog.qml at all, see
 // isCh340DriverInstalled() above).
 QString downloadUrl();
+
+// One row of DriverListDialog.qml's own driver list (Help menu -> "Driver
+// downloads", also what DriverHintDialog.qml's "Download driver" button
+// opens instead of jumping straight to a single URL -- see
+// docs/ch340-driver-hint.md).
+struct DriverInfo {
+    // Shown as the row's title -- not translated here (plain product/chip
+    // naming, same treatment as e.g. "CRC"/"XON/XOFF" elsewhere in this
+    // app), qsTr()'d in QML only for description below.
+    QString name;
+    // Translatable one-line description of what the driver is for --
+    // supplied as an already-qsTr()'d string isn't possible from C++ in a
+    // way that re-translates live on a language switch, so this returns a
+    // translation *key* (an English string), and DriverListDialog.qml
+    // wraps it in its own qsTr() call to actually localize it.
+    QString description;
+    // Empty when this platform has no known download link for this driver
+    // (DriverListDialog.qml hides the row's Download button in that case).
+    QString url;
+    bool installed;
+};
+
+// All drivers this app knows how to check for/help install, in display
+// order. Just one entry today (CH340) -- structured as a list specifically
+// so a future driver (CP210x, FTDI, ...) is "add one more entry to this
+// function", not a parallel one-off mechanism repeating
+// isCh340DriverInstalled()/downloadUrl()'s own AppController plumbing.
+QList<DriverInfo> knownDrivers();
 
 }  // namespace DriverCheck
