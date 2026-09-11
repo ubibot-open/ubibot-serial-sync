@@ -387,7 +387,13 @@ bool AppController::ch340DriverInstalled() const { return DriverCheck::isCh340Dr
 
 QString AppController::ch340DriverUrl() const { return DriverCheck::downloadUrl(); }
 
-void AppController::setSuppressCh340DriverHint(bool suppress) { settings_.setSuppressCh340DriverHint(suppress); }
+bool AppController::ch340DriverHintDismissed() const { return settings_.ch340DriverHintDismissed(); }
+
+void AppController::setCh340DriverHintDismissed(bool dismissed) {
+    if (settings_.ch340DriverHintDismissed() == dismissed) return;
+    settings_.setCh340DriverHintDismissed(dismissed);
+    emit ch340DriverHintDismissedChanged();
+}
 
 void AppController::setDraftText(const QString &text) {
     if (draftText_ == text) return;
@@ -512,22 +518,13 @@ void AppController::flushRxLineBuffer() {
 bool AppController::openPort(const QString &portName, int baudRate, int dataBits, int parity, int stopBits,
                               int flowControl) {
     if (portName.isEmpty()) {
-        // No port to select from in the first place, and the CH340 driver
-        // (the chip UbiBot devices actually ship with) doesn't look to be
-        // installed -- this is very often *why* nothing shows up: Windows
-        // never gives a driver-less USB-serial device a COM port at all, so
-        // it's invisible to portListModel_ regardless of whether it's
-        // plugged in. Offering the plain "select a port first" message in
-        // that situation states the obvious without explaining the likely
-        // actual cause, so DriverHintDialog.qml is offered instead --
-        // suppressCh340DriverHint() is this dialog's own "don't show this
-        // again", not a general mute switch for other port errors.
-        if (portListModel_->rowCount() == 0 && !DriverCheck::isCh340DriverInstalled() &&
-            !settings_.suppressCh340DriverHint()) {
-            emit driverHintRequested();
-        } else {
-            emit portOpenFailed(tr("Select a serial port first."));
-        }
+        // A missing CH340 driver is a common reason nothing shows up to
+        // select in the first place -- surfaced proactively instead, via
+        // Main.qml's own driver-hint banner (see
+        // AppController::ch340DriverInstalled and
+        // docs/ch340-driver-hint.md) rather than folded into this
+        // already-generic message.
+        emit portOpenFailed(tr("Select a serial port first."));
         return false;
     }
 

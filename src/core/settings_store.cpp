@@ -32,7 +32,7 @@ constexpr auto kCustomTemplates = "send/customTemplates";
 constexpr auto kBatchCommands = "send/batchCommands";
 constexpr auto kCachedLibraryJson = "library/cachedJson";
 constexpr auto kLastLibraryCheckAt = "library/lastCheckAt";
-constexpr auto kSuppressCh340DriverHint = "device/suppressCh340DriverHint";
+constexpr auto kCh340DriverHintDismissed = "device/ch340DriverHintDismissed";
 }  // namespace
 
 QString SettingsStore::language() const {
@@ -305,10 +305,10 @@ void SettingsStore::setLastLibraryCheckAt(const QDateTime &when) {
     QSettings().setValue(kLastLibraryCheckAt, when);
 }
 
-bool SettingsStore::suppressCh340DriverHint() const {
-    return QSettings().value(kSuppressCh340DriverHint, false).toBool();
+bool SettingsStore::ch340DriverHintDismissed() const {
+    return QSettings().value(kCh340DriverHintDismissed, false).toBool();
 }
 
-void SettingsStore::setSuppressCh340DriverHint(bool suppress) {
-    QSettings().setValue(kSuppressCh340DriverHint, suppress);
+void SettingsStore::setCh340DriverHintDismissed(bool dismissed) {
+    QSettings().setValue(kCh340DriverHintDismissed, dismissed);
 }

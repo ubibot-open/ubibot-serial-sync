@@ -153,10 +153,10 @@ public:
     QDateTime lastLibraryCheckAt() const;
     void setLastLibraryCheckAt(const QDateTime &when);
 
-    // "Don't show this again" for the CH340 driver install hint (see
-    // core/driver_check.h and DriverHintDialog.qml) -- set once the user
-    // dismisses it with that checkbox ticked, checked before offering the
-    // hint again on a later "Open port" attempt with no ports available.
-    bool suppressCh340DriverHint() const;
-    void setSuppressCh340DriverHint(bool suppress);
+    // Whether the user has dismissed Main.qml's driver-hint banner (see
+    // core/driver_check.h and docs/ch340-driver-hint.md) -- persisted so a
+    // dismissal survives a restart instead of the banner just coming right
+    // back the next time the app launches with the driver still missing.
+    bool ch340DriverHintDismissed() const;
+    void setCh340DriverHintDismissed(bool dismissed);
 };

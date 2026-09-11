@@ -146,6 +146,14 @@ class AppController : public QObject {
     // to offer" rather than a broken button.
     Q_PROPERTY(bool ch340DriverInstalled READ ch340DriverInstalled CONSTANT)
     Q_PROPERTY(QString ch340DriverUrl READ ch340DriverUrl CONSTANT)
+    // Whether the user has dismissed Main.qml's own driver-hint banner
+    // (its "✕" button) -- persisted via SettingsStore, so a dismissal
+    // survives a restart instead of the banner just coming right back.
+    // Read/write (not CONSTANT, unlike the two above) since this can
+    // change while the app is running, and NOTIFY so the banner's own
+    // `visible:` binding reacts immediately without needing a restart.
+    Q_PROPERTY(bool ch340DriverHintDismissed READ ch340DriverHintDismissed WRITE setCh340DriverHintDismissed
+                   NOTIFY ch340DriverHintDismissedChanged)
 
     Q_PROPERTY(QString draftText READ draftText WRITE setDraftText NOTIFY draftTextChanged)
     Q_PROPERTY(bool echoTx READ echoTx WRITE setEchoTx NOTIFY echoTxChanged)
@@ -239,8 +247,10 @@ public:
 
     bool ch340DriverInstalled() const;
     QString ch340DriverUrl() const;
-    // DriverHintDialog.qml's "Don't show this again" checkbox.
-    Q_INVOKABLE void setSuppressCh340DriverHint(bool suppress);
+    // Main.qml's driver-hint banner "✕" / DriverHintDialog.qml's own
+    // "Don't show this again" checkbox both write this.
+    bool ch340DriverHintDismissed() const;
+    void setCh340DriverHintDismissed(bool dismissed);
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);
@@ -406,12 +416,7 @@ signals:
     void batchStateChanged();
     void portOpenFailed(const QString &error);
     void statusMessage(const QString &text);
-    // Raised instead of portOpenFailed() when "Open port" is clicked with
-    // no port selected AND none are available AND the CH340 driver looks
-    // to be missing (see openPort() and DriverHintDialog.qml) -- carries no
-    // data of its own, the dialog reads ch340DriverInstalled/ch340DriverUrl
-    // directly.
-    void driverHintRequested();
+    void ch340DriverHintDismissedChanged();
     // Fired whenever the device library's contents are wholesale replaced
     // (currently only downloadLibraryUpdate() succeeding) -- modelIds/
     // libraryVersion/modelCount/commandCount all re-read from library_ then.

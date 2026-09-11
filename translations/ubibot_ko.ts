@@ -279,8 +279,8 @@
         <translation>닫기</translation>
     </message>
     <message>
-        <source>No serial port was found. If you've connected a UbiBot device and it still isn't showing up, you may need to install the CH340 USB-to-serial driver.</source>
-        <translation>시리얼 포트를 찾을 수 없습니다. UbiBot 장치를 연결했는데도 표시되지 않는다면 CH340 USB-시리얼 드라이버를 설치해야 할 수 있습니다.</translation>
+        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
+        <translation>이 컴퓨터에는 CH340 USB-시리얼 드라이버가 설치되어 있지 않은 것 같습니다. 이 드라이버가 없으면 연결된 UbiBot 장치가 사용 가능한 시리얼 포트로 표시되지 않습니다.</translation>
     </message>
     <message>
         <source>Don't show this again</source>
@@ -289,6 +289,14 @@
 </context>
 <context>
     <name>Main</name>
+    <message>
+        <source>Serial driver not installed — click for details</source>
+        <translation>시리얼 드라이버가 설치되어 있지 않습니다 — 클릭하여 자세히 보기</translation>
+    </message>
+    <message>
+        <source>Dismiss</source>
+        <translation>닫기</translation>
+    </message>
     <message>
         <source>OK</source>
         <translation>확인</translation>

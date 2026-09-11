@@ -102,7 +102,6 @@ ApplicationWindow {
         target: AppController
         function onPortOpenFailed(error) { portErrorDialog.text = error; portErrorDialog.open() }
         function onStatusMessage(text) { statusToast.show(text) }
-        function onDriverHintRequested() { driverHintDialog.open() }
     }
 
     // Fusion's default ToolButton padding is generous (meant for
@@ -405,6 +404,61 @@ ApplicationWindow {
                     }
 
                     Item { Layout.fillWidth: true }
+                }
+            }
+
+            // CH340 driver install hint -- see AppController.ch340DriverInstalled
+            // (core/driver_check.h) and docs/ch340-driver-hint.md. Checked
+            // once at launch (not reactively when "Open port" fails, which
+            // is how this started out -- per user feedback that only
+            // interrupting with a dialog after the user already hit a wall
+            // read as unfriendly); this banner sits here instead, visible
+            // regardless of which sidebar tab is active, telling the user
+            // up front rather than making them go looking for why nothing
+            // shows up in the port picker. A hidden Layout child takes no
+            // space, so headerColumn's own height (and everything anchored
+            // below it) adjusts automatically when this comes and goes.
+            Rectangle {
+                id: driverHintBanner
+                Layout.fillWidth: true
+                visible: !AppController.ch340DriverInstalled && !AppController.ch340DriverHintDismissed
+                implicitHeight: visible ? driverHintRow.implicitHeight + 12 : 0
+                color: Theme.surface
+
+                // Left accent bar rather than tinting the whole row --
+                // reads as "worth noticing" without the alarm of a
+                // full-width warning color, since a missing driver isn't
+                // something actively broken *yet*, just something that'll
+                // block the user the moment they do try to use serial.
+                Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 3; color: Theme.error }
+                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Theme.divider }
+
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.rightMargin: 32
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: driverHintDialog.open()
+                }
+
+                RowLayout {
+                    id: driverHintRow
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 8
+                    spacing: 8
+
+                    Label {
+                        Layout.fillWidth: true
+                        color: Theme.text
+                        text: qsTr("Serial driver not installed — click for details")
+                    }
+                    ToolButton {
+                        text: "✕"
+                        flat: true
+                        ToolTip.text: qsTr("Dismiss")
+                        ToolTip.visible: hovered
+                        onClicked: AppController.ch340DriverHintDismissed = true
+                    }
                 }
             }
         } // headerColumn
