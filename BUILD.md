@@ -210,6 +210,7 @@ qml/
   SettingsAboutDialog.qml
   AboutDialog.qml
   SoftwareUpdateDialog.qml
+  DriverHintDialog.qml   # CH340 driver install suggestion (see docs/ch340-driver-hint.md)
 src/
   main.cpp
   core/                  # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates
@@ -218,6 +219,7 @@ src/
     device_library_update_client.*   # device-library remote update (see docs/device-library-update-protocol.md)
     software_update_client.*         # app self-update networking (see docs/app-self-update.md)
     self_update_installer.*          # app self-update local install/swap logic
+    driver_check.*                   # CH340 driver detection, Windows + macOS (see docs/ch340-driver-hint.md)
     env_config.*                     # runtime ".env" reader (update-server URLs, not committed)
     log_entry.h
     log_manager.*

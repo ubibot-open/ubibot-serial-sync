@@ -152,4 +152,11 @@ public:
     // Invalid/null QDateTime when never checked.
     QDateTime lastLibraryCheckAt() const;
     void setLastLibraryCheckAt(const QDateTime &when);
+
+    // "Don't show this again" for the CH340 driver install hint (see
+    // core/driver_check.h and DriverHintDialog.qml) -- set once the user
+    // dismisses it with that checkbox ticked, checked before offering the
+    // hint again on a later "Open port" attempt with no ports available.
+    bool suppressCh340DriverHint() const;
+    void setSuppressCh340DriverHint(bool suppress);
 };

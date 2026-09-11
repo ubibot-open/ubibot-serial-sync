@@ -102,6 +102,7 @@ ApplicationWindow {
         target: AppController
         function onPortOpenFailed(error) { portErrorDialog.text = error; portErrorDialog.open() }
         function onStatusMessage(text) { statusToast.show(text) }
+        function onDriverHintRequested() { driverHintDialog.open() }
     }
 
     // Fusion's default ToolButton padding is generous (meant for
@@ -681,11 +682,14 @@ ApplicationWindow {
                                 // the row's implicit height instead.
                                 implicitHeight: historyRow.implicitHeight + 14
 
-                                // Double-click (not single-click) loads the
-                                // entry -- a single click while just browsing
-                                // history shouldn't clobber whatever the user
-                                // is currently typing.
-                                onDoubleClicked: {
+                                // Single click loads the entry -- was
+                                // double-click, but per user feedback that
+                                // didn't match how the rest of the app
+                                // works (the device command library's own
+                                // rows already stage into the draft box on
+                                // a single click) and just read as
+                                // unresponsive.
+                                onClicked: {
                                     AppController.draftText = historyDelegate.commandText
                                     historyPopup.close()
                                 }
@@ -867,6 +871,7 @@ ApplicationWindow {
     SettingsAboutDialog { id: settingsDialog }
     AboutDialog { id: aboutDialog }
     SoftwareUpdateDialog { id: softwareUpdateDialog }
+    DriverHintDialog { id: driverHintDialog }
 
     Dialog {
         id: portErrorDialog

@@ -265,6 +265,29 @@
     </message>
 </context>
 <context>
+    <name>DriverHintDialog</name>
+    <message>
+        <source>Serial driver may be missing</source>
+        <translation>Возможно, отсутствует драйвер порта</translation>
+    </message>
+    <message>
+        <source>Download driver</source>
+        <translation>Скачать драйвер</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>No serial port was found. If you've connected a UbiBot device and it still isn't showing up, you may need to install the CH340 USB-to-serial driver.</source>
+        <translation>Последовательный порт не найден. Если вы подключили устройство UbiBot, но оно всё ещё не отображается, возможно, потребуется установить драйвер CH340 USB-to-serial.</translation>
+    </message>
+    <message>
+        <source>Don't show this again</source>
+        <translation>Больше не показывать</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>OK</source>

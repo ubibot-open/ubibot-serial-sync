@@ -136,6 +136,17 @@ class AppController : public QObject {
     // toolbar opens whatever this holds.
     Q_PROPERTY(QString selectedPortName READ selectedPortName WRITE setSelectedPortName NOTIFY selectedPortNameChanged)
 
+    // See core/driver_check.h -- fixed for the process's whole lifetime
+    // (driver install state realistically never changes while this app is
+    // running), so no NOTIFY. ch340DriverUrl is a hardcoded, per-platform
+    // download link (see DriverCheck::downloadUrl() for why this one is
+    // baked into the binary rather than read from .env like the other
+    // configurable URLs elsewhere in this class) -- empty on any platform
+    // besides Windows/macOS, which DriverHintDialog.qml treats as "no link
+    // to offer" rather than a broken button.
+    Q_PROPERTY(bool ch340DriverInstalled READ ch340DriverInstalled CONSTANT)
+    Q_PROPERTY(QString ch340DriverUrl READ ch340DriverUrl CONSTANT)
+
     Q_PROPERTY(QString draftText READ draftText WRITE setDraftText NOTIFY draftTextChanged)
     Q_PROPERTY(bool echoTx READ echoTx WRITE setEchoTx NOTIFY echoTxChanged)
     Q_PROPERTY(bool sendAsHex READ sendAsHex WRITE setSendAsHex NOTIFY sendAsHexChanged)
@@ -225,6 +236,11 @@ public:
     // this too (rather than portListModel->refresh() directly) so a
     // manual click gets the same reconciliation an automatic poll would.
     Q_INVOKABLE void refreshPorts();
+
+    bool ch340DriverInstalled() const;
+    QString ch340DriverUrl() const;
+    // DriverHintDialog.qml's "Don't show this again" checkbox.
+    Q_INVOKABLE void setSuppressCh340DriverHint(bool suppress);
 
     QString draftText() const { return draftText_; }
     void setDraftText(const QString &text);
@@ -390,6 +406,12 @@ signals:
     void batchStateChanged();
     void portOpenFailed(const QString &error);
     void statusMessage(const QString &text);
+    // Raised instead of portOpenFailed() when "Open port" is clicked with
+    // no port selected AND none are available AND the CH340 driver looks
+    // to be missing (see openPort() and DriverHintDialog.qml) -- carries no
+    // data of its own, the dialog reads ch340DriverInstalled/ch340DriverUrl
+    // directly.
+    void driverHintRequested();
     // Fired whenever the device library's contents are wholesale replaced
     // (currently only downloadLibraryUpdate() succeeding) -- modelIds/
     // libraryVersion/modelCount/commandCount all re-read from library_ then.
