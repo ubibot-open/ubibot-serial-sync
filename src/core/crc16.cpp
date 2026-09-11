@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 #include "core/crc16.h"
 
 quint16 Crc16::modbus(const QByteArray &data) {

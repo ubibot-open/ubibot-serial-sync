@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 // Command device-library-mock-server is a stand-in for the real backend
 // described in docs/device-library-update-protocol.md -- it implements just
 // the two read-only JSON endpoints the desktop app calls (GET

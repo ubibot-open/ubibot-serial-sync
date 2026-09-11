@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 #include "models/command_history_model.h"
 #include "core/settings_store.h"
 

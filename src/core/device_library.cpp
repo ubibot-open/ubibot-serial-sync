@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 #include "core/device_library.h"
 #include "core/language_manager.h"
 

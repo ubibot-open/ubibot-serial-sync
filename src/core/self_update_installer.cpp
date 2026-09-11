@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 #include "core/self_update_installer.h"
 
 #include <QCoreApplication>

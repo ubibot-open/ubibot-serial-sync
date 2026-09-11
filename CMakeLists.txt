@@ -1,3 +1,6 @@
+# Copyright (C) 2026 UbiBot Co., Ltd.
+# SPDX-License-Identifier: LGPL-3.0-only
+
 cmake_minimum_required(VERSION 3.21)
 
 # *** Bump this on every release -- it's the ONLY place the version number
@@ -8,7 +11,7 @@ cmake_minimum_required(VERSION 3.21)
 # that's what was asked for -- CMake's project(VERSION ...) already supports
 # up to four.
 project(UbiBotSerialAssistant
-    VERSION 0.7.7.1
+    VERSION 0.7.8.1
     DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )

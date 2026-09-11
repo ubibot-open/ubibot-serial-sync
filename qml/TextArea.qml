@@ -1,3 +1,6 @@
+// Copyright (C) 2026 UbiBot Co., Ltd.
+// SPDX-License-Identifier: LGPL-3.0-only
+
 import QtQuick.Controls.Fusion as Fusion
 
 // Shadows QtQuick.Controls' own TextArea app-wide -- see ComboBox.qml's
