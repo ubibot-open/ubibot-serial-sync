@@ -26,7 +26,7 @@
           "params": [
             { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
             { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
-            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "See device docs", "default": "" }
           ],
           "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
         },
@@ -62,7 +62,7 @@
           "params": [
             { "key": "SSID", "label": { "zh": "WiFi 名称 (SSID)", "en": "WiFi SSID" }, "hint": "UbiBot-Office", "default": "" },
             { "key": "pasword", "label": { "zh": "WiFi 密码", "en": "WiFi password" }, "hint": "", "default": "" },
-            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "按设备文档填写", "default": "" }
+            { "key": "type", "label": { "zh": "加密类型", "en": "Encryption type" }, "hint": "See device docs", "default": "" }
           ],
           "payloadBase64": "eyJjb21tYW5kIjoiU2V0dXBXaWZpIiwiU1NJRCI6IiIsInBhc3dvcmQiOiIiLCJ0eXBlIjoiIn0="
         },
