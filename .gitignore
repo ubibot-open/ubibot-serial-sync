@@ -13,3 +13,4 @@ out/
 # docs/device-library-update-protocol.md) -- deliberately never committed,
 # since the URL/key can differ per environment.
 .env
+.mcp.json
