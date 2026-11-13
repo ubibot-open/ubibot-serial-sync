@@ -12,7 +12,7 @@ ApplicationWindow {
     id: window
 
     readonly property int shadowMargin: 18
-    readonly property bool shadowActive: visibility !== Window.Maximized
+    readonly property bool shadowActive: visibility !== Window.Maximized && visibility !== Window.FullScreen
     readonly property int activeMargin: shadowActive ? shadowMargin : 0
 
     width: 1320 + shadowMargin * 2
@@ -122,10 +122,14 @@ ApplicationWindow {
         }
     }
 
+    // The MultiEffect shadow below renders this rect even while it is
+    // invisible; when the shadow is off (maximized/fullscreen) the rect
+    // must paint itself, otherwise the transparent window shows the
+    // desktop through every unpainted region (e.g. the left panel).
     Rectangle {
         id: frameBackdrop
         anchors.fill: frame
-        visible: false
+        visible: !window.shadowActive
         color: Theme.background
     }
 
