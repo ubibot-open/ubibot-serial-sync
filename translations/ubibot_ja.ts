@@ -2,53 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja" sourcelanguage="en">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>バージョン情報</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot シリアルアシスタント</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>バージョン %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>UbiBot IoT デバイス（WS1、WS1 Pro、GS1-AL4G1RS、SP1 など）向けのシリアルポートデバッグツールです。Qt 6、QML、C++17 で構築されています。</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>ビルド日時</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>会社</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · アメリカ合衆国</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>ウェブサイト</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Qt %1（GNU Lesser General Public License v3、LGPLv3）を使用して構築されています。Qt は The Qt Company Ltd. の商標です。Qt は動的リンクされているため、同梱の Qt ライブラリは互換性のある LGPLv3 ビルドに置き換えることができます。</translation>
-    </message>
-</context>
-<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -65,6 +18,34 @@
     <message>
         <source>Select a serial port first.</source>
         <translation>先にシリアルポートを選択してください。</translation>
+    </message>
+    <message>
+        <source>Command library is up to date (%1).</source>
+        <translation>コマンドライブラリは最新です（%1）。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires app version %2 or later -- please update the app first.</source>
+        <translation>バージョン %1 が利用可能ですが、アプリのバージョン %2 以降が必要です。先にアプリを更新してください。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available.</source>
+        <translation>バージョン %1 が利用可能です。</translation>
+    </message>
+    <message>
+        <source>Downloaded data could not be applied: %1</source>
+        <translation>ダウンロードしたデータを適用できませんでした：%1</translation>
+    </message>
+    <message>
+        <source>Updated to %1.</source>
+        <translation>%1 に更新しました。</translation>
+    </message>
+    <message>
+        <source>You&apos;re on the latest version (%1).</source>
+        <translation>最新バージョンです（%1）。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
+        <translation>バージョン %1 が利用可能ですが、先にバージョン %2 以降からの更新が必要です。アプリを再インストールしてからもう一度お試しください。</translation>
     </message>
     <message>
         <source>%1 opened · %2</source>
@@ -95,80 +76,238 @@
         <translation>ログを %1 に保存しました</translation>
     </message>
     <message>
-        <source>Bundled command library is %1 — this build checks the local copy only.</source>
-        <translation>同梱のコマンドライブラリは %1 です — このビルドはローカルコピーのみを確認します。</translation>
+        <source>No update server configured (.env) -- using the bundled command library only.</source>
+        <translation>更新サーバーが設定されていません（.env）。同梱のコマンドライブラリのみを使用します。</translation>
+    </message>
+    <message>
+        <source>Checking for updates…</source>
+        <translation>更新を確認しています…</translation>
+    </message>
+    <message>
+        <source>Downloading…</source>
+        <translation>ダウンロードしています…</translation>
+    </message>
+    <message>
+        <source>No update server configured (.env).</source>
+        <translation>更新サーバーが設定されていません（.env）。</translation>
+    </message>
+    <message>
+        <source>Downloading update…</source>
+        <translation>更新をダウンロードしています…</translation>
+    </message>
+    <message>
+        <source>Download cancelled.</source>
+        <translation>ダウンロードをキャンセルしました。</translation>
+    </message>
+    <message>
+        <source>Downloaded file failed checksum verification -- update not applied.</source>
+        <translation>ダウンロードしたファイルのチェックサム検証に失敗しました。更新は適用されていません。</translation>
+    </message>
+    <message>
+        <source>Preparing update…</source>
+        <translation>更新を準備しています…</translation>
+    </message>
+    <message>
+        <source>Failed to launch the updater script.</source>
+        <translation>アップデーター スクリプトを起動できませんでした。</translation>
+    </message>
+    <message>
+        <source>Restarting to apply update…</source>
+        <translation>更新を適用するために再起動しています…</translation>
+    </message>
+    <message>
+        <source>Self-update isn&apos;t supported on this platform yet -- please download the new version manually.</source>
+        <translation>このプラットフォームではまだ自動更新に対応していません。新しいバージョンを手動でダウンロードしてください。</translation>
     </message>
 </context>
 <context>
-    <name>CommandLibraryPanel</name>
+    <name>DeviceLibraryUpdateClient</name>
     <message>
-        <source>Search commands</source>
-        <translation>コマンドを検索</translation>
+        <source>Remote update server not configured (.env).</source>
+        <translation>リモート更新サーバーが設定されていません（.env）。</translation>
     </message>
     <message>
-        <source>Drag a row to reorder</source>
-        <translation>行をドラッグして並べ替え</translation>
+        <source>Malformed response: %1</source>
+        <translation>不正な応答：%1</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>編集</translation>
+        <source>Checksum mismatch -- downloaded data may be corrupted.</source>
+        <translation>チェックサムが一致しません。ダウンロードしたデータが破損している可能性があります。</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>削除</translation>
+        <source>Response has no models[] array.</source>
+        <translation>応答に models[] 配列がありません。</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::CaptionButton</name>
+    <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
     </message>
     <message>
-        <source>Batch commands</source>
-        <translation>バッチコマンド</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>新しいテンプレート</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>テンプレートを編集</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>例：デバイスをリセット</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>内容</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>送信する実際のテキスト</translation>
+        <source>Maximize</source>
+        <translation>最大化</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <source>No batch commands yet</source>
-        <translation>バッチコマンドはまだありません</translation>
+        <source>Restore</source>
+        <translation>元に戻す</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::Dialog</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>%1 steps · %2 ms interval</source>
-        <translation>%1 ステップ · 間隔 %2 ms</translation>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::InfoBar</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::TeachingTip</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>could not start &apos;tar&apos; (bundled with Windows 10 1803+/Windows 11) -- %1</source>
+        <translation>&apos;tar&apos; を起動できませんでした（Windows 10 1803 以降/Windows 11 に付属）：%1</translation>
     </message>
     <message>
-        <source>■ Stop</source>
-        <translation>■ 停止</translation>
+        <source>&apos;tar&apos; timed out extracting the update</source>
+        <translation>&apos;tar&apos; による更新の展開がタイムアウトしました</translation>
     </message>
     <message>
-        <source>▶ Run</source>
-        <translation>▶ 実行</translation>
+        <source>&apos;tar&apos; failed (exit %1): %2</source>
+        <translation>&apos;tar&apos; が失敗しました（終了コード %1）：%2</translation>
     </message>
     <message>
-        <source>New batch</source>
-        <translation>新規バッチ</translation>
+        <source>downloaded archive doesn&apos;t contain %1 -- not a valid release package</source>
+        <translation>ダウンロードしたアーカイブに %1 が含まれていません。有効なリリース パッケージではありません</translation>
     </message>
+    <message>
+        <source>could not write updater script to %1: %2</source>
+        <translation>アップデーター スクリプトを %1 に書き込めませんでした：%2</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>シリアルポートが切断されました。</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>偶数</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>奇数</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareUpdateClient</name>
+    <message>
+        <source>Update server not configured (.env).</source>
+        <translation>更新サーバーが設定されていません（.env）。</translation>
+    </message>
+    <message>
+        <source>Malformed response: %1</source>
+        <translation>不正な応答：%1</translation>
+    </message>
+    <message>
+        <source>Server reported an error.</source>
+        <translation>サーバーがエラーを返しました。</translation>
+    </message>
+    <message>
+        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
+        <translation>このアプリは更新サーバーに登録されていません（slug &quot;%1&quot; が見つかりません）。</translation>
+    </message>
+    <message>
+        <source>Cannot write to %1: %2</source>
+        <translation>%1 に書き込めません：%2</translation>
+    </message>
+</context>
+<context>
+    <name>ui::AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>バージョン情報</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot シリアルアシスタント</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>バージョン %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6 and C++17.</source>
+        <translation>UbiBot IoT デバイス（WS1、WS1 Pro、GS1-AL4G1RS、SP1 など）向けのシリアルポート デバッグ ツールです。Qt 6 と C++17 で開発されています。</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>ビルド日時</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>会社</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · アメリカ合衆国</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>ウェブサイト</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Qt %1（GNU Lesser General Public License v3、LGPLv3）を使用して構築されています。Qt は The Qt Company Ltd. の商標です。Qt は動的リンクされているため、同梱の Qt ライブラリは互換性のある LGPLv3 ビルドに置き換えることができます。</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+</context>
+<context>
+    <name>ui::BatchEditDialog</name>
     <message>
         <source>Edit batch command</source>
         <translation>バッチコマンドを編集</translation>
@@ -176,6 +315,10 @@
     <message>
         <source>New batch command</source>
         <translation>新規バッチコマンド</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名前</translation>
     </message>
     <message>
         <source>e.g. Startup sequence</source>
@@ -194,14 +337,6 @@
         <translation>ステップ</translation>
     </message>
     <message>
-        <source>Command text</source>
-        <translation>コマンド内容</translation>
-    </message>
-    <message>
-        <source>CRC</source>
-        <translation>CRC</translation>
-    </message>
-    <message>
         <source>Add step</source>
         <translation>ステップを追加</translation>
     </message>
@@ -210,19 +345,101 @@
         <translation>キャンセル</translation>
     </message>
     <message>
-        <source>Device model · Model</source>
-        <translation>デバイスモデル · Model</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>保存</translation>
     </message>
+    <message>
+        <source>Command text</source>
+        <translation>コマンド内容</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Remove step</source>
+        <translation>ステップを削除</translation>
+    </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
+    <name>ui::BatchListDialog</name>
+    <message>
+        <source>Batch commands</source>
+        <translation>バッチコマンド</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>バッチコマンドはまだありません</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>新規バッチ</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 ステップ · 間隔 %2 ms</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>実行</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>編集</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandLibraryPanel</name>
+    <message>
+        <source>Device model</source>
+        <translation>デバイスモデル</translation>
+    </message>
+    <message>
+        <source>Search commands</source>
+        <translation>コマンドを検索</translation>
+    </message>
+    <message>
+        <source>Drag a row to reorder</source>
+        <translation>行をドラッグして並べ替え</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新しいテンプレート</translation>
+    </message>
+    <message>
+        <source>Batch commands</source>
+        <translation>バッチコマンド</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>編集</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandParamsPanel</name>
     <message>
         <source>Needs parameters</source>
         <translation>パラメーターが必要です</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation>プレビュー</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -234,22 +451,14 @@
     </message>
 </context>
 <context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Copy</source>
-        <translation>コピー</translation>
-    </message>
-    <message>
-        <source>Clear log</source>
-        <translation>ログをクリア</translation>
-    </message>
-    <message>
-        <source>Save log…</source>
-        <translation>ログを保存…</translation>
-    </message>
+    <name>ui::DataMonitorView</name>
     <message>
         <source>Data monitor</source>
         <translation>データモニター</translation>
+    </message>
+    <message>
+        <source>Data sent and received appears here once a port is open</source>
+        <translation>ポートを開くと、送受信したデータがここに表示されます</translation>
     </message>
     <message>
         <source>%1 lines</source>
@@ -263,12 +472,32 @@
         <source>Tx %1</source>
         <translation>送信 %1</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>コピー</translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation>ログをクリア</translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation>ログを保存…</translation>
+    </message>
 </context>
 <context>
-    <name>DriverHintDialog</name>
+    <name>ui::DriverHintDialog</name>
     <message>
         <source>Serial driver may be missing</source>
         <translation>シリアルドライバーが見つからない可能性があります</translation>
+    </message>
+    <message>
+        <source>The CH340 USB-to-serial driver doesn&apos;t appear to be installed on this computer. Without it, a connected UbiBot device won&apos;t show up as an available serial port.</source>
+        <translation>このコンピューターには CH340 USB-シリアル変換ドライバーがインストールされていないようです。このドライバーがないと、接続した UbiBot デバイスは利用可能なシリアルポートとして表示されません。</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again</source>
+        <translation>今後表示しない</translation>
     </message>
     <message>
         <source>Download driver</source>
@@ -278,17 +507,13 @@
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
-    <message>
-        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
-        <translation>このコンピューターには CH340 USB-シリアル変換ドライバーがインストールされていないようです。このドライバーがないと、接続した UbiBot デバイスは利用可能なシリアルポートとして表示されません。</translation>
-    </message>
-    <message>
-        <source>Don't show this again</source>
-        <translation>今後表示しない</translation>
-    </message>
 </context>
 <context>
-    <name>DriverListDialog</name>
+    <name>ui::DriverListDialog</name>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>ほとんどの UbiBot デバイスで使用される USB-シリアル変換ドライバー</translation>
+    </message>
     <message>
         <source>Driver downloads</source>
         <translation>ドライバーのダウンロード</translation>
@@ -296,6 +521,10 @@
     <message>
         <source>Close</source>
         <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>このプラットフォームに関連するドライバーはありません。</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -309,32 +538,31 @@
         <source>Download</source>
         <translation>ダウンロード</translation>
     </message>
-    <message>
-        <source>No drivers are relevant on this platform.</source>
-        <translation>このプラットフォームに関連するドライバーはありません。</translation>
-    </message>
-    <message>
-        <source>USB-to-serial driver used by most UbiBot devices</source>
-        <translation>ほとんどの UbiBot デバイスで使用される USB-シリアル変換ドライバー</translation>
-    </message>
 </context>
 <context>
-    <name>Main</name>
+    <name>ui::LibraryUpdateDialog</name>
     <message>
-        <source>Serial driver not installed — click for details</source>
-        <translation>シリアルドライバーがインストールされていません — クリックして詳細を表示</translation>
+        <source>Command library</source>
+        <translation>コマンドライブラリ</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation>閉じる</translation>
+        <source>Download and apply</source>
+        <translation>ダウンロードして適用</translation>
     </message>
     <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
+</context>
+<context>
+    <name>ui::MainView</name>
     <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot シリアルアシスタント</translation>
+        <source>Failed to open port</source>
+        <translation>ポートを開けませんでした</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -385,28 +613,40 @@
         <translation>バージョン情報</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>送信</translation>
+        <source>Serial driver not installed, so devices may not be detected.</source>
+        <translation>シリアル ドライバーがインストールされていないため、デバイスが認識されない可能性があります。</translation>
     </message>
     <message>
-        <source>Device commands</source>
-        <translation>デバイスコマンド</translation>
+        <source>View details</source>
+        <translation>詳細を表示</translation>
     </message>
     <message>
         <source>Serial</source>
         <translation>シリアル</translation>
     </message>
     <message>
+        <source>Device commands</source>
+        <translation>デバイスコマンド</translation>
+    </message>
+    <message>
         <source>Type data to send…</source>
         <translation>送信するデータを入力…</translation>
     </message>
     <message>
-        <source>Failed to open port</source>
-        <translation>ポートを開けませんでした</translation>
+        <source>Send</source>
+        <translation>送信</translation>
     </message>
     <message>
         <source>History</source>
         <translation>履歴</translation>
+    </message>
+    <message>
+        <source>Connected · %1</source>
+        <translation>接続済み · %1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未接続</translation>
     </message>
     <message>
         <source>Send history</source>
@@ -422,77 +662,18 @@
     </message>
 </context>
 <context>
-    <name>PortComboBox</name>
+    <name>ui::MainWindow</name>
     <message>
-        <source>No ports found</source>
-        <translation>ポートが見つかりません</translation>
-    </message>
-    <message>
-        <source>Unknown device</source>
-        <translation>不明なデバイス</translation>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot シリアルアシスタント</translation>
     </message>
 </context>
 <context>
-    <name>RemoteAssistPanel</name>
+    <name>ui::SaveLogDialog</name>
     <message>
-        <source>OK</source>
-        <translation>OK</translation>
+        <source>Choose a folder</source>
+        <translation>フォルダーを選択</translation>
     </message>
-    <message>
-        <source>Remote support</source>
-        <translation>リモートサポート</translation>
-    </message>
-    <message>
-        <source>Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.</source>
-        <translation>以下のコードを UbiBot サポートに送信すると、担当者がお使いのコンピューターに接続し、デバイスの問題診断を支援できます。</translation>
-    </message>
-    <message>
-        <source>Your code</source>
-        <translation>あなたのコード</translation>
-    </message>
-    <message>
-        <source>Valid for 10 minutes · this session only</source>
-        <translation>有効期限 10 分間・このセッションのみ</translation>
-    </message>
-    <message>
-        <source>Copy code</source>
-        <translation>コードをコピー</translation>
-    </message>
-    <message>
-        <source>Regenerate</source>
-        <translation>再生成</translation>
-    </message>
-    <message>
-        <source>One-time password</source>
-        <translation>ワンタイムパスワード</translation>
-    </message>
-    <message>
-        <source>Allow support to send/receive on the serial port</source>
-        <translation>サポート担当者によるシリアルポートの送受信を許可</translation>
-    </message>
-    <message>
-        <source>Share this session&apos;s log</source>
-        <translation>このセッションのログを共有</translation>
-    </message>
-    <message>
-        <source>Allow full desktop control</source>
-        <translation>デスクトップの完全な操作を許可</translation>
-    </message>
-    <message>
-        <source>Start session</source>
-        <translation>セッションを開始</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>未接続</translation>
-    </message>
-    <message>
-        <source>Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.</source>
-        <translation>リモートサポートにはシグナリング/リレーサービスが必要ですが、このビルドにはまだ含まれていません。上記のセッションコードと権限設定は、通信手段が実装され次第すぐに使用できるよう準備されています。</translation>
-    </message>
-</context>
-<context>
-    <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
         <translation>セッションログを保存</translation>
@@ -506,12 +687,12 @@
         <translation>保存先</translation>
     </message>
     <message>
-        <source>Browse…</source>
-        <translation>参照…</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>形式</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>参照…</translation>
     </message>
     <message>
         <source>Plain text (.log)</source>
@@ -535,40 +716,10 @@
     </message>
 </context>
 <context>
-    <name>SerialManager</name>
+    <name>ui::SerialSettingsPanel</name>
     <message>
-        <source>Serial port disconnected.</source>
-        <translation>シリアルポートが切断されました。</translation>
-    </message>
-</context>
-<context>
-    <name>SerialOptions</name>
-    <message>
-        <source>None</source>
-        <translation>なし</translation>
-    </message>
-    <message>
-        <source>Even</source>
-        <translation>偶数</translation>
-    </message>
-    <message>
-        <source>Odd</source>
-        <translation>奇数</translation>
-    </message>
-    <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
-    </message>
-    <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
-    </message>
-</context>
-<context>
-    <name>SerialSettingsPanel</name>
-    <message>
-        <source>Port · PORT</source>
-        <translation>ポート · PORT</translation>
+        <source>Port settings</source>
+        <translation>ポート設定</translation>
     </message>
     <message>
         <source>Port</source>
@@ -595,20 +746,16 @@
         <translation>フロー制御</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>ポートを閉じる</translation>
+        <source>No ports found</source>
+        <translation>ポートが見つかりません</translation>
     </message>
     <message>
-        <source>Open port</source>
-        <translation>ポートを開く</translation>
+        <source>Refresh ports</source>
+        <translation>ポートを更新</translation>
     </message>
     <message>
-        <source>Receive · RECEIVE</source>
-        <translation>受信 · RECEIVE</translation>
-    </message>
-    <message>
-        <source>Transmit · TRANSMIT</source>
-        <translation>送信 · TRANSMIT</translation>
+        <source>Receive</source>
+        <translation>受信</translation>
     </message>
     <message>
         <source>Show timestamp</source>
@@ -623,6 +770,10 @@
         <translation>送信データをエコー表示</translation>
     </message>
     <message>
+        <source>Transmit</source>
+        <translation>送信</translation>
+    </message>
+    <message>
         <source>Append CRC (CRC16/MODBUS)</source>
         <translation>CRC を付加 (CRC16/MODBUS)</translation>
     </message>
@@ -634,21 +785,21 @@
         <source>ms</source>
         <translation>ミリ秒</translation>
     </message>
+    <message>
+        <source>Unknown device</source>
+        <translation>不明なデバイス</translation>
+    </message>
+    <message>
+        <source>Close port</source>
+        <translation>ポートを閉じる</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>ポートを開く</translation>
+    </message>
 </context>
 <context>
-    <name>SettingsAboutDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-    <message>
-        <source>%1 (Qt %2)</source>
-        <translation>%1（Qt %2）</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
+    <name>ui::SettingsDialog</name>
     <message>
         <source>Settings &amp; About</source>
         <translation>設定とバージョン情報</translation>
@@ -660,6 +811,10 @@
     <message>
         <source>System font</source>
         <translation>システムフォント</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>サイズ</translation>
     </message>
     <message>
         <source>Data monitor font</source>
@@ -678,16 +833,8 @@
         <translation>ダーク</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>サイズ</translation>
-    </message>
-    <message>
         <source>Command library</source>
         <translation>コマンドライブラリ</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>最新です</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -710,12 +857,98 @@
         <translation>対応デバイス</translation>
     </message>
     <message>
+        <source>Restore defaults</source>
+        <translation>既定値に戻す</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1（Qt %2）</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>最新です</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation>更新があります</translation>
+    </message>
+    <message>
         <source>%1 models · %2 commands</source>
         <translation>%1 モデル · %2 コマンド</translation>
     </message>
+</context>
+<context>
+    <name>ui::SoftwareUpdateDialog</name>
     <message>
-        <source>Restore defaults</source>
-        <translation>既定値に戻す</translation>
+        <source>Software Update</source>
+        <translation>ソフトウェア更新</translation>
+    </message>
+    <message>
+        <source>This update is required to keep using the app.</source>
+        <translation>アプリを引き続き使用するには、この更新が必要です。</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>再試行</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>今すぐ更新</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Version %1 is available (you have %2)</source>
+        <translation>バージョン %1 が利用可能です（現在は %2）</translation>
+    </message>
+</context>
+<context>
+    <name>ui::TemplateDialog</name>
+    <message>
+        <source>Edit template</source>
+        <translation>テンプレートを編集</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新しいテンプレート</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名前</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>例：デバイスをリセット</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>送信する実際のテキスト</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
     </message>
 </context>
 </TS>

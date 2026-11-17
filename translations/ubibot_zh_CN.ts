@@ -2,53 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN" sourcelanguage="en">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>关于</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 串口助手</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>版本 %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>面向 UbiBot IoT 设备（WS1、WS1 Pro、GS1-AL4G1RS、SP1 等）的串口调试工具，基于 Qt 6、QML 和 C++17 构建。</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>构建时间</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>公司</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · 美国</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>网站</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>基于 Qt %1 构建，遵循 GNU Lesser General Public License v3（LGPLv3）。Qt 是 The Qt Company Ltd. 的注册商标。本程序以动态链接方式使用 Qt，随附的 Qt 库可替换为兼容的 LGPLv3 版本。</translation>
-    </message>
-</context>
-<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -65,6 +18,34 @@
     <message>
         <source>Select a serial port first.</source>
         <translation>请先选择一个串口。</translation>
+    </message>
+    <message>
+        <source>Command library is up to date (%1).</source>
+        <translation>指令库已是最新（%1）。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires app version %2 or later -- please update the app first.</source>
+        <translation>版本 %1 可用，但需要应用版本 %2 或更高，请先更新应用。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available.</source>
+        <translation>版本 %1 可用。</translation>
+    </message>
+    <message>
+        <source>Downloaded data could not be applied: %1</source>
+        <translation>下载的数据无法应用：%1</translation>
+    </message>
+    <message>
+        <source>Updated to %1.</source>
+        <translation>已更新到 %1。</translation>
+    </message>
+    <message>
+        <source>You&apos;re on the latest version (%1).</source>
+        <translation>已是最新版本（%1）。</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
+        <translation>版本 %1 可用，但需要先从 %2 或更高版本升级，请重新安装应用后再试。</translation>
     </message>
     <message>
         <source>%1 opened · %2</source>
@@ -95,80 +76,238 @@
         <translation>日志已保存到 %1</translation>
     </message>
     <message>
-        <source>Bundled command library is %1 — this build checks the local copy only.</source>
-        <translation>当前内置指令库版本为 %1 — 本版本仅检查本地库文件。</translation>
+        <source>No update server configured (.env) -- using the bundled command library only.</source>
+        <translation>未配置更新服务器（.env），仅使用内置指令库。</translation>
+    </message>
+    <message>
+        <source>Checking for updates…</source>
+        <translation>正在检查更新…</translation>
+    </message>
+    <message>
+        <source>Downloading…</source>
+        <translation>正在下载…</translation>
+    </message>
+    <message>
+        <source>No update server configured (.env).</source>
+        <translation>未配置更新服务器（.env）。</translation>
+    </message>
+    <message>
+        <source>Downloading update…</source>
+        <translation>正在下载更新…</translation>
+    </message>
+    <message>
+        <source>Download cancelled.</source>
+        <translation>下载已取消。</translation>
+    </message>
+    <message>
+        <source>Downloaded file failed checksum verification -- update not applied.</source>
+        <translation>下载的文件校验失败，未应用更新。</translation>
+    </message>
+    <message>
+        <source>Preparing update…</source>
+        <translation>正在准备更新…</translation>
+    </message>
+    <message>
+        <source>Failed to launch the updater script.</source>
+        <translation>无法启动更新脚本。</translation>
+    </message>
+    <message>
+        <source>Restarting to apply update…</source>
+        <translation>正在重启以应用更新…</translation>
+    </message>
+    <message>
+        <source>Self-update isn&apos;t supported on this platform yet -- please download the new version manually.</source>
+        <translation>此平台暂不支持自动更新，请手动下载新版本。</translation>
     </message>
 </context>
 <context>
-    <name>CommandLibraryPanel</name>
+    <name>DeviceLibraryUpdateClient</name>
     <message>
-        <source>Search commands</source>
-        <translation>搜索指令</translation>
+        <source>Remote update server not configured (.env).</source>
+        <translation>未配置远程更新服务器（.env）。</translation>
     </message>
     <message>
-        <source>Drag a row to reorder</source>
-        <translation>可拖拽行调整顺序</translation>
+        <source>Malformed response: %1</source>
+        <translation>响应格式错误：%1</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>编辑</translation>
+        <source>Checksum mismatch -- downloaded data may be corrupted.</source>
+        <translation>校验和不匹配，下载的数据可能已损坏。</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>删除</translation>
+        <source>Response has no models[] array.</source>
+        <translation>响应中缺少 models[] 数组。</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::CaptionButton</name>
+    <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
     </message>
     <message>
-        <source>Batch commands</source>
-        <translation>批量指令</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>新建模板</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>编辑模板</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>例如：重启设备</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>内容</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>要发送的原始文本</translation>
+        <source>Maximize</source>
+        <translation>最大化</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <source>No batch commands yet</source>
-        <translation>暂无批量指令</translation>
+        <source>Restore</source>
+        <translation>还原</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::Dialog</name>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
     </message>
     <message>
-        <source>%1 steps · %2 ms interval</source>
-        <translation>%1 步 · 间隔 %2 毫秒</translation>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::InfoBar</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::TeachingTip</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>could not start &apos;tar&apos; (bundled with Windows 10 1803+/Windows 11) -- %1</source>
+        <translation>无法启动 &apos;tar&apos;（Windows 10 1803+/Windows 11 自带）：%1</translation>
     </message>
     <message>
-        <source>■ Stop</source>
-        <translation>■ 停止</translation>
+        <source>&apos;tar&apos; timed out extracting the update</source>
+        <translation>&apos;tar&apos; 解压更新超时</translation>
     </message>
     <message>
-        <source>▶ Run</source>
-        <translation>▶ 运行</translation>
+        <source>&apos;tar&apos; failed (exit %1): %2</source>
+        <translation>&apos;tar&apos; 执行失败（退出码 %1）：%2</translation>
     </message>
     <message>
-        <source>New batch</source>
-        <translation>新建批量</translation>
+        <source>downloaded archive doesn&apos;t contain %1 -- not a valid release package</source>
+        <translation>下载的压缩包不包含 %1，不是有效的发布包</translation>
     </message>
+    <message>
+        <source>could not write updater script to %1: %2</source>
+        <translation>无法写入更新脚本到 %1：%2</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>串口已断开连接。</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>偶校验</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>奇校验</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareUpdateClient</name>
+    <message>
+        <source>Update server not configured (.env).</source>
+        <translation>未配置更新服务器（.env）。</translation>
+    </message>
+    <message>
+        <source>Malformed response: %1</source>
+        <translation>响应格式错误：%1</translation>
+    </message>
+    <message>
+        <source>Server reported an error.</source>
+        <translation>服务器返回错误。</translation>
+    </message>
+    <message>
+        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
+        <translation>此应用未在更新服务器上注册（未找到 slug &quot;%1&quot;）。</translation>
+    </message>
+    <message>
+        <source>Cannot write to %1: %2</source>
+        <translation>无法写入 %1：%2</translation>
+    </message>
+</context>
+<context>
+    <name>ui::AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>关于</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 串口助手</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>版本 %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6 and C++17.</source>
+        <translation>一款面向 UbiBot 物联网设备（WS1、WS1 Pro、GS1-AL4G1RS、SP1 等）的串口调试工具，基于 Qt 6 和 C++17 开发。</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>构建时间</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>公司</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · 美国</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>网站</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>基于 Qt %1 构建，遵循 GNU Lesser General Public License v3（LGPLv3）。Qt 是 The Qt Company Ltd. 的注册商标。本程序以动态链接方式使用 Qt，随附的 Qt 库可替换为兼容的 LGPLv3 版本。</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>ui::BatchEditDialog</name>
     <message>
         <source>Edit batch command</source>
         <translation>编辑批量指令</translation>
@@ -176,6 +315,10 @@
     <message>
         <source>New batch command</source>
         <translation>新建批量指令</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
     </message>
     <message>
         <source>e.g. Startup sequence</source>
@@ -194,14 +337,6 @@
         <translation>步骤</translation>
     </message>
     <message>
-        <source>Command text</source>
-        <translation>指令内容</translation>
-    </message>
-    <message>
-        <source>CRC</source>
-        <translation>CRC</translation>
-    </message>
-    <message>
         <source>Add step</source>
         <translation>添加步骤</translation>
     </message>
@@ -210,19 +345,101 @@
         <translation>取消</translation>
     </message>
     <message>
-        <source>Device model · Model</source>
-        <translation>设备型号 · Model</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>保存</translation>
     </message>
+    <message>
+        <source>Command text</source>
+        <translation>指令内容</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Remove step</source>
+        <translation>删除步骤</translation>
+    </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
+    <name>ui::BatchListDialog</name>
+    <message>
+        <source>Batch commands</source>
+        <translation>批量指令</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>暂无批量指令</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>新建批量</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 步 · 间隔 %2 毫秒</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>运行</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>编辑</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandLibraryPanel</name>
+    <message>
+        <source>Device model</source>
+        <translation>设备型号</translation>
+    </message>
+    <message>
+        <source>Search commands</source>
+        <translation>搜索指令</translation>
+    </message>
+    <message>
+        <source>Drag a row to reorder</source>
+        <translation>可拖拽行调整顺序</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新建模板</translation>
+    </message>
+    <message>
+        <source>Batch commands</source>
+        <translation>批量指令</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>编辑</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandParamsPanel</name>
     <message>
         <source>Needs parameters</source>
         <translation>需要参数</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation>预览</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -234,22 +451,14 @@
     </message>
 </context>
 <context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Copy</source>
-        <translation>复制</translation>
-    </message>
-    <message>
-        <source>Clear log</source>
-        <translation>清空记录</translation>
-    </message>
-    <message>
-        <source>Save log…</source>
-        <translation>保存记录…</translation>
-    </message>
+    <name>ui::DataMonitorView</name>
     <message>
         <source>Data monitor</source>
         <translation>数据监视</translation>
+    </message>
+    <message>
+        <source>Data sent and received appears here once a port is open</source>
+        <translation>打开串口后，收发的数据将显示在这里</translation>
     </message>
     <message>
         <source>%1 lines</source>
@@ -263,12 +472,32 @@
         <source>Tx %1</source>
         <translation>发送 %1</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>复制</translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation>清空记录</translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation>保存记录…</translation>
+    </message>
 </context>
 <context>
-    <name>DriverHintDialog</name>
+    <name>ui::DriverHintDialog</name>
     <message>
         <source>Serial driver may be missing</source>
         <translation>可能缺少串口驱动</translation>
+    </message>
+    <message>
+        <source>The CH340 USB-to-serial driver doesn&apos;t appear to be installed on this computer. Without it, a connected UbiBot device won&apos;t show up as an available serial port.</source>
+        <translation>本机似乎没有安装 CH340 USB 转串口驱动。没有这个驱动，已连接的 UbiBot 设备不会显示为可用串口。</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again</source>
+        <translation>不再提示</translation>
     </message>
     <message>
         <source>Download driver</source>
@@ -278,17 +507,13 @@
         <source>Close</source>
         <translation>关闭</translation>
     </message>
-    <message>
-        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
-        <translation>本机似乎没有安装 CH340 USB 转串口驱动。没有这个驱动，已连接的 UbiBot 设备不会显示为可用串口。</translation>
-    </message>
-    <message>
-        <source>Don't show this again</source>
-        <translation>不再提示</translation>
-    </message>
 </context>
 <context>
-    <name>DriverListDialog</name>
+    <name>ui::DriverListDialog</name>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>大多数 UbiBot 设备使用的 USB 转串口驱动</translation>
+    </message>
     <message>
         <source>Driver downloads</source>
         <translation>驱动下载</translation>
@@ -296,6 +521,10 @@
     <message>
         <source>Close</source>
         <translation>关闭</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>此平台没有相关驱动。</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -309,32 +538,31 @@
         <source>Download</source>
         <translation>下载</translation>
     </message>
-    <message>
-        <source>No drivers are relevant on this platform.</source>
-        <translation>此平台没有相关驱动。</translation>
-    </message>
-    <message>
-        <source>USB-to-serial driver used by most UbiBot devices</source>
-        <translation>大多数 UbiBot 设备使用的 USB 转串口驱动</translation>
-    </message>
 </context>
 <context>
-    <name>Main</name>
+    <name>ui::LibraryUpdateDialog</name>
     <message>
-        <source>Serial driver not installed — click for details</source>
-        <translation>串口驱动未安装 — 点击查看详情</translation>
+        <source>Command library</source>
+        <translation>指令库</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation>忽略</translation>
+        <source>Download and apply</source>
+        <translation>下载并应用</translation>
     </message>
     <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>
+</context>
+<context>
+    <name>ui::MainView</name>
     <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 串口助手</translation>
+        <source>Failed to open port</source>
+        <translation>打开串口失败</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -385,28 +613,40 @@
         <translation>关于</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>发送</translation>
+        <source>Serial driver not installed, so devices may not be detected.</source>
+        <translation>串口驱动未安装，设备可能无法被识别。</translation>
     </message>
     <message>
-        <source>Device commands</source>
-        <translation>设备指令</translation>
+        <source>View details</source>
+        <translation>查看详情</translation>
     </message>
     <message>
         <source>Serial</source>
         <translation>串口</translation>
     </message>
     <message>
+        <source>Device commands</source>
+        <translation>设备指令</translation>
+    </message>
+    <message>
         <source>Type data to send…</source>
         <translation>输入要发送的数据…</translation>
     </message>
     <message>
-        <source>Failed to open port</source>
-        <translation>打开串口失败</translation>
+        <source>Send</source>
+        <translation>发送</translation>
     </message>
     <message>
         <source>History</source>
         <translation>历史记录</translation>
+    </message>
+    <message>
+        <source>Connected · %1</source>
+        <translation>已连接 · %1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
     </message>
     <message>
         <source>Send history</source>
@@ -422,77 +662,18 @@
     </message>
 </context>
 <context>
-    <name>PortComboBox</name>
+    <name>ui::MainWindow</name>
     <message>
-        <source>No ports found</source>
-        <translation>未找到端口</translation>
-    </message>
-    <message>
-        <source>Unknown device</source>
-        <translation>未知设备</translation>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 串口助手</translation>
     </message>
 </context>
 <context>
-    <name>RemoteAssistPanel</name>
+    <name>ui::SaveLogDialog</name>
     <message>
-        <source>OK</source>
-        <translation>确定</translation>
+        <source>Choose a folder</source>
+        <translation>选择文件夹</translation>
     </message>
-    <message>
-        <source>Remote support</source>
-        <translation>远程协助</translation>
-    </message>
-    <message>
-        <source>Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.</source>
-        <translation>把下面的识别码发送给 UbiBot 客服，客服即可连接到您的电脑，协助排查设备问题。</translation>
-    </message>
-    <message>
-        <source>Your code</source>
-        <translation>您的识别码</translation>
-    </message>
-    <message>
-        <source>Valid for 10 minutes · this session only</source>
-        <translation>有效期 10 分钟 · 仅本次会话有效</translation>
-    </message>
-    <message>
-        <source>Copy code</source>
-        <translation>复制识别码</translation>
-    </message>
-    <message>
-        <source>Regenerate</source>
-        <translation>重新生成</translation>
-    </message>
-    <message>
-        <source>One-time password</source>
-        <translation>一次性密码</translation>
-    </message>
-    <message>
-        <source>Allow support to send/receive on the serial port</source>
-        <translation>允许客服操作串口收发</translation>
-    </message>
-    <message>
-        <source>Share this session&apos;s log</source>
-        <translation>共享当前会话日志</translation>
-    </message>
-    <message>
-        <source>Allow full desktop control</source>
-        <translation>允许控制整个桌面</translation>
-    </message>
-    <message>
-        <source>Start session</source>
-        <translation>开始会话</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>未连接</translation>
-    </message>
-    <message>
-        <source>Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.</source>
-        <translation>远程协助功能需要信令/中转服务，当前版本尚未包含该部分。上面的识别码与权限设置已经就绪，待接入传输层后即可使用。</translation>
-    </message>
-</context>
-<context>
-    <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
         <translation>保存日志</translation>
@@ -506,12 +687,12 @@
         <translation>保存位置</translation>
     </message>
     <message>
-        <source>Browse…</source>
-        <translation>浏览…</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>格式</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>浏览…</translation>
     </message>
     <message>
         <source>Plain text (.log)</source>
@@ -535,40 +716,10 @@
     </message>
 </context>
 <context>
-    <name>SerialManager</name>
+    <name>ui::SerialSettingsPanel</name>
     <message>
-        <source>Serial port disconnected.</source>
-        <translation>串口已断开连接。</translation>
-    </message>
-</context>
-<context>
-    <name>SerialOptions</name>
-    <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
-        <source>Even</source>
-        <translation>偶校验</translation>
-    </message>
-    <message>
-        <source>Odd</source>
-        <translation>奇校验</translation>
-    </message>
-    <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
-    </message>
-    <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
-    </message>
-</context>
-<context>
-    <name>SerialSettingsPanel</name>
-    <message>
-        <source>Port · PORT</source>
-        <translation>端口 · PORT</translation>
+        <source>Port settings</source>
+        <translation>串口设置</translation>
     </message>
     <message>
         <source>Port</source>
@@ -595,20 +746,16 @@
         <translation>流控</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>关闭串口</translation>
+        <source>No ports found</source>
+        <translation>未找到端口</translation>
     </message>
     <message>
-        <source>Open port</source>
-        <translation>打开串口</translation>
+        <source>Refresh ports</source>
+        <translation>刷新串口</translation>
     </message>
     <message>
-        <source>Receive · RECEIVE</source>
-        <translation>接收 · RECEIVE</translation>
-    </message>
-    <message>
-        <source>Transmit · TRANSMIT</source>
-        <translation>发送 · TRANSMIT</translation>
+        <source>Receive</source>
+        <translation>接收</translation>
     </message>
     <message>
         <source>Show timestamp</source>
@@ -623,6 +770,10 @@
         <translation>显示发送内容</translation>
     </message>
     <message>
+        <source>Transmit</source>
+        <translation>发送</translation>
+    </message>
+    <message>
         <source>Append CRC (CRC16/MODBUS)</source>
         <translation>附加 CRC 校验（CRC16/MODBUS）</translation>
     </message>
@@ -634,21 +785,21 @@
         <source>ms</source>
         <translation>毫秒</translation>
     </message>
+    <message>
+        <source>Unknown device</source>
+        <translation>未知设备</translation>
+    </message>
+    <message>
+        <source>Close port</source>
+        <translation>关闭串口</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>打开串口</translation>
+    </message>
 </context>
 <context>
-    <name>SettingsAboutDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-    <message>
-        <source>%1 (Qt %2)</source>
-        <translation>%1（Qt %2）</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>确定</translation>
-    </message>
+    <name>ui::SettingsDialog</name>
     <message>
         <source>Settings &amp; About</source>
         <translation>设置与关于</translation>
@@ -660,6 +811,10 @@
     <message>
         <source>System font</source>
         <translation>系统字体</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>字号</translation>
     </message>
     <message>
         <source>Data monitor font</source>
@@ -678,16 +833,8 @@
         <translation>深色</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>字号</translation>
-    </message>
-    <message>
         <source>Command library</source>
         <translation>指令库</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>已是最新</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -710,12 +857,98 @@
         <translation>设备库</translation>
     </message>
     <message>
+        <source>Restore defaults</source>
+        <translation>恢复默认值</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1（Qt %2）</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>已是最新</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation>有可用更新</translation>
+    </message>
+    <message>
         <source>%1 models · %2 commands</source>
         <translation>%1 个型号 · %2 条指令</translation>
     </message>
+</context>
+<context>
+    <name>ui::SoftwareUpdateDialog</name>
     <message>
-        <source>Restore defaults</source>
-        <translation>恢复默认值</translation>
+        <source>Software Update</source>
+        <translation>软件更新</translation>
+    </message>
+    <message>
+        <source>This update is required to keep using the app.</source>
+        <translation>必须安装此更新才能继续使用本应用。</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>稍后</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>重试</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>立即更新</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Version %1 is available (you have %2)</source>
+        <translation>版本 %1 可用（当前为 %2）</translation>
+    </message>
+</context>
+<context>
+    <name>ui::TemplateDialog</name>
+    <message>
+        <source>Edit template</source>
+        <translation>编辑模板</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>新建模板</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>例如：重启设备</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>内容</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>要发送的原始文本</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>保存</translation>
     </message>
 </context>
 </TS>

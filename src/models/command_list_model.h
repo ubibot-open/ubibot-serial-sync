@@ -6,7 +6,7 @@
 #include "core/device_library.h"
 
 #include <QAbstractListModel>
-#include <QQmlEngine>
+#include <QObject>
 #include <QVariantList>
 
 class SettingsStore;
@@ -23,8 +23,6 @@ class SettingsStore;
 // unpredictable.
 class CommandListModel : public QAbstractListModel {
     Q_OBJECT
-    QML_ELEMENT
-    QML_UNCREATABLE("Created by AppController")
 
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchChanged)
 

@@ -5,7 +5,7 @@
 
 #include <QAbstractListModel>
 #include <QDateTime>
-#include <QQmlEngine>
+#include <QObject>
 #include <QVector>
 
 class SettingsStore;
@@ -18,8 +18,6 @@ class SettingsStore;
 // at construction, re-saved after every push()/clear().
 class CommandHistoryModel : public QAbstractListModel {
     Q_OBJECT
-    QML_ELEMENT
-    QML_UNCREATABLE("Created by AppController")
 
 public:
     enum Roles { TextRole = Qt::UserRole + 1, TimeRole };

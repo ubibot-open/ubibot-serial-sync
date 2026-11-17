@@ -2,53 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="it" sourcelanguage="en">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>Informazioni</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Chiudi</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Assistente seriale UbiBot</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>Versione %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>Uno strumento di debug per porta seriale per i dispositivi IoT UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 e altri), sviluppato con Qt 6, QML e C++17.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>Data di build</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>Azienda</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · Stati Uniti d&apos;America</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Sito web</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Sviluppato con Qt %1 sotto licenza GNU Lesser General Public License v3 (LGPLv3). Qt è un marchio di The Qt Company Ltd. Qt è collegato dinamicamente, quindi le librerie Qt incluse possono essere sostituite con una build compatibile LGPLv3.</translation>
-    </message>
-</context>
-<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -65,6 +18,34 @@
     <message>
         <source>Select a serial port first.</source>
         <translation>Seleziona prima una porta seriale.</translation>
+    </message>
+    <message>
+        <source>Command library is up to date (%1).</source>
+        <translation>La libreria comandi è aggiornata (%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires app version %2 or later -- please update the app first.</source>
+        <translation>La versione %1 è disponibile, ma richiede l&apos;app versione %2 o successiva: aggiorna prima l&apos;app.</translation>
+    </message>
+    <message>
+        <source>Version %1 is available.</source>
+        <translation>La versione %1 è disponibile.</translation>
+    </message>
+    <message>
+        <source>Downloaded data could not be applied: %1</source>
+        <translation>Impossibile applicare i dati scaricati: %1</translation>
+    </message>
+    <message>
+        <source>Updated to %1.</source>
+        <translation>Aggiornato a %1.</translation>
+    </message>
+    <message>
+        <source>You&apos;re on the latest version (%1).</source>
+        <translation>Stai usando l&apos;ultima versione (%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
+        <translation>La versione %1 è disponibile, ma richiede prima l&apos;aggiornamento dalla versione %2 o successiva: reinstalla l&apos;app e riprova.</translation>
     </message>
     <message>
         <source>%1 opened · %2</source>
@@ -95,80 +76,238 @@
         <translation>Registro salvato in %1</translation>
     </message>
     <message>
-        <source>Bundled command library is %1 — this build checks the local copy only.</source>
-        <translation>La libreria comandi inclusa è alla versione %1 — questa build verifica solo la copia locale.</translation>
+        <source>No update server configured (.env) -- using the bundled command library only.</source>
+        <translation>Nessun server di aggiornamento configurato (.env): viene usata solo la libreria comandi integrata.</translation>
+    </message>
+    <message>
+        <source>Checking for updates…</source>
+        <translation>Ricerca aggiornamenti…</translation>
+    </message>
+    <message>
+        <source>Downloading…</source>
+        <translation>Download in corso…</translation>
+    </message>
+    <message>
+        <source>No update server configured (.env).</source>
+        <translation>Nessun server di aggiornamento configurato (.env).</translation>
+    </message>
+    <message>
+        <source>Downloading update…</source>
+        <translation>Download dell&apos;aggiornamento…</translation>
+    </message>
+    <message>
+        <source>Download cancelled.</source>
+        <translation>Download annullato.</translation>
+    </message>
+    <message>
+        <source>Downloaded file failed checksum verification -- update not applied.</source>
+        <translation>Il file scaricato non ha superato la verifica del checksum: aggiornamento non applicato.</translation>
+    </message>
+    <message>
+        <source>Preparing update…</source>
+        <translation>Preparazione dell&apos;aggiornamento…</translation>
+    </message>
+    <message>
+        <source>Failed to launch the updater script.</source>
+        <translation>Impossibile avviare lo script di aggiornamento.</translation>
+    </message>
+    <message>
+        <source>Restarting to apply update…</source>
+        <translation>Riavvio per applicare l&apos;aggiornamento…</translation>
+    </message>
+    <message>
+        <source>Self-update isn&apos;t supported on this platform yet -- please download the new version manually.</source>
+        <translation>L&apos;aggiornamento automatico non è ancora supportato su questa piattaforma: scarica manualmente la nuova versione.</translation>
     </message>
 </context>
 <context>
-    <name>CommandLibraryPanel</name>
+    <name>DeviceLibraryUpdateClient</name>
     <message>
-        <source>Search commands</source>
-        <translation>Cerca comandi</translation>
+        <source>Remote update server not configured (.env).</source>
+        <translation>Server di aggiornamento remoto non configurato (.env).</translation>
     </message>
     <message>
-        <source>Drag a row to reorder</source>
-        <translation>Trascina una riga per riordinare</translation>
+        <source>Malformed response: %1</source>
+        <translation>Risposta non valida: %1</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Modifica</translation>
+        <source>Checksum mismatch -- downloaded data may be corrupted.</source>
+        <translation>Checksum non corrispondente: i dati scaricati potrebbero essere danneggiati.</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Elimina</translation>
+        <source>Response has no models[] array.</source>
+        <translation>La risposta non contiene l&apos;array models[].</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::CaptionButton</name>
+    <message>
+        <source>Minimize</source>
+        <translation>Riduci a icona</translation>
     </message>
     <message>
-        <source>Batch commands</source>
-        <translation>Comandi in batch</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>Nuovo modello</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>Modifica modello</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nome</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>es. Riavvia dispositivo</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Contenuto</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>Il testo esatto da inviare</translation>
+        <source>Maximize</source>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>Chiudi</translation>
     </message>
     <message>
-        <source>No batch commands yet</source>
-        <translation>Nessun comando in batch</translation>
+        <source>Restore</source>
+        <translation>Ripristina</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::Dialog</name>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
-        <source>%1 steps · %2 ms interval</source>
-        <translation>%1 passaggi · intervallo %2 ms</translation>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::InfoBar</name>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::TeachingTip</name>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>could not start &apos;tar&apos; (bundled with Windows 10 1803+/Windows 11) -- %1</source>
+        <translation>impossibile avviare &apos;tar&apos; (incluso in Windows 10 1803+/Windows 11): %1</translation>
     </message>
     <message>
-        <source>■ Stop</source>
-        <translation>■ Ferma</translation>
+        <source>&apos;tar&apos; timed out extracting the update</source>
+        <translation>&apos;tar&apos; è andato in timeout durante l&apos;estrazione dell&apos;aggiornamento</translation>
     </message>
     <message>
-        <source>▶ Run</source>
-        <translation>▶ Avvia</translation>
+        <source>&apos;tar&apos; failed (exit %1): %2</source>
+        <translation>&apos;tar&apos; non riuscito (uscita %1): %2</translation>
     </message>
     <message>
-        <source>New batch</source>
-        <translation>Nuovo batch</translation>
+        <source>downloaded archive doesn&apos;t contain %1 -- not a valid release package</source>
+        <translation>l&apos;archivio scaricato non contiene %1: non è un pacchetto di rilascio valido</translation>
     </message>
+    <message>
+        <source>could not write updater script to %1: %2</source>
+        <translation>impossibile scrivere lo script di aggiornamento in %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>Porta seriale disconnessa.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>Nessuna</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>Pari</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>Dispari</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareUpdateClient</name>
+    <message>
+        <source>Update server not configured (.env).</source>
+        <translation>Server di aggiornamento non configurato (.env).</translation>
+    </message>
+    <message>
+        <source>Malformed response: %1</source>
+        <translation>Risposta non valida: %1</translation>
+    </message>
+    <message>
+        <source>Server reported an error.</source>
+        <translation>Il server ha segnalato un errore.</translation>
+    </message>
+    <message>
+        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
+        <translation>Questa app non è registrata sul server di aggiornamento (slug &quot;%1&quot; non trovato).</translation>
+    </message>
+    <message>
+        <source>Cannot write to %1: %2</source>
+        <translation>Impossibile scrivere in %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>ui::AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>Informazioni</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Assistente seriale UbiBot</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>Versione %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6 and C++17.</source>
+        <translation>Uno strumento di debug della porta seriale per i dispositivi IoT UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 e altri), sviluppato con Qt 6 e C++17.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>Data di build</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>Azienda</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · Stati Uniti d&apos;America</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Sito web</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Sviluppato con Qt %1 sotto licenza GNU Lesser General Public License v3 (LGPLv3). Qt è un marchio di The Qt Company Ltd. Qt è collegato dinamicamente, quindi le librerie Qt incluse possono essere sostituite con una build compatibile LGPLv3.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+</context>
+<context>
+    <name>ui::BatchEditDialog</name>
     <message>
         <source>Edit batch command</source>
         <translation>Modifica comando in batch</translation>
@@ -176,6 +315,10 @@
     <message>
         <source>New batch command</source>
         <translation>Nuovo comando in batch</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>e.g. Startup sequence</source>
@@ -194,14 +337,6 @@
         <translation>Passaggi</translation>
     </message>
     <message>
-        <source>Command text</source>
-        <translation>Testo del comando</translation>
-    </message>
-    <message>
-        <source>CRC</source>
-        <translation>CRC</translation>
-    </message>
-    <message>
         <source>Add step</source>
         <translation>Aggiungi passaggio</translation>
     </message>
@@ -210,19 +345,101 @@
         <translation>Annulla</translation>
     </message>
     <message>
-        <source>Device model · Model</source>
-        <translation>Modello dispositivo · Model</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
+    <message>
+        <source>Command text</source>
+        <translation>Testo del comando</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Remove step</source>
+        <translation>Rimuovi passaggio</translation>
+    </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
+    <name>ui::BatchListDialog</name>
+    <message>
+        <source>Batch commands</source>
+        <translation>Comandi in batch</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>Nessun comando in batch</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>Nuovo batch</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 passaggi · intervallo %2 ms</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Ferma</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Esegui</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Modifica</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Elimina</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandLibraryPanel</name>
+    <message>
+        <source>Device model</source>
+        <translation>Modello dispositivo</translation>
+    </message>
+    <message>
+        <source>Search commands</source>
+        <translation>Cerca comandi</translation>
+    </message>
+    <message>
+        <source>Drag a row to reorder</source>
+        <translation>Trascina una riga per riordinare</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Nuovo modello</translation>
+    </message>
+    <message>
+        <source>Batch commands</source>
+        <translation>Comandi in batch</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Modifica</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Elimina</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandParamsPanel</name>
     <message>
         <source>Needs parameters</source>
         <translation>Richiede parametri</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation>Anteprima</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -234,22 +451,14 @@
     </message>
 </context>
 <context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Copy</source>
-        <translation>Copia</translation>
-    </message>
-    <message>
-        <source>Clear log</source>
-        <translation>Cancella registro</translation>
-    </message>
-    <message>
-        <source>Save log…</source>
-        <translation>Salva registro…</translation>
-    </message>
+    <name>ui::DataMonitorView</name>
     <message>
         <source>Data monitor</source>
         <translation>Monitor dati</translation>
+    </message>
+    <message>
+        <source>Data sent and received appears here once a port is open</source>
+        <translation>I dati inviati e ricevuti compaiono qui dopo l&apos;apertura di una porta</translation>
     </message>
     <message>
         <source>%1 lines</source>
@@ -263,12 +472,32 @@
         <source>Tx %1</source>
         <translation>Tx %1</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>Copia</translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation>Cancella registro</translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation>Salva registro…</translation>
+    </message>
 </context>
 <context>
-    <name>DriverHintDialog</name>
+    <name>ui::DriverHintDialog</name>
     <message>
         <source>Serial driver may be missing</source>
         <translation>Il driver della porta seriale potrebbe mancare</translation>
+    </message>
+    <message>
+        <source>The CH340 USB-to-serial driver doesn&apos;t appear to be installed on this computer. Without it, a connected UbiBot device won&apos;t show up as an available serial port.</source>
+        <translation>Il driver USB-seriale CH340 non sembra essere installato su questo computer. Senza di esso, un dispositivo UbiBot collegato non verrà visualizzato come porta seriale disponibile.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again</source>
+        <translation>Non mostrare più</translation>
     </message>
     <message>
         <source>Download driver</source>
@@ -278,17 +507,13 @@
         <source>Close</source>
         <translation>Chiudi</translation>
     </message>
-    <message>
-        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
-        <translation>Il driver USB-seriale CH340 non sembra essere installato su questo computer. Senza di esso, un dispositivo UbiBot collegato non verrà visualizzato come porta seriale disponibile.</translation>
-    </message>
-    <message>
-        <source>Don't show this again</source>
-        <translation>Non mostrare più</translation>
-    </message>
 </context>
 <context>
-    <name>DriverListDialog</name>
+    <name>ui::DriverListDialog</name>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>Driver USB-seriale utilizzato dalla maggior parte dei dispositivi UbiBot</translation>
+    </message>
     <message>
         <source>Driver downloads</source>
         <translation>Download driver</translation>
@@ -296,6 +521,10 @@
     <message>
         <source>Close</source>
         <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>Nessun driver rilevante per questa piattaforma.</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -309,32 +538,31 @@
         <source>Download</source>
         <translation>Scarica</translation>
     </message>
-    <message>
-        <source>No drivers are relevant on this platform.</source>
-        <translation>Nessun driver rilevante per questa piattaforma.</translation>
-    </message>
-    <message>
-        <source>USB-to-serial driver used by most UbiBot devices</source>
-        <translation>Driver USB-seriale utilizzato dalla maggior parte dei dispositivi UbiBot</translation>
-    </message>
 </context>
 <context>
-    <name>Main</name>
+    <name>ui::LibraryUpdateDialog</name>
     <message>
-        <source>Serial driver not installed — click for details</source>
-        <translation>Driver della porta seriale non installato — fai clic per i dettagli</translation>
+        <source>Command library</source>
+        <translation>Libreria comandi</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation>Ignora</translation>
+        <source>Download and apply</source>
+        <translation>Scarica e applica</translation>
     </message>
     <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
+</context>
+<context>
+    <name>ui::MainView</name>
     <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Assistente seriale UbiBot</translation>
+        <source>Failed to open port</source>
+        <translation>Apertura della porta non riuscita</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -385,28 +613,40 @@
         <translation>Informazioni</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>Invia</translation>
+        <source>Serial driver not installed, so devices may not be detected.</source>
+        <translation>Driver seriale non installato: i dispositivi potrebbero non essere rilevati.</translation>
     </message>
     <message>
-        <source>Device commands</source>
-        <translation>Comandi dispositivo</translation>
+        <source>View details</source>
+        <translation>Visualizza dettagli</translation>
     </message>
     <message>
         <source>Serial</source>
         <translation>Seriale</translation>
     </message>
     <message>
+        <source>Device commands</source>
+        <translation>Comandi dispositivo</translation>
+    </message>
+    <message>
         <source>Type data to send…</source>
         <translation>Digita i dati da inviare…</translation>
     </message>
     <message>
-        <source>Failed to open port</source>
-        <translation>Apertura della porta non riuscita</translation>
+        <source>Send</source>
+        <translation>Invia</translation>
     </message>
     <message>
         <source>History</source>
         <translation>Cronologia</translation>
+    </message>
+    <message>
+        <source>Connected · %1</source>
+        <translation>Connesso · %1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Non connesso</translation>
     </message>
     <message>
         <source>Send history</source>
@@ -422,77 +662,18 @@
     </message>
 </context>
 <context>
-    <name>PortComboBox</name>
+    <name>ui::MainWindow</name>
     <message>
-        <source>No ports found</source>
-        <translation>Nessuna porta trovata</translation>
-    </message>
-    <message>
-        <source>Unknown device</source>
-        <translation>Dispositivo sconosciuto</translation>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Assistente seriale UbiBot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteAssistPanel</name>
+    <name>ui::SaveLogDialog</name>
     <message>
-        <source>OK</source>
-        <translation>OK</translation>
+        <source>Choose a folder</source>
+        <translation>Scegli una cartella</translation>
     </message>
-    <message>
-        <source>Remote support</source>
-        <translation>Assistenza remota</translation>
-    </message>
-    <message>
-        <source>Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.</source>
-        <translation>Invia il codice seguente all&apos;assistenza UbiBot in modo che possa connettersi al tuo computer e aiutarti a diagnosticare i problemi del dispositivo.</translation>
-    </message>
-    <message>
-        <source>Your code</source>
-        <translation>Il tuo codice</translation>
-    </message>
-    <message>
-        <source>Valid for 10 minutes · this session only</source>
-        <translation>Valido per 10 minuti · solo per questa sessione</translation>
-    </message>
-    <message>
-        <source>Copy code</source>
-        <translation>Copia codice</translation>
-    </message>
-    <message>
-        <source>Regenerate</source>
-        <translation>Rigenera</translation>
-    </message>
-    <message>
-        <source>One-time password</source>
-        <translation>Password monouso</translation>
-    </message>
-    <message>
-        <source>Allow support to send/receive on the serial port</source>
-        <translation>Consenti all&apos;assistenza di inviare/ricevere sulla porta seriale</translation>
-    </message>
-    <message>
-        <source>Share this session&apos;s log</source>
-        <translation>Condividi il registro di questa sessione</translation>
-    </message>
-    <message>
-        <source>Allow full desktop control</source>
-        <translation>Consenti il controllo completo del desktop</translation>
-    </message>
-    <message>
-        <source>Start session</source>
-        <translation>Avvia sessione</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>Non connesso</translation>
-    </message>
-    <message>
-        <source>Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.</source>
-        <translation>L&apos;assistenza remota richiede un servizio di segnalazione/relay non ancora incluso in questa build. Il codice di sessione e le autorizzazioni sopra sono pronti per essere collegati non appena tale trasporto sarà disponibile.</translation>
-    </message>
-</context>
-<context>
-    <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
         <translation>Salva registro sessione</translation>
@@ -506,12 +687,12 @@
         <translation>Posizione</translation>
     </message>
     <message>
-        <source>Browse…</source>
-        <translation>Sfoglia…</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Formato</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Sfoglia…</translation>
     </message>
     <message>
         <source>Plain text (.log)</source>
@@ -535,40 +716,10 @@
     </message>
 </context>
 <context>
-    <name>SerialManager</name>
+    <name>ui::SerialSettingsPanel</name>
     <message>
-        <source>Serial port disconnected.</source>
-        <translation>Porta seriale disconnessa.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialOptions</name>
-    <message>
-        <source>None</source>
-        <translation>Nessuna</translation>
-    </message>
-    <message>
-        <source>Even</source>
-        <translation>Pari</translation>
-    </message>
-    <message>
-        <source>Odd</source>
-        <translation>Dispari</translation>
-    </message>
-    <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
-    </message>
-    <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
-    </message>
-</context>
-<context>
-    <name>SerialSettingsPanel</name>
-    <message>
-        <source>Port · PORT</source>
-        <translation>Porta · PORT</translation>
+        <source>Port settings</source>
+        <translation>Impostazioni porta</translation>
     </message>
     <message>
         <source>Port</source>
@@ -595,20 +746,16 @@
         <translation>Controllo di flusso</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>Chiudi porta</translation>
+        <source>No ports found</source>
+        <translation>Nessuna porta trovata</translation>
     </message>
     <message>
-        <source>Open port</source>
-        <translation>Apri porta</translation>
+        <source>Refresh ports</source>
+        <translation>Aggiorna porte</translation>
     </message>
     <message>
-        <source>Receive · RECEIVE</source>
-        <translation>Ricezione · RECEIVE</translation>
-    </message>
-    <message>
-        <source>Transmit · TRANSMIT</source>
-        <translation>Trasmissione · TRANSMIT</translation>
+        <source>Receive</source>
+        <translation>Ricezione</translation>
     </message>
     <message>
         <source>Show timestamp</source>
@@ -623,6 +770,10 @@
         <translation>Mostra i dati inviati</translation>
     </message>
     <message>
+        <source>Transmit</source>
+        <translation>Trasmissione</translation>
+    </message>
+    <message>
         <source>Append CRC (CRC16/MODBUS)</source>
         <translation>Aggiungi CRC (CRC16/MODBUS)</translation>
     </message>
@@ -634,21 +785,21 @@
         <source>ms</source>
         <translation>ms</translation>
     </message>
+    <message>
+        <source>Unknown device</source>
+        <translation>Dispositivo sconosciuto</translation>
+    </message>
+    <message>
+        <source>Close port</source>
+        <translation>Chiudi porta</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>Apri porta</translation>
+    </message>
 </context>
 <context>
-    <name>SettingsAboutDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>Chiudi</translation>
-    </message>
-    <message>
-        <source>%1 (Qt %2)</source>
-        <translation>%1 (Qt %2)</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
+    <name>ui::SettingsDialog</name>
     <message>
         <source>Settings &amp; About</source>
         <translation>Impostazioni e informazioni</translation>
@@ -660,6 +811,10 @@
     <message>
         <source>System font</source>
         <translation>Carattere di sistema</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Dimensione</translation>
     </message>
     <message>
         <source>Data monitor font</source>
@@ -678,16 +833,8 @@
         <translation>Scuro</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>Dimensione</translation>
-    </message>
-    <message>
         <source>Command library</source>
         <translation>Libreria comandi</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Aggiornato</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -710,12 +857,98 @@
         <translation>Dispositivi</translation>
     </message>
     <message>
+        <source>Restore defaults</source>
+        <translation>Ripristina valori predefiniti</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1 (Qt %2)</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Aggiornato</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation>Aggiornamento disponibile</translation>
+    </message>
+    <message>
         <source>%1 models · %2 commands</source>
         <translation>%1 modelli · %2 comandi</translation>
     </message>
+</context>
+<context>
+    <name>ui::SoftwareUpdateDialog</name>
     <message>
-        <source>Restore defaults</source>
-        <translation>Ripristina valori predefiniti</translation>
+        <source>Software Update</source>
+        <translation>Aggiornamento software</translation>
+    </message>
+    <message>
+        <source>This update is required to keep using the app.</source>
+        <translation>Questo aggiornamento è necessario per continuare a usare l&apos;app.</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Più tardi</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>Riprova</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>Aggiorna ora</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Version %1 is available (you have %2)</source>
+        <translation>È disponibile la versione %1 (hai la %2)</translation>
+    </message>
+</context>
+<context>
+    <name>ui::TemplateDialog</name>
+    <message>
+        <source>Edit template</source>
+        <translation>Modifica modello</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Nuovo modello</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>es. Riavvia dispositivo</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Contenuto</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>Il testo esatto da inviare</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salva</translation>
     </message>
 </context>
 </TS>

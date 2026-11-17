@@ -6,14 +6,12 @@
 #include "core/serial_manager.h"
 
 #include <QAbstractListModel>
-#include <QQmlEngine>
+#include <QObject>
 
 // Backs the serial-port picker (settings panel combo). Populated from
 // SerialManager::availablePorts(); refresh() re-queries it.
 class PortListModel : public QAbstractListModel {
     Q_OBJECT
-    QML_ELEMENT
-    QML_UNCREATABLE("Created by AppController")
 
 public:
     enum Roles { PortNameRole = Qt::UserRole + 1, DescriptionRole, RecommendedRole, DisplayLabelRole, ChipLabelRole };

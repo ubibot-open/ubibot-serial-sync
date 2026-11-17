@@ -19,7 +19,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QGuiApplication>
+#include <QApplication>
 #include <QStandardPaths>
 #include <QTimer>
 #include <QVersionNumber>
@@ -297,7 +297,7 @@ QString AppController::systemFontFamily() const { return settings_.systemFontFam
 void AppController::setSystemFontFamily(const QString &family) {
     if (settings_.systemFontFamily() == family) return;
     settings_.setSystemFontFamily(family);
-    QGuiApplication::setFont(buildApplicationFont(family, settings_.systemFontSize()));
+    QApplication::setFont(buildApplicationFont(family, settings_.systemFontSize()));
     emit systemFontChanged();
 }
 
@@ -306,7 +306,7 @@ int AppController::systemFontSize() const { return settings_.systemFontSize(); }
 void AppController::setSystemFontSize(int pixelSize) {
     if (settings_.systemFontSize() == pixelSize) return;
     settings_.setSystemFontSize(pixelSize);
-    QGuiApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), pixelSize));
+    QApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), pixelSize));
     emit systemFontChanged();
 }
 
@@ -350,7 +350,7 @@ void AppController::restoreDefaultSettings() {
     // value -- otherwise the app keeps rendering the customized font until
     // restart even though settings_.systemFontFamily()/systemFontSize() now
     // report the built-in default again.
-    QGuiApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), settings_.systemFontSize()));
+    QApplication::setFont(buildApplicationFont(settings_.systemFontFamily(), settings_.systemFontSize()));
 
     emit logFontChanged();
     emit systemFontChanged();

@@ -1,0 +1,17 @@
+#pragma once
+
+#include "QLight/Export.h"
+
+#define QLIGHT_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define QLIGHT_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define QLIGHT_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define QLIGHT_VERSION_STRING "@PROJECT_VERSION@"
+
+namespace QLight {
+
+// Version of the library binary that is actually loaded. Compare it with QLIGHT_VERSION_STRING (the
+// version of the headers you compiled against): while QLight is 0.x the C++ ABI changes between minor
+// versions, so a mismatch means the application must be rebuilt against the matching package.
+QLIGHT_EXPORT const char *runtimeVersion();
+
+} // namespace QLight

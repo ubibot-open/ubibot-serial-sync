@@ -6,7 +6,7 @@
 #include "core/batch_command.h"
 
 #include <QAbstractListModel>
-#include <QQmlEngine>
+#include <QObject>
 #include <QVariantList>
 
 class SettingsStore;
@@ -20,8 +20,6 @@ class SettingsStore;
 // ListView renders.
 class BatchCommandModel : public QAbstractListModel {
     Q_OBJECT
-    QML_ELEMENT
-    QML_UNCREATABLE("Created by AppController")
 
 public:
     enum Roles {

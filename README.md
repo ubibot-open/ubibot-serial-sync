@@ -116,13 +116,13 @@ Switchable at runtime, applied to the whole window including its custom
 title bar.
 
 ### Cross-platform
-One Qt/QML/C++17 codebase builds standalone packages for Windows, macOS,
+One Qt Widgets/C++17 codebase builds standalone packages for Windows, macOS,
 and Linux, all produced automatically on every tagged release — see
 [BUILD.md](BUILD.md#publishing-a-release-build-via-github-actions).
 
 ## Advantages
 
-- **Native and lightweight** — Qt Quick/QML, not a bundled browser runtime;
+- **Native and lightweight** — Qt Widgets with a Windows 11 (Fluent) look, not a bundled browser runtime;
   a real desktop app with a small footprint and fast startup, not an
   Electron wrapper.
 - **Data-driven device support** — adding a new UbiBot model or command is

@@ -8,14 +8,18 @@ technical details behind how it's put together.
 ## Requirements
 
 - Qt **6.11** (or any 6.7+ toolchain — that's the floor `qt_add_translations`
-  and `QQmlApplicationEngine::loadFromModule` need; 6.11 is what this
-  project has been validated against), with the **Quick**,
-  **QuickControls2**, and **SerialPort** modules, plus the **Qt Linguist
-  tools** (`lupdate`/`lrelease`, installed by default with the Qt
+  and the vendored QLight widget library need; 6.11 is what this project has
+  been validated against), with the **Widgets**, **Svg**, and **SerialPort**
+  modules, plus the **Qt Linguist tools** (`lupdate`/`lrelease`, installed by default with the Qt
   Creator/CMake components). Qt Serial Port in particular is an opt-in
   component in the Qt online installer's "Additional Libraries" section —
   check it's installed if CMake can't find `Qt6SerialPort`.
 - CMake ≥ 3.21.
+- **Windows only:** network access the first time you configure — CMake
+  fetches [QWindowKit](https://github.com/stdware/qwindowkit) 1.5.0
+  (Apache-2.0, with its submodules) for the custom title bar. To build
+  offline, pass `-DFETCHCONTENT_SOURCE_DIR_QWINDOWKIT=<path>` pointing at an
+  existing checkout.
 - A C++17 compiler: MSVC 2019+/2022, MinGW, GCC, or Clang.
 
 ## Building
@@ -50,7 +54,7 @@ cmake --build build\Release
 ```
 
 **3. Copy the .exe into a clean, empty folder** — `windeployqt` dumps every
-DLL/plugin/QML module it copies into whatever directory the .exe it's
+DLL/plugin it copies into whatever directory the .exe it's
 pointed at lives in, and `build\Release` is full of unrelated CMake/Ninja
 build files you don't want to hand someone along with the app:
 
@@ -60,15 +64,14 @@ copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
 ```
 
 **4. Run `windeployqt` on that copy** — this is what actually gathers every
-Qt DLL, platform plugin, image format, and QML module (including this
-app's own `UbiBot` module) the .exe needs to run on a machine with no Qt
+Qt DLL, platform plugin, style and image format the .exe needs to run on a machine with no Qt
 installed at all:
 
 ```powershell
-E:\Qt\6.11.1\mingw_64\bin\windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --qmldir qml --release
+E:\Qt\6.11.1\mingw_64\bin\windeployqt.exe deploy\UbiBotSerialAssistant\UbiBotSerialAssistant.exe --release
 ```
 
-`deploy\UbiBotSerialAssistant\` is now a complete, self-contained ~110 MB
+`deploy\UbiBotSerialAssistant\` is now a complete, self-contained
 folder — zip it up (or hand the folder over directly) and
 `UbiBotSerialAssistant.exe` inside it runs standalone on any Windows machine,
 no Qt install, no PATH changes, nothing else needed. (Verified by actually
@@ -84,7 +87,7 @@ cmake -S . -B build\Release -G Ninja -DCMAKE_PREFIX_PATH="C:/Qt/6.11.0/msvc2022_
 cmake --build build\Release
 mkdir deploy\UbiBotSerialAssistant
 copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
-C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe deploy/UbiBotSerialAssistant/UbiBotSerialAssistant.exe --qmldir qml --release
+C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe deploy/UbiBotSerialAssistant/UbiBotSerialAssistant.exe --release
 ```
 
 ### macOS / Linux
@@ -109,7 +112,7 @@ project(UbiBotSerialAssistant
 Bump it (e.g. to `1.1.1.2`), save, and rebuild — that single number then
 flows automatically to everywhere the app shows its own version:
 
-- the custom title bar (`v1.1.1.1`)
+- the status bar (`v1.1.1.1`)
 - the "Version" row in Settings & About
 - the built `.exe`'s own Windows file-version resource (right-click the
   .exe → Properties → Details → "File version"/"Product version")
@@ -198,20 +201,9 @@ translations/
   ubibot_ru.ts           # Russian
   ubibot_fr.ts           # French
   ubibot_it.ts           # Italian
-qml/
-  Main.qml               # window shell: menu bar, toolbar, mode toggle, status bar
-  Theme.qml              # shared colors/fonts (pragma Singleton)
-  SerialSettingsPanel.qml
-  CommandLibraryPanel.qml
-  RemoteAssistPanel.qml
-  CommandParamsPanel.qml
-  DataMonitorView.qml
-  SaveLogDialog.qml
-  SettingsAboutDialog.qml
-  AboutDialog.qml
-  SoftwareUpdateDialog.qml
-  DriverHintDialog.qml   # driver-missing explanation, opened from Main.qml's own banner
-  DriverListDialog.qml   # per-driver download list (Help menu + the dialog above; see docs/ch340-driver-hint.md)
+third_party/
+  qlight/                # vendored subset of QLight Widgets (MIT): Fluent-style Qt Widgets and
+                         # FramelessWindow (+ QWindowKit, fetched at configure time, Windows only)
 src/
   main.cpp
   core/                  # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates
@@ -226,69 +218,63 @@ src/
     log_manager.*
     serial_manager.*
     settings_store.*
-  models/                # QAbstractListModel adapters QML binds to
+  models/                # QAbstractListModel adapters the UI reads
     log_list_model.*         # wraps LogManager for the data monitor ListView
     command_list_model.*     # filtered/searched device command list
     command_history_model.*  # manual-send history
     batch_command_model.*    # saved "Batch commands" sequences
     port_list_model.*        # detected serial ports
   app/
-    app_controller.*     # the QML_SINGLETON every .qml file talks to
-    serial_options.*     # QML_SINGLETON: translated dropdown option lists
+    app_controller.*     # the facade every UI class talks to
+    serial_options.*     # translated dropdown option lists
+  ui/                    # Qt Widgets UI (v4 "Windows 11" design)
+    main_window.*        # top-level window (QLight::FramelessWindow on Windows)
+    main_view.*          # menu bar, command bar, driver bar, panels, send box, status bar
+    serial_settings_panel.*, command_library_panel.*, command_params_panel.*
+    data_monitor_view.*  # coloured TX/RX/SYS/ERR log view
+    *_dialog(s).*        # settings, save log, about, drivers, templates, batch commands
+    ui_common.*          # theme glue + small widgets (cards, segmented control, status pill)
 ```
 
-There is no `src/ui/` anymore — the Qt Widgets version of this UI has been
-fully replaced by the QML one above. `core/` is unchanged and has zero Qt
-GUI/Quick dependency; `models/` and `app/` are the adapter layer that makes
-it consumable from QML (see [Architecture](#architecture) below).
+The UI was originally written in QML; it has been rewritten with Qt Widgets
+(on top of the vendored QLight widget library) for a more native desktop
+feel. `core/`, `models/` and `app/` were kept — only the presentation layer
+changed (see [Architecture](#architecture) below).
 
 ## Architecture
 
-**All logic is C++; QML only renders state and forwards user actions.**
-Concretely:
+**All logic lives in `core/` and `app/`; the widgets only render state and
+forward user actions.** Concretely:
 
-- `core/*` is exactly what it was in the Widgets version: `SerialManager`
-  wraps `QSerialPort`, `LogManager` owns the scrollback + file export,
-  `DeviceLibrary` loads `devices.json`, `SettingsStore` wraps `QSettings`,
-  `LanguageManager` owns the active `QTranslator`. `DeviceLibraryUpdateClient`/
-  `SoftwareUpdateClient`/`SelfUpdateInstaller` are the same shape, added
-  later for the two remote-update features (see
+- `core/*`: `SerialManager` wraps `QSerialPort`, `LogManager` owns the
+  scrollback + file export, `DeviceLibrary` loads `devices.json`,
+  `SettingsStore` wraps `QSettings`, `LanguageManager` owns the active
+  `QTranslator`. `DeviceLibraryUpdateClient`/`SoftwareUpdateClient`/
+  `SelfUpdateInstaller` back the two remote-update features (see
   [docs/device-library-update-protocol.md](docs/device-library-update-protocol.md)
   and [docs/app-self-update.md](docs/app-self-update.md)). None of these
-  classes know QML exists.
-- `AppController` (`src/app/app_controller.*`) is a `QML_SINGLETON` that
-  owns one instance of each `core/` class and is the *only* thing QML talks
-  to for actions: opening/closing the port, sending data, resolving an AT
-  command's parameters, saving a log, checking for either kind of update.
-  Every `Q_INVOKABLE` on it is a real operation implemented in C++; QML
-  never contains business logic like "how do I format a HEX payload" or
-  "what's today's default log directory".
+  classes know about the UI.
+- `AppController` (`src/app/app_controller.*`) owns one instance of each
+  `core/` class and is the *only* thing the UI talks to for actions: opening
+  and closing the port, sending data, resolving an AT command's parameters,
+  saving a log, checking for either kind of update. State is exposed as
+  getters plus change signals.
 - `models/*` are thin `QAbstractListModel` adapters (`LogListModel`,
   `CommandListModel`, `CommandHistoryModel`, `BatchCommandModel`,
-  `PortListModel`) so QML `ListView`s/`ComboBox`es can bind directly to
-  `LogManager`/`DeviceLibrary`/`SettingsStore`/`SerialManager::availablePorts()`
-  data without either side knowing about the other's native types.
-- `SerialOptions` is a stateless `QML_SINGLETON` exposing the
-  parity/stop-bits/flow-control/baud-rate dropdown contents, so the
-  `QSerialPort` enum values it hands back stay a C++-side implementation
-  detail QML never has to know.
-- The `.qml` files under `qml/` are purely presentational: layout, styling,
-  and wiring user gestures to `AppController` calls or local, purely
-  cosmetic UI state (e.g. the Remote Support panel's placeholder code
-  generator).
-
-C++ types are exposed to QML via the `QML_ELEMENT`/`QML_SINGLETON` macros
-declared directly on the classes (`core/language_manager.h` is the
-exception — it's never included from QML, only used internally by
-`AppController` and `DeviceLibrary`) — there are no manual
-`qmlRegisterType()` calls anywhere; `qt_add_qml_module()` in
-`CMakeLists.txt` wires the registration up at build time via
-`qmltyperegistrar`.
+  `PortListModel`); the command list and the send history are `QListView`s
+  on them directly.
+- `ui/*` is purely presentational: layout, painting, and wiring user
+  gestures to `AppController` calls. Controls come from QLight
+  (`third_party/qlight`, MIT, vendored and built as a static library);
+  `ui_common.*` adds the app's colours on top of QLight's palette (UbiBot
+  blue `#0068B7` as the accent) and the few widgets the design needs that
+  QLight doesn't ship. Every UI class implements `retranslateUi()` and calls
+  it on `QEvent::LanguageChange`, so switching language updates the open
+  window live.
 
 ## Internationalization
 
-Every UI string is written in English and wrapped in `tr(...)` (C++) or
-`qsTr(...)` (QML) — Qt's translation tooling treats both uniformly. Every
+Every UI string is written in English and wrapped in `tr(...)`. Every
 other language is a plain Qt translation catalog under `translations/`
 (`ubibot_zh_CN.ts`, `ubibot_zh_TW.ts`, `ubibot_ja.ts`, `ubibot_ko.ts`,
 `ubibot_ru.ts`, `ubibot_fr.ts`, `ubibot_it.ts`). Only one language is ever
@@ -303,10 +289,8 @@ retranslating.
 
 Switching languages at runtime (Settings & About dialog) calls
 `LanguageManager::setLanguage()`, which installs/removes a `QTranslator` on
-`QGuiApplication`. `main.cpp` additionally calls
-`QQmlApplicationEngine::retranslate()` on every language change — without
-that, `tr()`-bound C++ properties would update live but `qsTr()` literals
-baked into QML bindings would not.
+the application; Qt then sends `QEvent::LanguageChange` to every widget,
+and each UI class re-applies its texts in `retranslateUi()`.
 
 **Adding a language:** add one more `TS_FILES` entry to the
 `qt_add_translations()` call in `CMakeLists.txt`, add a matching
@@ -314,15 +298,12 @@ baked into QML bindings would not.
 fill in the `.ts` once `lupdate` has generated its `<message>` entries. The
 Settings & About dropdown picks it up automatically — nothing else changes.
 
-**Editing translations:** after adding/changing `tr()`/`qsTr()` calls,
-regenerate the `.ts` file's `<message>` entries with Qt's `lupdate` (the
-CMake target this project's `qt_add_translations()` sets up handles this —
-check your generator's target list, e.g. `update_translations`; `lupdate`
-scans `.qml` files natively, same as `.cpp`), fill in `<translation>` for
-the new strings, then rebuild so `lrelease` regenerates the embedded `.qm`.
-Note that QML message contexts are the file's base name (e.g.
-`SerialSettingsPanel.qml`'s strings appear under context
-`SerialSettingsPanel` in the `.ts`).
+**Editing translations:** after adding/changing `tr()` calls, regenerate
+the `.ts` files' `<message>` entries with the `UbiBotSerialAssistant_lupdate`
+CMake target (set up by `qt_add_translations()`), fill in `<translation>`
+for the new strings, then rebuild so `lrelease` regenerates the embedded
+`.qm`. Message contexts are the C++ class names (e.g.
+`ui::SerialSettingsPanel`).
 
 **Device command text** (model descriptions, command names, parameter
 labels) lives in `resources/devices.json` as `{ "zh": "…", "en": "…" }`
@@ -336,41 +317,19 @@ applies to the device-library remote-update payload — see
 
 A few implementation choices worth knowing about before you dig in:
 
-- **Window chrome is a frameless, custom-drawn `ApplicationWindow`**
-  (`Main.qml`'s `flags: Qt.Window | Qt.FramelessWindowHint`, plus its own
-  `TitleBar` component standing in for the OS-native one) rather than a
-  standard one with the platform's own title bar — matches the original
-  design mockup, and means the whole window (not just its contents) follows
-  the app's light/dark theme instead of the OS always drawing a plain white
-  title bar regardless. Losing the native frame also loses the OS's own
-  resize cursors/border and drop shadow; the resize-grip `MouseArea`s stand
-  in for the former. The shadow is repainted from QML instead of via a
-  native per-platform call, so it works the same on Windows/macOS/Linux:
-  the window itself is oversized by `shadowMargin` on every side and made
-  fully transparent (`color: "transparent"`), `frame` (a plain `Item`, not
-  `ApplicationWindow`'s own `header:`/`contentItem` slots — those always sit
-  flush against the window's *true* edges with no way to inset them) holds
-  the actual visible UI inset from those true edges by that same margin, and
-  a `MultiEffect` (see `DialogCard.qml`'s own comment for why MultiEffect
-  over a stacked-rectangle approximation) paints a real blurred drop shadow
-  into the resulting empty ring — all collapsing to zero while maximized,
-  same as a native window's shadow would. `frame`'s own 1px outline border
-  stands in for the lost native window border on top of that. The visual
-  style of everything *inside* the window is Qt Quick Controls' "Fusion"
-  style (set in `main.cpp` via `QQuickStyle::setStyle()`), chosen for a
-  native-desktop
-  look rather than the touch-oriented default.
-- **Remote support is a UI placeholder, and currently unreachable besides.**
-  Generating a session code/OTP and setting permissions all work (entirely
-  in QML — there's no backing logic to speak of), but there's no
-  signaling/relay server or peer-to-peer transport behind "Start session"
-  yet — it explains that plainly instead of pretending to connect. On top
-  of that, `Main.qml`'s mode toggle currently only offers two segments
-  ("Serial", "Device commands") even though the `StackLayout` beneath it
-  has a third page for `RemoteAssistPanel` — so the panel isn't reachable
-  from the running app at all right now, not just incomplete. Wiring up a
-  real transport, and exposing the panel, are both future work that would
-  live in `AppController`/`Main.qml` like everything else that's real.
+- **Window chrome.** On Windows the main window is a `QLight::FramelessWindow`:
+  a Fluent title bar drawn by the app on top of QWindowKit, which keeps the
+  native behaviour (Aero Snap, resize borders, system menu, Windows 11 snap
+  layouts, the system shadow) and follows the light/dark theme. On macOS and
+  Linux the window keeps the native frame — QWindowKit is untested there,
+  and the native frame is the expected look on those platforms anyway.
+- **Dialogs** are QLight content dialogs: a rounded card centred over the
+  main window, which is dimmed behind it, with the command buttons in a
+  shaded strip at the bottom.
+- **Remote support is not part of the Widgets UI.** The QML version had a
+  placeholder Remote Support panel (session code/OTP with no transport
+  behind it) that was not reachable from the running app; it was not
+  carried over.
 - **"Recommended" port detection** in the port picker is a heuristic:
   it flags ports whose USB vendor ID matches the WCH CH340 (`0x1A86`) or
   Silicon Labs CP210x (`0x10C4`) bridge chips UbiBot's own USB-serial
@@ -398,7 +357,7 @@ use this license pair).
 
 ### Qt 6 module licensing (commercial-use check)
 
-This project links against Qt 6 (`Quick`, `QuickControls2`, `SerialPort` at
+This project links against Qt 6 (`Widgets`, `Svg`, `SerialPort`, `Network` at
 runtime; `LinguistTools` is a build-time-only dependency — `lupdate`/
 `lrelease` are never linked into or shipped with the built app). Qt is
 dual-licensed; a handful of *add-on* modules (e.g. Qt Quick 3D, Qt Quick
@@ -411,8 +370,9 @@ here. Checked against Qt's own module documentation (Qt 6.11):
 
 | Module | Open-source license(s) | GPL-only? |
 |---|---|---|
-| Qt Quick (`Quick`) | LGPLv3 or GPLv2 | No |
-| Qt Quick Controls (`QuickControls2`) | LGPLv3 or GPLv2 | No |
+| Qt Widgets (`Widgets`) | LGPLv3 or GPLv2 | No |
+| Qt SVG (`Svg`) | LGPLv3 or GPLv2 | No |
+| Qt Network (`Network`) | LGPLv3 or GPLv2 | No |
 | Qt Serial Port (`SerialPort`) | LGPLv3 or GPLv2 | No |
 | Qt Linguist Tools (`LinguistTools`) | build-time tool only, not linked/shipped | N/A |
 
@@ -443,6 +403,15 @@ Qt, or to ship a build where end users cannot replace the Qt libraries,
 these LGPLv3 terms would no longer be satisfied automatically and either a
 switch back to dynamic linking or a Qt commercial license would be needed
 instead.
+
+Two third-party libraries are compiled *into* the app (statically): QLight
+Widgets (MIT, see `third_party/qlight/LICENSE`, including a subset of
+Microsoft's Fluent UI System Icons, MIT) and, on Windows, QWindowKit
+(Apache-2.0). Both licenses are compatible with LGPLv3; their notices are
+in `third_party/qlight/THIRD_PARTY_NOTICES.md` and should ship with binary
+releases. QWindowKit uses Qt's private headers, so a Windows build is tied
+to the Qt 6 minor version it was compiled against — replacement Qt DLLs
+must be the same minor version.
 
 This is an engineering-level license/compatibility check, not legal advice
 — for a business-critical determination, run it past a licensed attorney.

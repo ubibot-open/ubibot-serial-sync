@@ -2,53 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko" sourcelanguage="en">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>정보</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>닫기</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 시리얼 어시스턴트</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>버전 %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>UbiBot IoT 장치(WS1, WS1 Pro, GS1-AL4G1RS, SP1 등)를 위한 시리얼 포트 디버깅 도구로, Qt 6, QML, C++17로 제작되었습니다.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>빌드 시간</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>회사</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · 미국</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>웹사이트</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>GNU Lesser General Public License v3(LGPLv3)에 따라 Qt %1로 제작되었습니다. Qt는 The Qt Company Ltd.의 상표입니다. Qt는 동적으로 링크되어 있으므로 번들된 Qt 라이브러리는 호환되는 LGPLv3 빌드로 교체할 수 있습니다.</translation>
-    </message>
-</context>
-<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -65,6 +18,34 @@
     <message>
         <source>Select a serial port first.</source>
         <translation>먼저 시리얼 포트를 선택하세요.</translation>
+    </message>
+    <message>
+        <source>Command library is up to date (%1).</source>
+        <translation>명령 라이브러리가 최신입니다(%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires app version %2 or later -- please update the app first.</source>
+        <translation>버전 %1을(를) 사용할 수 있지만 앱 버전 %2 이상이 필요합니다. 먼저 앱을 업데이트하세요.</translation>
+    </message>
+    <message>
+        <source>Version %1 is available.</source>
+        <translation>버전 %1을(를) 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Downloaded data could not be applied: %1</source>
+        <translation>다운로드한 데이터를 적용할 수 없습니다: %1</translation>
+    </message>
+    <message>
+        <source>Updated to %1.</source>
+        <translation>%1(으)로 업데이트했습니다.</translation>
+    </message>
+    <message>
+        <source>You&apos;re on the latest version (%1).</source>
+        <translation>최신 버전입니다(%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
+        <translation>버전 %1을(를) 사용할 수 있지만 먼저 버전 %2 이상에서 업데이트해야 합니다. 앱을 다시 설치한 후 다시 시도하세요.</translation>
     </message>
     <message>
         <source>%1 opened · %2</source>
@@ -95,80 +76,238 @@
         <translation>로그가 %1에 저장되었습니다</translation>
     </message>
     <message>
-        <source>Bundled command library is %1 — this build checks the local copy only.</source>
-        <translation>번들된 명령어 라이브러리는 %1입니다 — 이 빌드는 로컬 사본만 확인합니다.</translation>
+        <source>No update server configured (.env) -- using the bundled command library only.</source>
+        <translation>업데이트 서버가 구성되지 않았습니다(.env). 기본 제공 명령 라이브러리만 사용합니다.</translation>
+    </message>
+    <message>
+        <source>Checking for updates…</source>
+        <translation>업데이트 확인 중…</translation>
+    </message>
+    <message>
+        <source>Downloading…</source>
+        <translation>다운로드 중…</translation>
+    </message>
+    <message>
+        <source>No update server configured (.env).</source>
+        <translation>업데이트 서버가 구성되지 않았습니다(.env).</translation>
+    </message>
+    <message>
+        <source>Downloading update…</source>
+        <translation>업데이트 다운로드 중…</translation>
+    </message>
+    <message>
+        <source>Download cancelled.</source>
+        <translation>다운로드가 취소되었습니다.</translation>
+    </message>
+    <message>
+        <source>Downloaded file failed checksum verification -- update not applied.</source>
+        <translation>다운로드한 파일의 체크섬 확인에 실패했습니다. 업데이트가 적용되지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Preparing update…</source>
+        <translation>업데이트 준비 중…</translation>
+    </message>
+    <message>
+        <source>Failed to launch the updater script.</source>
+        <translation>업데이트 스크립트를 실행하지 못했습니다.</translation>
+    </message>
+    <message>
+        <source>Restarting to apply update…</source>
+        <translation>업데이트를 적용하기 위해 다시 시작하는 중…</translation>
+    </message>
+    <message>
+        <source>Self-update isn&apos;t supported on this platform yet -- please download the new version manually.</source>
+        <translation>이 플랫폼에서는 아직 자동 업데이트를 지원하지 않습니다. 새 버전을 직접 다운로드하세요.</translation>
     </message>
 </context>
 <context>
-    <name>CommandLibraryPanel</name>
+    <name>DeviceLibraryUpdateClient</name>
     <message>
-        <source>Search commands</source>
-        <translation>명령 검색</translation>
+        <source>Remote update server not configured (.env).</source>
+        <translation>원격 업데이트 서버가 구성되지 않았습니다(.env).</translation>
     </message>
     <message>
-        <source>Drag a row to reorder</source>
-        <translation>행을 드래그하여 순서 변경</translation>
+        <source>Malformed response: %1</source>
+        <translation>잘못된 응답: %1</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>편집</translation>
+        <source>Checksum mismatch -- downloaded data may be corrupted.</source>
+        <translation>체크섬이 일치하지 않습니다. 다운로드한 데이터가 손상되었을 수 있습니다.</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>삭제</translation>
+        <source>Response has no models[] array.</source>
+        <translation>응답에 models[] 배열이 없습니다.</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::CaptionButton</name>
+    <message>
+        <source>Minimize</source>
+        <translation>최소화</translation>
     </message>
     <message>
-        <source>Batch commands</source>
-        <translation>배치 명령</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>새 템플릿</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>템플릿 편집</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>이름</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>예: 장치 재설정</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>내용</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>전송할 실제 텍스트</translation>
+        <source>Maximize</source>
+        <translation>최대화</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
     <message>
-        <source>No batch commands yet</source>
-        <translation>아직 배치 명령이 없습니다</translation>
+        <source>Restore</source>
+        <translation>이전 크기로 복원</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::Dialog</name>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
     </message>
     <message>
-        <source>%1 steps · %2 ms interval</source>
-        <translation>%1단계 · 간격 %2ms</translation>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::InfoBar</name>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::TeachingTip</name>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>could not start &apos;tar&apos; (bundled with Windows 10 1803+/Windows 11) -- %1</source>
+        <translation>&apos;tar&apos;를 시작할 수 없습니다(Windows 10 1803+/Windows 11에 포함): %1</translation>
     </message>
     <message>
-        <source>■ Stop</source>
-        <translation>■ 정지</translation>
+        <source>&apos;tar&apos; timed out extracting the update</source>
+        <translation>&apos;tar&apos;로 업데이트 압축을 푸는 중 시간이 초과되었습니다</translation>
     </message>
     <message>
-        <source>▶ Run</source>
-        <translation>▶ 실행</translation>
+        <source>&apos;tar&apos; failed (exit %1): %2</source>
+        <translation>&apos;tar&apos; 실패(종료 코드 %1): %2</translation>
     </message>
     <message>
-        <source>New batch</source>
-        <translation>새 배치</translation>
+        <source>downloaded archive doesn&apos;t contain %1 -- not a valid release package</source>
+        <translation>다운로드한 압축 파일에 %1이(가) 없습니다. 올바른 릴리스 패키지가 아닙니다</translation>
     </message>
+    <message>
+        <source>could not write updater script to %1: %2</source>
+        <translation>업데이트 스크립트를 %1에 쓸 수 없습니다: %2</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>시리얼 포트 연결이 끊어졌습니다.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>짝수</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>홀수</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareUpdateClient</name>
+    <message>
+        <source>Update server not configured (.env).</source>
+        <translation>업데이트 서버가 구성되지 않았습니다(.env).</translation>
+    </message>
+    <message>
+        <source>Malformed response: %1</source>
+        <translation>잘못된 응답: %1</translation>
+    </message>
+    <message>
+        <source>Server reported an error.</source>
+        <translation>서버에서 오류를 보고했습니다.</translation>
+    </message>
+    <message>
+        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
+        <translation>이 앱은 업데이트 서버에 등록되어 있지 않습니다(slug &quot;%1&quot;을(를) 찾을 수 없음).</translation>
+    </message>
+    <message>
+        <source>Cannot write to %1: %2</source>
+        <translation>%1에 쓸 수 없습니다: %2</translation>
+    </message>
+</context>
+<context>
+    <name>ui::AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>정보</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 시리얼 어시스턴트</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>버전 %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6 and C++17.</source>
+        <translation>UbiBot IoT 장치(WS1, WS1 Pro, GS1-AL4G1RS, SP1 등)를 위한 직렬 포트 디버깅 도구로, Qt 6와 C++17로 개발되었습니다.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>빌드 시간</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>회사</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · 미국</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>웹사이트</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>GNU Lesser General Public License v3(LGPLv3)에 따라 Qt %1로 제작되었습니다. Qt는 The Qt Company Ltd.의 상표입니다. Qt는 동적으로 링크되어 있으므로 번들된 Qt 라이브러리는 호환되는 LGPLv3 빌드로 교체할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
+    <name>ui::BatchEditDialog</name>
     <message>
         <source>Edit batch command</source>
         <translation>배치 명령 편집</translation>
@@ -176,6 +315,10 @@
     <message>
         <source>New batch command</source>
         <translation>새 배치 명령</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
     </message>
     <message>
         <source>e.g. Startup sequence</source>
@@ -194,14 +337,6 @@
         <translation>단계</translation>
     </message>
     <message>
-        <source>Command text</source>
-        <translation>명령 내용</translation>
-    </message>
-    <message>
-        <source>CRC</source>
-        <translation>CRC</translation>
-    </message>
-    <message>
         <source>Add step</source>
         <translation>단계 추가</translation>
     </message>
@@ -210,19 +345,101 @@
         <translation>취소</translation>
     </message>
     <message>
-        <source>Device model · Model</source>
-        <translation>장치 모델 · Model</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>저장</translation>
     </message>
+    <message>
+        <source>Command text</source>
+        <translation>명령 내용</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Remove step</source>
+        <translation>단계 삭제</translation>
+    </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
+    <name>ui::BatchListDialog</name>
+    <message>
+        <source>Batch commands</source>
+        <translation>배치 명령</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>아직 배치 명령이 없습니다</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>새 배치</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1단계 · 간격 %2ms</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>실행</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>편집</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandLibraryPanel</name>
+    <message>
+        <source>Device model</source>
+        <translation>장치 모델</translation>
+    </message>
+    <message>
+        <source>Search commands</source>
+        <translation>명령 검색</translation>
+    </message>
+    <message>
+        <source>Drag a row to reorder</source>
+        <translation>행을 드래그하여 순서 변경</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>새 템플릿</translation>
+    </message>
+    <message>
+        <source>Batch commands</source>
+        <translation>배치 명령</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>편집</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandParamsPanel</name>
     <message>
         <source>Needs parameters</source>
         <translation>매개변수 필요</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation>미리 보기</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -234,22 +451,14 @@
     </message>
 </context>
 <context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Copy</source>
-        <translation>복사</translation>
-    </message>
-    <message>
-        <source>Clear log</source>
-        <translation>로그 지우기</translation>
-    </message>
-    <message>
-        <source>Save log…</source>
-        <translation>로그 저장…</translation>
-    </message>
+    <name>ui::DataMonitorView</name>
     <message>
         <source>Data monitor</source>
         <translation>데이터 모니터</translation>
+    </message>
+    <message>
+        <source>Data sent and received appears here once a port is open</source>
+        <translation>포트를 열면 송수신 데이터가 여기에 표시됩니다</translation>
     </message>
     <message>
         <source>%1 lines</source>
@@ -263,12 +472,32 @@
         <source>Tx %1</source>
         <translation>송신 %1</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>복사</translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation>로그 지우기</translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation>로그 저장…</translation>
+    </message>
 </context>
 <context>
-    <name>DriverHintDialog</name>
+    <name>ui::DriverHintDialog</name>
     <message>
         <source>Serial driver may be missing</source>
         <translation>시리얼 드라이버가 없을 수 있습니다</translation>
+    </message>
+    <message>
+        <source>The CH340 USB-to-serial driver doesn&apos;t appear to be installed on this computer. Without it, a connected UbiBot device won&apos;t show up as an available serial port.</source>
+        <translation>이 컴퓨터에는 CH340 USB-시리얼 드라이버가 설치되어 있지 않은 것 같습니다. 이 드라이버가 없으면 연결된 UbiBot 장치가 사용 가능한 시리얼 포트로 표시되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again</source>
+        <translation>다시 표시하지 않기</translation>
     </message>
     <message>
         <source>Download driver</source>
@@ -278,17 +507,13 @@
         <source>Close</source>
         <translation>닫기</translation>
     </message>
-    <message>
-        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
-        <translation>이 컴퓨터에는 CH340 USB-시리얼 드라이버가 설치되어 있지 않은 것 같습니다. 이 드라이버가 없으면 연결된 UbiBot 장치가 사용 가능한 시리얼 포트로 표시되지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Don't show this again</source>
-        <translation>다시 표시하지 않기</translation>
-    </message>
 </context>
 <context>
-    <name>DriverListDialog</name>
+    <name>ui::DriverListDialog</name>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>대부분의 UbiBot 장치에서 사용하는 USB-시리얼 드라이버</translation>
+    </message>
     <message>
         <source>Driver downloads</source>
         <translation>드라이버 다운로드</translation>
@@ -296,6 +521,10 @@
     <message>
         <source>Close</source>
         <translation>닫기</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>이 플랫폼에 해당하는 드라이버가 없습니다.</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -309,32 +538,31 @@
         <source>Download</source>
         <translation>다운로드</translation>
     </message>
-    <message>
-        <source>No drivers are relevant on this platform.</source>
-        <translation>이 플랫폼에 해당하는 드라이버가 없습니다.</translation>
-    </message>
-    <message>
-        <source>USB-to-serial driver used by most UbiBot devices</source>
-        <translation>대부분의 UbiBot 장치에서 사용하는 USB-시리얼 드라이버</translation>
-    </message>
 </context>
 <context>
-    <name>Main</name>
+    <name>ui::LibraryUpdateDialog</name>
     <message>
-        <source>Serial driver not installed — click for details</source>
-        <translation>시리얼 드라이버가 설치되어 있지 않습니다 — 클릭하여 자세히 보기</translation>
+        <source>Command library</source>
+        <translation>명령어 라이브러리</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation>닫기</translation>
+        <source>Download and apply</source>
+        <translation>다운로드 및 적용</translation>
     </message>
     <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
+</context>
+<context>
+    <name>ui::MainView</name>
     <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>UbiBot 시리얼 어시스턴트</translation>
+        <source>Failed to open port</source>
+        <translation>포트를 열지 못했습니다</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -385,28 +613,40 @@
         <translation>정보</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>전송</translation>
+        <source>Serial driver not installed, so devices may not be detected.</source>
+        <translation>직렬 드라이버가 설치되지 않아 장치가 인식되지 않을 수 있습니다.</translation>
     </message>
     <message>
-        <source>Device commands</source>
-        <translation>장치 명령</translation>
+        <source>View details</source>
+        <translation>자세히 보기</translation>
     </message>
     <message>
         <source>Serial</source>
         <translation>시리얼</translation>
     </message>
     <message>
+        <source>Device commands</source>
+        <translation>장치 명령</translation>
+    </message>
+    <message>
         <source>Type data to send…</source>
         <translation>전송할 데이터 입력…</translation>
     </message>
     <message>
-        <source>Failed to open port</source>
-        <translation>포트를 열지 못했습니다</translation>
+        <source>Send</source>
+        <translation>전송</translation>
     </message>
     <message>
         <source>History</source>
         <translation>기록</translation>
+    </message>
+    <message>
+        <source>Connected · %1</source>
+        <translation>연결됨 · %1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결되지 않음</translation>
     </message>
     <message>
         <source>Send history</source>
@@ -422,77 +662,18 @@
     </message>
 </context>
 <context>
-    <name>PortComboBox</name>
+    <name>ui::MainWindow</name>
     <message>
-        <source>No ports found</source>
-        <translation>포트를 찾을 수 없습니다</translation>
-    </message>
-    <message>
-        <source>Unknown device</source>
-        <translation>알 수 없는 장치</translation>
+        <source>UbiBot Serial Assistant</source>
+        <translation>UbiBot 시리얼 어시스턴트</translation>
     </message>
 </context>
 <context>
-    <name>RemoteAssistPanel</name>
+    <name>ui::SaveLogDialog</name>
     <message>
-        <source>OK</source>
-        <translation>확인</translation>
+        <source>Choose a folder</source>
+        <translation>폴더 선택</translation>
     </message>
-    <message>
-        <source>Remote support</source>
-        <translation>원격 지원</translation>
-    </message>
-    <message>
-        <source>Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.</source>
-        <translation>아래 코드를 UbiBot 지원팀에 전달하면 담당자가 사용자의 컴퓨터에 연결하여 장치 문제를 진단할 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>Your code</source>
-        <translation>내 코드</translation>
-    </message>
-    <message>
-        <source>Valid for 10 minutes · this session only</source>
-        <translation>10분간 유효 · 이번 세션에만 해당</translation>
-    </message>
-    <message>
-        <source>Copy code</source>
-        <translation>코드 복사</translation>
-    </message>
-    <message>
-        <source>Regenerate</source>
-        <translation>다시 생성</translation>
-    </message>
-    <message>
-        <source>One-time password</source>
-        <translation>일회용 비밀번호</translation>
-    </message>
-    <message>
-        <source>Allow support to send/receive on the serial port</source>
-        <translation>지원팀이 시리얼 포트로 송수신하도록 허용</translation>
-    </message>
-    <message>
-        <source>Share this session&apos;s log</source>
-        <translation>이 세션의 로그 공유</translation>
-    </message>
-    <message>
-        <source>Allow full desktop control</source>
-        <translation>전체 데스크톱 제어 허용</translation>
-    </message>
-    <message>
-        <source>Start session</source>
-        <translation>세션 시작</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>연결되지 않음</translation>
-    </message>
-    <message>
-        <source>Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.</source>
-        <translation>원격 지원에는 시그널링/릴레이 서비스가 필요하지만 이 빌드에는 아직 포함되어 있지 않습니다. 위의 세션 코드와 권한 설정은 해당 전송 계층이 구현되는 즉시 사용할 수 있도록 준비되어 있습니다.</translation>
-    </message>
-</context>
-<context>
-    <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
         <translation>세션 로그 저장</translation>
@@ -506,12 +687,12 @@
         <translation>저장 위치</translation>
     </message>
     <message>
-        <source>Browse…</source>
-        <translation>찾아보기…</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>형식</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>찾아보기…</translation>
     </message>
     <message>
         <source>Plain text (.log)</source>
@@ -535,40 +716,10 @@
     </message>
 </context>
 <context>
-    <name>SerialManager</name>
+    <name>ui::SerialSettingsPanel</name>
     <message>
-        <source>Serial port disconnected.</source>
-        <translation>시리얼 포트 연결이 끊어졌습니다.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialOptions</name>
-    <message>
-        <source>None</source>
-        <translation>없음</translation>
-    </message>
-    <message>
-        <source>Even</source>
-        <translation>짝수</translation>
-    </message>
-    <message>
-        <source>Odd</source>
-        <translation>홀수</translation>
-    </message>
-    <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
-    </message>
-    <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
-    </message>
-</context>
-<context>
-    <name>SerialSettingsPanel</name>
-    <message>
-        <source>Port · PORT</source>
-        <translation>포트 · PORT</translation>
+        <source>Port settings</source>
+        <translation>포트 설정</translation>
     </message>
     <message>
         <source>Port</source>
@@ -595,20 +746,16 @@
         <translation>흐름 제어</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>포트 닫기</translation>
+        <source>No ports found</source>
+        <translation>포트를 찾을 수 없습니다</translation>
     </message>
     <message>
-        <source>Open port</source>
-        <translation>포트 열기</translation>
+        <source>Refresh ports</source>
+        <translation>포트 새로 고침</translation>
     </message>
     <message>
-        <source>Receive · RECEIVE</source>
-        <translation>수신 · RECEIVE</translation>
-    </message>
-    <message>
-        <source>Transmit · TRANSMIT</source>
-        <translation>송신 · TRANSMIT</translation>
+        <source>Receive</source>
+        <translation>수신</translation>
     </message>
     <message>
         <source>Show timestamp</source>
@@ -623,6 +770,10 @@
         <translation>전송 데이터 에코 표시</translation>
     </message>
     <message>
+        <source>Transmit</source>
+        <translation>송신</translation>
+    </message>
+    <message>
         <source>Append CRC (CRC16/MODBUS)</source>
         <translation>CRC 추가 (CRC16/MODBUS)</translation>
     </message>
@@ -634,21 +785,21 @@
         <source>ms</source>
         <translation>ms</translation>
     </message>
+    <message>
+        <source>Unknown device</source>
+        <translation>알 수 없는 장치</translation>
+    </message>
+    <message>
+        <source>Close port</source>
+        <translation>포트 닫기</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>포트 열기</translation>
+    </message>
 </context>
 <context>
-    <name>SettingsAboutDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>닫기</translation>
-    </message>
-    <message>
-        <source>%1 (Qt %2)</source>
-        <translation>%1(Qt %2)</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>확인</translation>
-    </message>
+    <name>ui::SettingsDialog</name>
     <message>
         <source>Settings &amp; About</source>
         <translation>설정 및 정보</translation>
@@ -660,6 +811,10 @@
     <message>
         <source>System font</source>
         <translation>시스템 글꼴</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>크기</translation>
     </message>
     <message>
         <source>Data monitor font</source>
@@ -678,16 +833,8 @@
         <translation>어둡게</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>크기</translation>
-    </message>
-    <message>
         <source>Command library</source>
         <translation>명령어 라이브러리</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>최신 상태</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -710,12 +857,98 @@
         <translation>지원 장치</translation>
     </message>
     <message>
+        <source>Restore defaults</source>
+        <translation>기본값으로 복원</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1(Qt %2)</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>최신 상태</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation>업데이트 있음</translation>
+    </message>
+    <message>
         <source>%1 models · %2 commands</source>
         <translation>모델 %1개 · 명령 %2개</translation>
     </message>
+</context>
+<context>
+    <name>ui::SoftwareUpdateDialog</name>
     <message>
-        <source>Restore defaults</source>
-        <translation>기본값으로 복원</translation>
+        <source>Software Update</source>
+        <translation>소프트웨어 업데이트</translation>
+    </message>
+    <message>
+        <source>This update is required to keep using the app.</source>
+        <translation>앱을 계속 사용하려면 이 업데이트가 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>나중에</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>다시 시도</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>지금 업데이트</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
+    </message>
+    <message>
+        <source>Version %1 is available (you have %2)</source>
+        <translation>버전 %1을(를) 사용할 수 있습니다(현재 %2)</translation>
+    </message>
+</context>
+<context>
+    <name>ui::TemplateDialog</name>
+    <message>
+        <source>Edit template</source>
+        <translation>템플릿 편집</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>새 템플릿</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>예: 장치 재설정</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>내용</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>전송할 실제 텍스트</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
     </message>
 </context>
 </TS>

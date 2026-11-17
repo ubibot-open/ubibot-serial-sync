@@ -107,7 +107,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
-          # Quick/QuickControls2/Network/LinguistTools all ship as part of
+          # Widgets/Svg/Network/LinguistTools all ship as part of
           # the base "essential" Qt install -- SerialPort is the one add-on
           # module this project needs (see CMakeLists.txt's find_package
           # call and its own comment about it being opt-in in the online
@@ -134,7 +134,7 @@ jobs:
           Copy-Item build\Release\${{ env.APP_NAME }}.exe deploy\${{ env.APP_NAME }}\
           # install-qt-action puts Qt's own bin/ on PATH, so this resolves
           # without needing to know QT_ROOT_DIR's exact layout.
-          windeployqt.exe deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe --qmldir qml --release
+          windeployqt.exe deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe --release
 
       # Two zips of the identical contents, not one -- see "Stable download
       # link" in README.md. $zipName carries the version in its name (kept
@@ -196,7 +196,7 @@ jobs:
         id: pkg
         shell: bash
         run: |
-          macdeployqt "build/${{ env.APP_NAME }}.app" -qmldir=qml -dmg
+          macdeployqt "build/${{ env.APP_NAME }}.app" -dmg
           dmgName="${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-macos.dmg"
           latestDmgName="${{ env.APP_NAME }}-macos.dmg"
           mv "build/${{ env.APP_NAME }}.dmg" "$dmgName"
@@ -223,7 +223,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # libgl1-mesa-dev/libxkbcommon-dev: Qt Quick/Qt Gui link against
+      # libgl1-mesa-dev/libxkbcommon-dev: Qt Gui/Widgets link against
       # OpenGL and libxkbcommon at build time on Linux; neither is present
       # on a bare runner image.
       - name: Install build dependencies
@@ -293,7 +293,7 @@ jobs:
           mkdir -p tools
           wget -q "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O tools/linuxdeployqt.AppImage
           chmod +x tools/linuxdeployqt.AppImage
-          ./tools/linuxdeployqt.AppImage AppDir/usr/share/applications/ubibot-serial-assistant.desktop -qmldir=qml -appimage
+          ./tools/linuxdeployqt.AppImage AppDir/usr/share/applications/ubibot-serial-assistant.desktop -appimage
 
           appimageName="${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-linux-x86_64.AppImage"
           latestAppimageName="${{ env.APP_NAME }}-linux-x86_64.AppImage"

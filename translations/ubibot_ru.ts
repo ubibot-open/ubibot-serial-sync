@@ -2,53 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru" sourcelanguage="en">
 <context>
-    <name>AboutDialog</name>
-    <message>
-        <source>About</source>
-        <translation>О программе</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Помощник последовательного порта UbiBot</translation>
-    </message>
-    <message>
-        <source>Version %1</source>
-        <translation>Версия %1</translation>
-    </message>
-    <message>
-        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6, QML, and C++17.</source>
-        <translation>Инструмент отладки последовательного порта для IoT-устройств UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 и др.), созданный на Qt 6, QML и C++17.</translation>
-    </message>
-    <message>
-        <source>Build time</source>
-        <translation>Время сборки</translation>
-    </message>
-    <message>
-        <source>Company</source>
-        <translation>Компания</translation>
-    </message>
-    <message>
-        <source>UbiBot · United States of America</source>
-        <translation>UbiBot · США</translation>
-    </message>
-    <message>
-        <source>Website</source>
-        <translation>Веб-сайт</translation>
-    </message>
-    <message>
-        <source>GitHub</source>
-        <translation>GitHub</translation>
-    </message>
-    <message>
-        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
-        <translation>Создано с использованием Qt %1 по лицензии GNU Lesser General Public License v3 (LGPLv3). Qt является товарным знаком The Qt Company Ltd. Qt подключается динамически, поэтому входящие в комплект библиотеки Qt можно заменить совместимой сборкой LGPLv3.</translation>
-    </message>
-</context>
-<context>
     <name>AppController</name>
     <message>
         <source>%1 OPEN</source>
@@ -65,6 +18,34 @@
     <message>
         <source>Select a serial port first.</source>
         <translation>Сначала выберите последовательный порт.</translation>
+    </message>
+    <message>
+        <source>Command library is up to date (%1).</source>
+        <translation>Библиотека команд актуальна (%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires app version %2 or later -- please update the app first.</source>
+        <translation>Доступна версия %1, но требуется приложение версии %2 или новее — сначала обновите приложение.</translation>
+    </message>
+    <message>
+        <source>Version %1 is available.</source>
+        <translation>Доступна версия %1.</translation>
+    </message>
+    <message>
+        <source>Downloaded data could not be applied: %1</source>
+        <translation>Не удалось применить загруженные данные: %1</translation>
+    </message>
+    <message>
+        <source>Updated to %1.</source>
+        <translation>Обновлено до %1.</translation>
+    </message>
+    <message>
+        <source>You&apos;re on the latest version (%1).</source>
+        <translation>У вас последняя версия (%1).</translation>
+    </message>
+    <message>
+        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
+        <translation>Доступна версия %1, но сначала требуется обновление с версии %2 или новее — переустановите приложение и повторите попытку.</translation>
     </message>
     <message>
         <source>%1 opened · %2</source>
@@ -95,80 +76,238 @@
         <translation>Журнал сохранён в %1</translation>
     </message>
     <message>
-        <source>Bundled command library is %1 — this build checks the local copy only.</source>
-        <translation>Встроенная библиотека команд — %1 — эта сборка проверяет только локальную копию.</translation>
+        <source>No update server configured (.env) -- using the bundled command library only.</source>
+        <translation>Сервер обновлений не настроен (.env) — используется только встроенная библиотека команд.</translation>
+    </message>
+    <message>
+        <source>Checking for updates…</source>
+        <translation>Проверка обновлений…</translation>
+    </message>
+    <message>
+        <source>Downloading…</source>
+        <translation>Загрузка…</translation>
+    </message>
+    <message>
+        <source>No update server configured (.env).</source>
+        <translation>Сервер обновлений не настроен (.env).</translation>
+    </message>
+    <message>
+        <source>Downloading update…</source>
+        <translation>Загрузка обновления…</translation>
+    </message>
+    <message>
+        <source>Download cancelled.</source>
+        <translation>Загрузка отменена.</translation>
+    </message>
+    <message>
+        <source>Downloaded file failed checksum verification -- update not applied.</source>
+        <translation>Загруженный файл не прошёл проверку контрольной суммы — обновление не применено.</translation>
+    </message>
+    <message>
+        <source>Preparing update…</source>
+        <translation>Подготовка обновления…</translation>
+    </message>
+    <message>
+        <source>Failed to launch the updater script.</source>
+        <translation>Не удалось запустить сценарий обновления.</translation>
+    </message>
+    <message>
+        <source>Restarting to apply update…</source>
+        <translation>Перезапуск для применения обновления…</translation>
+    </message>
+    <message>
+        <source>Self-update isn&apos;t supported on this platform yet -- please download the new version manually.</source>
+        <translation>Автообновление на этой платформе пока не поддерживается — загрузите новую версию вручную.</translation>
     </message>
 </context>
 <context>
-    <name>CommandLibraryPanel</name>
+    <name>DeviceLibraryUpdateClient</name>
     <message>
-        <source>Search commands</source>
-        <translation>Поиск команд</translation>
+        <source>Remote update server not configured (.env).</source>
+        <translation>Удалённый сервер обновлений не настроен (.env).</translation>
     </message>
     <message>
-        <source>Drag a row to reorder</source>
-        <translation>Перетащите строку для изменения порядка</translation>
+        <source>Malformed response: %1</source>
+        <translation>Некорректный ответ: %1</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Изменить</translation>
+        <source>Checksum mismatch -- downloaded data may be corrupted.</source>
+        <translation>Несовпадение контрольной суммы — загруженные данные могут быть повреждены.</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
+        <source>Response has no models[] array.</source>
+        <translation>В ответе нет массива models[].</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::CaptionButton</name>
+    <message>
+        <source>Minimize</source>
+        <translation>Свернуть</translation>
     </message>
     <message>
-        <source>Batch commands</source>
-        <translation>Пакетные команды</translation>
-    </message>
-    <message>
-        <source>New template</source>
-        <translation>Новый шаблон</translation>
-    </message>
-    <message>
-        <source>Edit template</source>
-        <translation>Изменить шаблон</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-    <message>
-        <source>e.g. Reset device</source>
-        <translation>например: сброс устройства</translation>
-    </message>
-    <message>
-        <source>Content</source>
-        <translation>Содержимое</translation>
-    </message>
-    <message>
-        <source>The literal text to send</source>
-        <translation>Точный текст для отправки</translation>
+        <source>Maximize</source>
+        <translation>Развернуть</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <source>No batch commands yet</source>
-        <translation>Пакетных команд пока нет</translation>
+        <source>Restore</source>
+        <translation>Восстановить</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::Dialog</name>
+    <message>
+        <source>OK</source>
+        <translation>ОК</translation>
     </message>
     <message>
-        <source>%1 steps · %2 ms interval</source>
-        <translation>%1 шаг(ов) · интервал %2 мс</translation>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::InfoBar</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
+    <name>QLight::TeachingTip</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>could not start &apos;tar&apos; (bundled with Windows 10 1803+/Windows 11) -- %1</source>
+        <translation>не удалось запустить &apos;tar&apos; (входит в Windows 10 1803+/Windows 11) — %1</translation>
     </message>
     <message>
-        <source>■ Stop</source>
-        <translation>■ Стоп</translation>
+        <source>&apos;tar&apos; timed out extracting the update</source>
+        <translation>&apos;tar&apos; не успел распаковать обновление</translation>
     </message>
     <message>
-        <source>▶ Run</source>
-        <translation>▶ Запуск</translation>
+        <source>&apos;tar&apos; failed (exit %1): %2</source>
+        <translation>ошибка &apos;tar&apos; (код %1): %2</translation>
     </message>
     <message>
-        <source>New batch</source>
-        <translation>Новый пакет</translation>
+        <source>downloaded archive doesn&apos;t contain %1 -- not a valid release package</source>
+        <translation>загруженный архив не содержит %1 — это не пакет выпуска</translation>
     </message>
+    <message>
+        <source>could not write updater script to %1: %2</source>
+        <translation>не удалось записать сценарий обновления в %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>SerialManager</name>
+    <message>
+        <source>Serial port disconnected.</source>
+        <translation>Последовательный порт отключён.</translation>
+    </message>
+</context>
+<context>
+    <name>SerialOptions</name>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Even</source>
+        <translation>Чётный</translation>
+    </message>
+    <message>
+        <source>Odd</source>
+        <translation>Нечётный</translation>
+    </message>
+    <message>
+        <source>RTS/CTS</source>
+        <translation>RTS/CTS</translation>
+    </message>
+    <message>
+        <source>XON/XOFF</source>
+        <translation>XON/XOFF</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareUpdateClient</name>
+    <message>
+        <source>Update server not configured (.env).</source>
+        <translation>Сервер обновлений не настроен (.env).</translation>
+    </message>
+    <message>
+        <source>Malformed response: %1</source>
+        <translation>Некорректный ответ: %1</translation>
+    </message>
+    <message>
+        <source>Server reported an error.</source>
+        <translation>Сервер сообщил об ошибке.</translation>
+    </message>
+    <message>
+        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
+        <translation>Приложение не зарегистрировано на сервере обновлений (slug &quot;%1&quot; не найден).</translation>
+    </message>
+    <message>
+        <source>Cannot write to %1: %2</source>
+        <translation>Не удаётся записать в %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>ui::AboutDialog</name>
+    <message>
+        <source>About</source>
+        <translation>О программе</translation>
+    </message>
+    <message>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Помощник последовательного порта UbiBot</translation>
+    </message>
+    <message>
+        <source>Version %1</source>
+        <translation>Версия %1</translation>
+    </message>
+    <message>
+        <source>A serial-port debugging tool for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, and more), built with Qt 6 and C++17.</source>
+        <translation>Инструмент отладки последовательного порта для IoT-устройств UbiBot (WS1, WS1 Pro, GS1-AL4G1RS, SP1 и др.), созданный на Qt 6 и C++17.</translation>
+    </message>
+    <message>
+        <source>Build time</source>
+        <translation>Время сборки</translation>
+    </message>
+    <message>
+        <source>Company</source>
+        <translation>Компания</translation>
+    </message>
+    <message>
+        <source>UbiBot · United States of America</source>
+        <translation>UbiBot · США</translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation>Веб-сайт</translation>
+    </message>
+    <message>
+        <source>GitHub</source>
+        <translation>GitHub</translation>
+    </message>
+    <message>
+        <source>Built with Qt %1 under the GNU Lesser General Public License v3 (LGPLv3). Qt is a trademark of The Qt Company Ltd. Qt is linked dynamically, so the bundled Qt libraries may be replaced with a compatible LGPLv3 build.</source>
+        <translation>Создано с использованием Qt %1 по лицензии GNU Lesser General Public License v3 (LGPLv3). Qt является товарным знаком The Qt Company Ltd. Qt подключается динамически, поэтому входящие в комплект библиотеки Qt можно заменить совместимой сборкой LGPLv3.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
+    <name>ui::BatchEditDialog</name>
     <message>
         <source>Edit batch command</source>
         <translation>Изменить пакетную команду</translation>
@@ -176,6 +315,10 @@
     <message>
         <source>New batch command</source>
         <translation>Новая пакетная команда</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Название</translation>
     </message>
     <message>
         <source>e.g. Startup sequence</source>
@@ -194,14 +337,6 @@
         <translation>Шаги</translation>
     </message>
     <message>
-        <source>Command text</source>
-        <translation>Текст команды</translation>
-    </message>
-    <message>
-        <source>CRC</source>
-        <translation>CRC</translation>
-    </message>
-    <message>
         <source>Add step</source>
         <translation>Добавить шаг</translation>
     </message>
@@ -210,19 +345,101 @@
         <translation>Отмена</translation>
     </message>
     <message>
-        <source>Device model · Model</source>
-        <translation>Модель устройства · Model</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
+    <message>
+        <source>Command text</source>
+        <translation>Текст команды</translation>
+    </message>
+    <message>
+        <source>CRC</source>
+        <translation>CRC</translation>
+    </message>
+    <message>
+        <source>Remove step</source>
+        <translation>Удалить шаг</translation>
+    </message>
 </context>
 <context>
-    <name>CommandParamsPanel</name>
+    <name>ui::BatchListDialog</name>
+    <message>
+        <source>Batch commands</source>
+        <translation>Пакетные команды</translation>
+    </message>
+    <message>
+        <source>No batch commands yet</source>
+        <translation>Пакетных команд пока нет</translation>
+    </message>
+    <message>
+        <source>New batch</source>
+        <translation>Новый пакет</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>%1 steps · %2 ms interval</source>
+        <translation>%1 шаг(ов) · интервал %2 мс</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Запустить</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Изменить</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandLibraryPanel</name>
+    <message>
+        <source>Device model</source>
+        <translation>Модель устройства</translation>
+    </message>
+    <message>
+        <source>Search commands</source>
+        <translation>Поиск команд</translation>
+    </message>
+    <message>
+        <source>Drag a row to reorder</source>
+        <translation>Перетащите строку для изменения порядка</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Новый шаблон</translation>
+    </message>
+    <message>
+        <source>Batch commands</source>
+        <translation>Пакетные команды</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Изменить</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>ui::CommandParamsPanel</name>
     <message>
         <source>Needs parameters</source>
         <translation>Требуются параметры</translation>
+    </message>
+    <message>
+        <source>Preview</source>
+        <translation>Предпросмотр</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -234,22 +451,14 @@
     </message>
 </context>
 <context>
-    <name>DataMonitorView</name>
-    <message>
-        <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Clear log</source>
-        <translation>Очистить журнал</translation>
-    </message>
-    <message>
-        <source>Save log…</source>
-        <translation>Сохранить журнал…</translation>
-    </message>
+    <name>ui::DataMonitorView</name>
     <message>
         <source>Data monitor</source>
         <translation>Монитор данных</translation>
+    </message>
+    <message>
+        <source>Data sent and received appears here once a port is open</source>
+        <translation>После открытия порта здесь появятся отправленные и полученные данные</translation>
     </message>
     <message>
         <source>%1 lines</source>
@@ -263,12 +472,32 @@
         <source>Tx %1</source>
         <translation>Передача %1</translation>
     </message>
+    <message>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Clear log</source>
+        <translation>Очистить журнал</translation>
+    </message>
+    <message>
+        <source>Save log…</source>
+        <translation>Сохранить журнал…</translation>
+    </message>
 </context>
 <context>
-    <name>DriverHintDialog</name>
+    <name>ui::DriverHintDialog</name>
     <message>
         <source>Serial driver may be missing</source>
         <translation>Возможно, отсутствует драйвер порта</translation>
+    </message>
+    <message>
+        <source>The CH340 USB-to-serial driver doesn&apos;t appear to be installed on this computer. Without it, a connected UbiBot device won&apos;t show up as an available serial port.</source>
+        <translation>Похоже, на этом компьютере не установлен драйвер CH340 USB-to-serial. Без него подключённое устройство UbiBot не будет отображаться как доступный последовательный порт.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again</source>
+        <translation>Больше не показывать</translation>
     </message>
     <message>
         <source>Download driver</source>
@@ -278,17 +507,13 @@
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
-    <message>
-        <source>The CH340 USB-to-serial driver doesn't appear to be installed on this computer. Without it, a connected UbiBot device won't show up as an available serial port.</source>
-        <translation>Похоже, на этом компьютере не установлен драйвер CH340 USB-to-serial. Без него подключённое устройство UbiBot не будет отображаться как доступный последовательный порт.</translation>
-    </message>
-    <message>
-        <source>Don't show this again</source>
-        <translation>Больше не показывать</translation>
-    </message>
 </context>
 <context>
-    <name>DriverListDialog</name>
+    <name>ui::DriverListDialog</name>
+    <message>
+        <source>USB-to-serial driver used by most UbiBot devices</source>
+        <translation>Драйвер USB-to-serial, используемый большинством устройств UbiBot</translation>
+    </message>
     <message>
         <source>Driver downloads</source>
         <translation>Загрузка драйверов</translation>
@@ -296,6 +521,10 @@
     <message>
         <source>Close</source>
         <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>No drivers are relevant on this platform.</source>
+        <translation>На этой платформе нет подходящих драйверов.</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -309,32 +538,31 @@
         <source>Download</source>
         <translation>Скачать</translation>
     </message>
-    <message>
-        <source>No drivers are relevant on this platform.</source>
-        <translation>На этой платформе нет подходящих драйверов.</translation>
-    </message>
-    <message>
-        <source>USB-to-serial driver used by most UbiBot devices</source>
-        <translation>Драйвер USB-to-serial, используемый большинством устройств UbiBot</translation>
-    </message>
 </context>
 <context>
-    <name>Main</name>
+    <name>ui::LibraryUpdateDialog</name>
     <message>
-        <source>Serial driver not installed — click for details</source>
-        <translation>Драйвер последовательного порта не установлен — нажмите, чтобы узнать подробности</translation>
+        <source>Command library</source>
+        <translation>Библиотека команд</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation>Скрыть</translation>
+        <source>Download and apply</source>
+        <translation>Загрузить и применить</translation>
     </message>
     <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
+</context>
+<context>
+    <name>ui::MainView</name>
     <message>
-        <source>UbiBot Serial Assistant</source>
-        <translation>Помощник последовательного порта UbiBot</translation>
+        <source>Failed to open port</source>
+        <translation>Не удалось открыть порт</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ОК</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -385,28 +613,40 @@
         <translation>О программе</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>Отправить</translation>
+        <source>Serial driver not installed, so devices may not be detected.</source>
+        <translation>Драйвер последовательного порта не установлен, устройства могут не определяться.</translation>
     </message>
     <message>
-        <source>Device commands</source>
-        <translation>Команды устройства</translation>
+        <source>View details</source>
+        <translation>Подробнее</translation>
     </message>
     <message>
         <source>Serial</source>
         <translation>Последовательный порт</translation>
     </message>
     <message>
+        <source>Device commands</source>
+        <translation>Команды устройства</translation>
+    </message>
+    <message>
         <source>Type data to send…</source>
         <translation>Введите данные для отправки…</translation>
     </message>
     <message>
-        <source>Failed to open port</source>
-        <translation>Не удалось открыть порт</translation>
+        <source>Send</source>
+        <translation>Отправить</translation>
     </message>
     <message>
         <source>History</source>
         <translation>История</translation>
+    </message>
+    <message>
+        <source>Connected · %1</source>
+        <translation>Подключено · %1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не подключено</translation>
     </message>
     <message>
         <source>Send history</source>
@@ -422,77 +662,18 @@
     </message>
 </context>
 <context>
-    <name>PortComboBox</name>
+    <name>ui::MainWindow</name>
     <message>
-        <source>No ports found</source>
-        <translation>Порты не найдены</translation>
-    </message>
-    <message>
-        <source>Unknown device</source>
-        <translation>Неизвестное устройство</translation>
+        <source>UbiBot Serial Assistant</source>
+        <translation>Помощник последовательного порта UbiBot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteAssistPanel</name>
+    <name>ui::SaveLogDialog</name>
     <message>
-        <source>OK</source>
-        <translation>ОК</translation>
+        <source>Choose a folder</source>
+        <translation>Выберите папку</translation>
     </message>
-    <message>
-        <source>Remote support</source>
-        <translation>Удалённая поддержка</translation>
-    </message>
-    <message>
-        <source>Send the code below to UbiBot support so they can connect to your computer and help diagnose device issues.</source>
-        <translation>Отправьте указанный ниже код в службу поддержки UbiBot, чтобы специалисты могли подключиться к вашему компьютеру и помочь диагностировать проблемы с устройством.</translation>
-    </message>
-    <message>
-        <source>Your code</source>
-        <translation>Ваш код</translation>
-    </message>
-    <message>
-        <source>Valid for 10 minutes · this session only</source>
-        <translation>Действителен 10 минут · только для этой сессии</translation>
-    </message>
-    <message>
-        <source>Copy code</source>
-        <translation>Копировать код</translation>
-    </message>
-    <message>
-        <source>Regenerate</source>
-        <translation>Сгенерировать заново</translation>
-    </message>
-    <message>
-        <source>One-time password</source>
-        <translation>Одноразовый пароль</translation>
-    </message>
-    <message>
-        <source>Allow support to send/receive on the serial port</source>
-        <translation>Разрешить поддержке отправку/приём через последовательный порт</translation>
-    </message>
-    <message>
-        <source>Share this session&apos;s log</source>
-        <translation>Поделиться журналом этой сессии</translation>
-    </message>
-    <message>
-        <source>Allow full desktop control</source>
-        <translation>Разрешить полное управление рабочим столом</translation>
-    </message>
-    <message>
-        <source>Start session</source>
-        <translation>Начать сессию</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>Не подключено</translation>
-    </message>
-    <message>
-        <source>Remote support requires a signaling/relay service that this build does not include yet. The session code and permissions above are ready to wire up once that transport exists.</source>
-        <translation>Для удалённой поддержки требуется сервис сигнализации/ретрансляции, который пока не включён в эту сборку. Код сессии и разрешения выше уже готовы к подключению, как только появится этот транспорт.</translation>
-    </message>
-</context>
-<context>
-    <name>SaveLogDialog</name>
     <message>
         <source>Save session log</source>
         <translation>Сохранить журнал сессии</translation>
@@ -506,12 +687,12 @@
         <translation>Расположение</translation>
     </message>
     <message>
-        <source>Browse…</source>
-        <translation>Обзор…</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Формат</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Обзор…</translation>
     </message>
     <message>
         <source>Plain text (.log)</source>
@@ -535,40 +716,10 @@
     </message>
 </context>
 <context>
-    <name>SerialManager</name>
+    <name>ui::SerialSettingsPanel</name>
     <message>
-        <source>Serial port disconnected.</source>
-        <translation>Последовательный порт отключён.</translation>
-    </message>
-</context>
-<context>
-    <name>SerialOptions</name>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
-    </message>
-    <message>
-        <source>Even</source>
-        <translation>Чётный</translation>
-    </message>
-    <message>
-        <source>Odd</source>
-        <translation>Нечётный</translation>
-    </message>
-    <message>
-        <source>RTS/CTS</source>
-        <translation>RTS/CTS</translation>
-    </message>
-    <message>
-        <source>XON/XOFF</source>
-        <translation>XON/XOFF</translation>
-    </message>
-</context>
-<context>
-    <name>SerialSettingsPanel</name>
-    <message>
-        <source>Port · PORT</source>
-        <translation>Порт · PORT</translation>
+        <source>Port settings</source>
+        <translation>Настройки порта</translation>
     </message>
     <message>
         <source>Port</source>
@@ -595,20 +746,16 @@
         <translation>Управление потоком</translation>
     </message>
     <message>
-        <source>Close port</source>
-        <translation>Закрыть порт</translation>
+        <source>No ports found</source>
+        <translation>Порты не найдены</translation>
     </message>
     <message>
-        <source>Open port</source>
-        <translation>Открыть порт</translation>
+        <source>Refresh ports</source>
+        <translation>Обновить порты</translation>
     </message>
     <message>
-        <source>Receive · RECEIVE</source>
-        <translation>Приём · RECEIVE</translation>
-    </message>
-    <message>
-        <source>Transmit · TRANSMIT</source>
-        <translation>Передача · TRANSMIT</translation>
+        <source>Receive</source>
+        <translation>Приём</translation>
     </message>
     <message>
         <source>Show timestamp</source>
@@ -623,6 +770,10 @@
         <translation>Отображать отправленные данные</translation>
     </message>
     <message>
+        <source>Transmit</source>
+        <translation>Передача</translation>
+    </message>
+    <message>
         <source>Append CRC (CRC16/MODBUS)</source>
         <translation>Добавлять CRC (CRC16/MODBUS)</translation>
     </message>
@@ -634,21 +785,21 @@
         <source>ms</source>
         <translation>мс</translation>
     </message>
+    <message>
+        <source>Unknown device</source>
+        <translation>Неизвестное устройство</translation>
+    </message>
+    <message>
+        <source>Close port</source>
+        <translation>Закрыть порт</translation>
+    </message>
+    <message>
+        <source>Open port</source>
+        <translation>Открыть порт</translation>
+    </message>
 </context>
 <context>
-    <name>SettingsAboutDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>%1 (Qt %2)</source>
-        <translation>%1 (Qt %2)</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>ОК</translation>
-    </message>
+    <name>ui::SettingsDialog</name>
     <message>
         <source>Settings &amp; About</source>
         <translation>Настройки и о программе</translation>
@@ -660,6 +811,10 @@
     <message>
         <source>System font</source>
         <translation>Системный шрифт</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
     </message>
     <message>
         <source>Data monitor font</source>
@@ -678,16 +833,8 @@
         <translation>Тёмная</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
         <source>Command library</source>
         <translation>Библиотека команд</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Актуально</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -710,12 +857,98 @@
         <translation>Устройства</translation>
     </message>
     <message>
+        <source>Restore defaults</source>
+        <translation>Восстановить по умолчанию</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>%1 (Qt %2)</source>
+        <translation>%1 (Qt %2)</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Актуально</translation>
+    </message>
+    <message>
+        <source>Update available</source>
+        <translation>Доступно обновление</translation>
+    </message>
+    <message>
         <source>%1 models · %2 commands</source>
         <translation>Моделей: %1 · команд: %2</translation>
     </message>
+</context>
+<context>
+    <name>ui::SoftwareUpdateDialog</name>
     <message>
-        <source>Restore defaults</source>
-        <translation>Восстановить по умолчанию</translation>
+        <source>Software Update</source>
+        <translation>Обновление программы</translation>
+    </message>
+    <message>
+        <source>This update is required to keep using the app.</source>
+        <translation>Для продолжения работы с приложением требуется это обновление.</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Позже</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Retry</source>
+        <translation>Повторить</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>Обновить сейчас</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ОК</translation>
+    </message>
+    <message>
+        <source>Version %1 is available (you have %2)</source>
+        <translation>Доступна версия %1 (у вас %2)</translation>
+    </message>
+</context>
+<context>
+    <name>ui::TemplateDialog</name>
+    <message>
+        <source>Edit template</source>
+        <translation>Изменить шаблон</translation>
+    </message>
+    <message>
+        <source>New template</source>
+        <translation>Новый шаблон</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <source>e.g. Reset device</source>
+        <translation>например: сброс устройства</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Содержимое</translation>
+    </message>
+    <message>
+        <source>The literal text to send</source>
+        <translation>Точный текст для отправки</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
     </message>
 </context>
 </TS>

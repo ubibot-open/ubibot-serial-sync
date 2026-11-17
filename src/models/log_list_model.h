@@ -7,7 +7,7 @@
 #include "core/log_manager.h"
 
 #include <QAbstractListModel>
-#include <QQmlEngine>
+#include <QObject>
 #include <QTimer>
 
 // QML-facing view over LogManager's scrollback. Still a QAbstractListModel
@@ -23,8 +23,6 @@
 // text on every new line.
 class LogListModel : public QAbstractListModel {
     Q_OBJECT
-    QML_ELEMENT
-    QML_UNCREATABLE("Created by AppController")
 
     Q_PROPERTY(bool hexMode READ hexMode WRITE setHexMode NOTIFY hexModeChanged)
     Q_PROPERTY(bool showTimestamp READ showTimestamp WRITE setShowTimestamp NOTIFY showTimestampChanged)

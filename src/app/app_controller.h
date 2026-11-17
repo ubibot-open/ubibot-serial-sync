@@ -18,7 +18,7 @@
 
 #include <QFont>
 #include <QObject>
-#include <QQmlEngine>
+#include <QObject>
 #include <QVariantList>
 #include <QVariantMap>
 
@@ -35,8 +35,6 @@ class QTimer;
 // QML files only render state and forward user actions to it.
 class AppController : public QObject {
     Q_OBJECT
-    QML_ELEMENT
-    QML_SINGLETON
 
     Q_PROPERTY(bool portOpen READ portOpen NOTIFY connectionChanged)
     Q_PROPERTY(QString portStatusText READ portStatusText NOTIFY connectionChanged)

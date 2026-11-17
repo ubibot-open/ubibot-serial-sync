@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QObject>
-#include <QQmlEngine>
+#include <QObject>
 #include <QVariantList>
 
 // Stateless source of the option lists SerialSettingsPanel.qml populates its
@@ -18,8 +18,6 @@
 // SerialSettingsPanel.qml's onCurrentLanguageChanged handler.
 class SerialOptions : public QObject {
     Q_OBJECT
-    QML_ELEMENT
-    QML_SINGLETON
 
 public:
     using QObject::QObject;
