@@ -15,6 +15,10 @@
 
 #include <QWKWidgets/widgetwindowagent.h>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #include "ColorAnimator.h"
 #include "Util.h"
 
@@ -354,6 +358,20 @@ void FramelessWindow::applyThemeToNativeFrame()
 {
     // keeps the native caption/border/backdrop (Windows) in step with our theme
     m_agent->setWindowAttribute(QStringLiteral("dark-mode"), ThemeManager::instance().isDark());
+#ifdef Q_OS_WIN
+    // UbiBot patch: Windows 10 applies the new DWM dark-mode attribute to the 1px window
+    // border only the next time the non-client area is redrawn (e.g. after the window is
+    // deactivated and reactivated), so a light -> dark switch at runtime left a white
+    // border. Force that redraw now.
+    if (testAttribute(Qt::WA_WState_Created)) {
+        const HWND hwnd = reinterpret_cast<HWND>(winId());
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                     SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+        const bool active = GetActiveWindow() == hwnd;
+        SendMessageW(hwnd, WM_NCACTIVATE, active ? FALSE : TRUE, 0);
+        SendMessageW(hwnd, WM_NCACTIVATE, active ? TRUE : FALSE, 0);
+    }
+#endif
 }
 
 void FramelessWindow::paintEvent(QPaintEvent *)

@@ -119,9 +119,14 @@ Menu *Menu::addSubMenu(const QString &title, const QIcon &icon)
 
 QMenu *Menu::parentMenu() const
 {
+    // UbiBot patch: only a *visible* menu can be the one this menu opens from. A menu bar's
+    // drop-down menus can also be associated with the bar's hidden overflow ("»") menu (Qt
+    // moves items there while the bar is too narrow, e.g. before the first layout); upstream
+    // then treated them as sub-menus of that hidden menu and positioned them against it,
+    // which put every drop-down except the first one at the top-left of the screen.
     for (QObject *o : menuAction()->associatedObjects())
         if (o != this)
-            if (auto *m = qobject_cast<QMenu *>(o))
+            if (auto *m = qobject_cast<QMenu *>(o); m && m->isVisible())
                 return m;
     return nullptr;
 }
