@@ -10,7 +10,6 @@
 #include <QJsonObject>
 #include <QLocale>
 #include <QSettings>
-#include <QStyleHints>
 
 namespace {
 constexpr auto kLanguage = "app/language";
@@ -42,12 +41,36 @@ QString SettingsStore::language() const {
     QSettings s;
     if (s.contains(kLanguage)) return s.value(kLanguage).toString();
 
-    // First run: match the system locale's language against what we ship
-    // ("zh_TW" and "zh_CN" both fall back to the "zh_CN" entry, say), else
-    // fall back to English.
-    const QString sysLanguage = QLocale::system().name().section(QLatin1Char('_'), 0, 0);
-    for (const LanguageInfo &lang : LanguageManager::availableLanguages()) {
-        if (lang.code.section(QLatin1Char('_'), 0, 0) == sysLanguage) return lang.code;
+    // First run: the OS's UI language (not QLocale::system().name(), which on
+    // Windows is the regional *format* -- an English Windows with Chinese
+    // date/number formats would otherwise start in Chinese).
+    return languageForUiLanguages(QLocale::system().uiLanguages());
+}
+
+QString SettingsStore::languageForUiLanguages(const QStringList &uiLanguages) {
+    const auto shipped = [](const QString &code) {
+        for (const LanguageInfo &lang : LanguageManager::availableLanguages())
+            if (lang.code == code) return true;
+        return false;
+    };
+    // The user's preferred UI languages, most preferred first: the first one
+    // we ship wins; none -> English.
+    for (const QString &tag : uiLanguages) {
+        const QLocale loc(tag);
+        QString code;
+        if (loc.language() == QLocale::Chinese) {
+            // Traditional script, or a Traditional-Chinese region without an
+            // explicit script ("zh-TW", "zh-HK", "zh-MO") -> zh_TW.
+            const bool traditional = loc.script() == QLocale::TraditionalChineseScript ||
+                                     (loc.script() == QLocale::AnyScript &&
+                                      (loc.territory() == QLocale::Taiwan || loc.territory() == QLocale::HongKong ||
+                                       loc.territory() == QLocale::Macao)) ||
+                                     tag.contains(QLatin1String("Hant"), Qt::CaseInsensitive);
+            code = traditional ? QStringLiteral("zh_TW") : QStringLiteral("zh_CN");
+        } else if (loc.language() != QLocale::C && loc.language() != QLocale::AnyLanguage) {
+            code = QLocale::languageToCode(loc.language());
+        }
+        if (!code.isEmpty() && shipped(code)) return code;
     }
     return QStringLiteral("en");
 }
@@ -271,17 +294,9 @@ QString SettingsStore::themeMode() const {
         return mode == QStringLiteral("light") ? mode : QStringLiteral("dark");
     }
 
-    // First run: match the OS's own light/dark preference (Windows'
-    // "Choose your color mode", macOS's Appearance setting, or the
-    // relevant Linux desktop portal -- whichever this Qt build's platform
-    // theme plugin can read), same idea as language()'s system-locale
-    // match above. QStyleHints::colorScheme() reports Qt::ColorScheme::
-    // Unknown when the platform can't tell it one way or the other (an
-    // older/minimal platform plugin, a Linux desktop without portal
-    // support, ...) -- that and an explicit Dark both fall back to dark.
-    return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Light
-        ? QStringLiteral("light")
-        : QStringLiteral("dark");
+    // First run: always dark (product decision), regardless of the OS's own
+    // light/dark preference. Users switch in Settings & About.
+    return QStringLiteral("dark");
 }
 
 void SettingsStore::setThemeMode(const QString &mode) {

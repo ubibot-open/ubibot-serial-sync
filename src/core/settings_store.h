@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QSet>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 
 // A user-authored quick-send template from the "Device commands" panel's
@@ -32,10 +33,14 @@ struct CustomCommandTemplate {
 class SettingsStore {
 public:
     // Returns the stored language code, or -- on first run -- whichever
-    // shipped language best matches the system locale (falling back to
-    // "en").
+    // shipped language best matches the OS's UI language (falling back to
+    // "en"); see languageForUiLanguages().
     QString language() const;
     void setLanguage(const QString &code);
+    // First-run language choice from the OS's preferred UI languages
+    // (QLocale::uiLanguages(), most preferred first): the first one we ship
+    // ("zh-Hant"/"zh-TW"/"zh-HK" -> zh_TW, other Chinese -> zh_CN), else "en".
+    static QString languageForUiLanguages(const QStringList &uiLanguages);
 
     SerialConfig lastSerialConfig() const;
     void setLastSerialConfig(const SerialConfig &cfg);
@@ -120,17 +125,16 @@ public:
 
     // "light" or "dark". Once something's actually been stored, anything
     // other than "light" coerces to "dark" (shouldn't happen outside a
-    // hand-edited settings file). On first run (nothing stored yet), this
-    // matches the OS's own light/dark preference instead -- same idea as
-    // language()'s system-locale match below -- falling back to "dark" when
-    // the platform can't report one. Drives Theme.qml's whole color palette.
+    // hand-edited settings file). On first run (nothing stored yet) this is
+    // always "dark", whatever the OS's own preference. Drives the UI theme
+    // (ui::applyTheme()).
     QString themeMode() const;
     void setThemeMode(const QString &mode);
 
     // Clears the persisted language/font/theme overrides above (the
     // "Settings & About" dialog's own settings) so the next read of each
-    // falls back to its built-in default -- system-locale detection for
-    // language(), the system's own light/dark preference for themeMode(),
+    // falls back to its built-in default -- OS UI-language detection for
+    // language(), "dark" for themeMode(),
     // "Consolas" (Microsoft YaHei UI on Windows) at 13px for the data
     // monitor font, and the platform default family (also Microsoft YaHei
     // UI on Windows) at 13px for the system font. Leaves everything else
