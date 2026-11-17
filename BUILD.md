@@ -104,15 +104,15 @@ There is exactly one place to edit: the `VERSION` in `CMakeLists.txt`'s
 
 ```cmake
 project(UbiBotSerialAssistant
-    VERSION 1.1.1.1
+    VERSION 0.8.1.1
     ...
 )
 ```
 
-Bump it (e.g. to `1.1.1.2`), save, and rebuild — that single number then
+Bump it (e.g. to `0.8.1.2`), save, and rebuild — that single number then
 flows automatically to everywhere the app shows its own version:
 
-- the status bar (`v1.1.1.1`)
+- the status bar (`v0.8.1.1`)
 - the "Version" row in Settings & About
 - the built `.exe`'s own Windows file-version resource (right-click the
   .exe → Properties → Details → "File version"/"Product version")
@@ -189,57 +189,68 @@ plain workflow artifact, but the final `publish` job is skipped entirely
 ```
 CMakeLists.txt
 resources/
-  devices.json          # device/command catalog (bilingual labels, see below)
-  icons/*.svg, *.png     # toolbar/app icons
-  linux/*.desktop        # Linux packaging metadata (CI-only)
+  devices.json          # bundled device/command catalog (zh/en labels)
+  icons/*.svg, *.png    # app/window icons
+  linux/*.desktop       # Linux packaging metadata (CI-only)
+  app_version.rc.in     # Windows file-version resource template
   resources.qrc
 translations/
-  ubibot_zh_CN.ts        # Simplified Chinese catalog (hand-authored; see below)
-  ubibot_zh_TW.ts        # Traditional Chinese
-  ubibot_ja.ts           # Japanese
-  ubibot_ko.ts           # Korean
-  ubibot_ru.ts           # Russian
-  ubibot_fr.ts           # French
-  ubibot_it.ts           # Italian
+  ubibot_zh_CN.ts       # Simplified Chinese catalog (hand-authored; see below)
+  ubibot_zh_TW.ts       # Traditional Chinese
+  ubibot_ja.ts          # Japanese
+  ubibot_ko.ts          # Korean
+  ubibot_ru.ts          # Russian
+  ubibot_fr.ts          # French
+  ubibot_it.ts          # Italian
 third_party/
-  qlight/                # vendored subset of QLight Widgets (MIT): Fluent-style Qt Widgets and
-                         # FramelessWindow (+ QWindowKit, fetched at configure time)
+  qlight/               # vendored Fluent-style Qt Widgets library (MIT):
+                        # controls, dialogs, frameless window (+ QWindowKit)
 src/
   main.cpp
-  core/                  # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates
+  core/                 # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates
+    ansi_text.*                     # ANSI escape handling for received text
+    batch_command.h                 # saved multi-step command value type
+    crc16.*                         # CRC16/MODBUS helper
+    device_library.*                # devices.json loading/model/command types
+    device_library_update_client.*  # device-library remote update (see its header)
+    driver_check.*                  # CH340 driver detection + download links
+    env_config.*                    # runtime ".env" reader (update-server URLs)
+    hex_text.*                      # strict HEX <-> text conversion/validation
     language_manager.*
-    device_library.*
-    device_library_update_client.*   # device-library remote update (see docs/device-library-update-protocol.md)
-    software_update_client.*         # app self-update networking (see docs/app-self-update.md)
-    self_update_installer.*          # app self-update local install/swap logic
-    driver_check.*                   # CH340 driver detection, Windows + macOS (see docs/ch340-driver-hint.md)
-    env_config.*                     # runtime ".env" reader (update-server URLs, not committed)
     log_entry.h
     log_manager.*
+    self_update_installer.*         # app self-update local install/swap logic
     serial_manager.*
     settings_store.*
+    software_update_client.*        # app self-update networking (see its header)
   models/                # QAbstractListModel adapters the UI reads
-    log_list_model.*         # wraps LogManager for the data monitor ListView
-    command_list_model.*     # filtered/searched device command list
+    log_list_model.*         # wraps LogManager for the data monitor
+    command_list_model.*     # filtered/searched merged command list
     command_history_model.*  # manual-send history
     batch_command_model.*    # saved "Batch commands" sequences
     port_list_model.*        # detected serial ports
   app/
     app_controller.*     # the facade every UI class talks to
     serial_options.*     # translated dropdown option lists
-  ui/                    # Qt Widgets UI (v4 "Windows 11" design)
-    main_window.*        # top-level window (QLight::FramelessWindow on Windows)
-    main_view.*          # menu bar, command bar, driver bar, panels, send box, status bar
+  ui/                    # Qt Widgets UI (QLight, Fluent-style design)
+    main_window.*        # top-level window (QLight::FramelessWindow)
+    main_view.*          # menus, command bar, driver bar, panels, send box, status bar
+    app_dialog.*         # shared QLight dialog base (card, shadow, buttons)
     serial_settings_panel.*, command_library_panel.*, command_params_panel.*
     data_monitor_view.*  # coloured TX/RX/SYS/ERR log view
-    *_dialog(s).*        # settings, save log, about, drivers, templates, batch commands
+    batch_dialogs.*, misc_dialogs.*, settings_dialog.*, template_dialog.*
     ui_common.*          # theme glue + small widgets (cards, segmented control, status pill)
+server/                  # mock device-library update server (Go, dev/demo only)
+  main.go
+  data/devices.json, meta.json
+docs/screenshots/        # screenshots used by README.md
+.github/workflows/release.yml
 ```
 
-The UI was originally written in QML; it has been rewritten with Qt Widgets
-(on top of the vendored QLight widget library) for a more native desktop
-feel. `core/`, `models/` and `app/` were kept — only the presentation layer
-changed (see [Architecture](#architecture) below).
+The UI is Qt Widgets on top of the vendored QLight library; the earlier QML
+presentation layer is gone. `core/`, `models/` and `app/` stayed (with new
+helpers and models added), and all user-visible UI now lives in `ui/` (see
+[Architecture](#architecture) below).
 
 ## Architecture
 
@@ -249,16 +260,18 @@ forward user actions.** Concretely:
 - `core/*`: `SerialManager` wraps `QSerialPort`, `LogManager` owns the
   scrollback + file export, `DeviceLibrary` loads `devices.json`,
   `SettingsStore` wraps `QSettings`, `LanguageManager` owns the active
-  `QTranslator`. `DeviceLibraryUpdateClient`/`SoftwareUpdateClient`/
-  `SelfUpdateInstaller` back the two remote-update features (see
-  [docs/device-library-update-protocol.md](docs/device-library-update-protocol.md)
-  and [docs/app-self-update.md](docs/app-self-update.md)). None of these
-  classes know about the UI.
+  `QTranslator`; `AnsiText`, `HexText` and `Crc16` are small pure helpers for
+  received-text cleanup, strict HEX parsing/conversion and the MODBUS
+  checksum. `DeviceLibraryUpdateClient`/`SoftwareUpdateClient`/
+  `SelfUpdateInstaller` back the two remote-update features — their class
+  headers document the endpoints, verification and install behaviour.
+  `DriverCheck` handles CH340 driver detection and download links. None of
+  these classes know about the UI.
 - `AppController` (`src/app/app_controller.*`) owns one instance of each
   `core/` class and is the *only* thing the UI talks to for actions: opening
-  and closing the port, sending data, resolving an AT command's parameters,
-  saving a log, checking for either kind of update. State is exposed as
-  getters plus change signals.
+  and closing the port, sending data, resolving an AT/JSON command's
+  parameters, saving a log, checking for either kind of update. State is
+  exposed as getters plus change signals.
 - `models/*` are thin `QAbstractListModel` adapters (`LogListModel`,
   `CommandListModel`, `CommandHistoryModel`, `BatchCommandModel`,
   `PortListModel`); the command list and the send history are `QListView`s
@@ -311,7 +324,7 @@ pairs rather than going through `tr()`, since it's data, not source code —
 see `LocalizedText` in `core/device_library.h`. `LanguageManager::pick()`
 resolves it to whichever single language is currently active. Same idea
 applies to the device-library remote-update payload — see
-[docs/device-library-update-protocol.md](docs/device-library-update-protocol.md).
+`DeviceLibraryUpdateClient` in `src/core/device_library_update_client.h`.
 
 ## Design notes
 
@@ -335,21 +348,22 @@ A few implementation choices worth knowing about before you dig in:
   placeholder Remote Support panel (session code/OTP with no transport
   behind it) that was not reachable from the running app; it was not
   carried over.
-- **"Recommended" port detection** in the port picker is a heuristic:
-  it flags ports whose USB vendor ID matches the WCH CH340 (`0x1A86`) or
-  Silicon Labs CP210x (`0x10C4`) bridge chips UbiBot's own USB-serial
-  adapters use — not a guarantee that a given port is actually a UbiBot
-  device.
+- **Port chip detection** in the port picker is a heuristic: ports whose USB
+  vendor ID matches the WCH CH340 (`0x1A86`) or Silicon Labs CP210x
+  (`0x10C4`) bridge chips are labelled with that chip, because those are what
+  UbiBot's own USB-serial adapters use. The label does not guarantee that a
+  given port is actually a UbiBot device. A missing CH340 driver on Windows
+  or macOS is detected separately and shown as a hint bar.
 - **Two independent remote-update mechanisms, not one.** "Check for
   updates" in Settings & About's "Command library" section updates the
   *device command data* (`resources/devices.json`'s contents) from a
-  configured backend — see
-  [docs/device-library-update-protocol.md](docs/device-library-update-protocol.md).
-  "Check for software update" in the `&Help` menu updates *the app itself*
-  and is currently commented out (its backend registration hasn't been
-  deployed yet) — see [docs/app-self-update.md](docs/app-self-update.md).
-  Don't confuse the two; they're deliberately named/coded differently to
-  avoid exactly that.
+  configured backend — see `DeviceLibraryUpdateClient` in
+  `src/core/device_library_update_client.h`. "Check for software update" in
+  the `&Help` menu updates *the app itself* and is currently commented out
+  (its backend registration hasn't been deployed yet) — see
+  `SoftwareUpdateClient` in `src/core/software_update_client.h`. Don't
+  confuse the two; they're deliberately named/coded differently to avoid
+  exactly that.
 
 ## License
 

@@ -1,10 +1,16 @@
 # UbiBot Serial Assistant
 
-A cross-platform, lightweight desktop serial-port tool built with Qt 6 —
-fully open-source and free. Purpose-built and optimized for UbiBot IoT
-devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, …), with cloud-synced UbiBot
-device commands so new devices don't require a new app build to reach
-people who already have it installed.
+A cross-platform, lightweight desktop serial-port tool built with Qt 6
+Widgets and C++17 — fully open-source and free. Purpose-built and optimized
+for UbiBot IoT devices (WS1, WS1 Pro, GS1-AL4G1RS, SP1, …), with
+cloud-synced UbiBot device commands so new devices don't require a new app
+build to reach people who already have it installed.
+
+The UI is a native Fluent-style Qt Widgets desktop app built on the vendored
+QLight widget library — not QML, and not a bundled browser runtime. It uses a
+frameless custom window, starts in dark mode on first run, and keeps the data
+monitor and send box visible while the left-hand panel switches between
+serial settings and the device command library.
 
 ## Download
 
@@ -30,57 +36,74 @@ understand how it's put together internally.
 ## User interface
 
 The window is a single frameless, custom-drawn title bar and window frame
-(not the OS-native one), so the whole window — not just its contents —
-follows the app's light/dark theme.
+(QLight's FramelessWindow on top of QWindowKit), so the whole window — not
+just its contents — follows the app's light/dark theme. First run starts in
+dark mode and in the OS's UI language; both are switchable in Settings &
+About.
 
-**Serial connection settings** — port, baud rate, data/stop bits, parity,
-flow control, plus receive options (timestamps, line wrap, echo) and
-transmit options (ASCII/HEX mode, CRC16/MODBUS append, repeat-send
-interval):
+**Serial connection settings** — port (annotated with its USB-to-serial
+bridge chip when known), baud rate, data/stop bits, parity, flow control, and
+an explicit Open/Close port button, followed by receive options (ASCII/HEX,
+timestamps, line wrap, echo) and transmit options (ASCII/HEX, CRC16/MODBUS
+append, repeat-send interval). Selecting a device model that ships
+recommended serial settings applies them automatically:
 
 ![Serial connection panel](docs/screenshots/serial-panel.png)
 
-**Device command library** — searchable, per-model AT/JSON command sets
-with drag-to-reorder, your own quick-send templates, and saved multi-step
-"batch commands":
+**Device command library** — searchable, per-model command sets with
+drag-to-reorder, an inline parameter form with a live payload preview for
+commands that take arguments, your own quick-send templates, and saved
+multi-step "batch commands":
 
 ![Device command library panel](docs/screenshots/device-commands-panel.png)
 
-**Settings & About** — runtime language switch, font pickers, light/dark
-theme, and the device command library's own version/update status:
+**Settings & About** — runtime language switch, system and data-monitor font
+pickers, light/dark theme, the device command library's own version/update
+status, and app/platform/library information:
 
 ![Settings & About dialog](docs/screenshots/settings-about.png)
 
-Beyond what's pictured above: a real menu bar (`File`/`Edit`/`View`/`Tools`/
-`Help`) and toolbar (save log, send, pause, clear, settings, open/close
-port) above these panels, and — always visible regardless of which panel is
-active — a right-hand data monitor pane with a color-coded TX/RX/SYS/ERR log
-and a manual-send box with history.
+Beyond what's pictured above: a menu bar (`File`/`Edit`/`View`/`Tools`/
+`Help`) and command bar (save log, pause scrolling, clear, settings) across
+the top, a connection status pill, and a dismissible CH340 driver hint bar
+when that driver is missing. Always visible on the right, regardless of which
+left-hand panel is active, are the data monitor (color-coded TX/RX/SYS/ERR
+log with line and byte counters) and the manual-send box with history.
 
 ## Features
 
 ### Serial I/O (`QSerialPort`)
-- Full port configuration: baud rate, data bits, parity, stop bits, flow
-  control.
+- Full port configuration: port, baud rate, data bits, parity, stop bits,
+  flow control, plus an explicit open/close control.
+- Ports are annotated with their USB bridge chip (CH340 / CP210x) when Qt
+  can identify it; a missing CH340 driver is surfaced as a dismissible hint
+  with links to the correct driver download.
 - ASCII or HEX transmit/receive.
+- Switching the send box between ASCII and HEX converts the current draft,
+  including the CRLF an ASCII send appends. HEX input is validated strictly
+  (0-9/A-F byte pairs, optional whitespace or `, ; : -` separators, optional
+  `0x` prefix); malformed data is reported instead of being silently
+  truncated or mangled.
 - Optional CRC16/MODBUS checksum, appended automatically to every outgoing
   send (manual or device-library) when enabled.
 - Repeat-send: resend the current manual-send box contents on a fixed
   interval.
 - Echo sent data into the log, with per-line timestamps and line-wrap
   toggles.
-- Manual-send history — every sent line is kept, double-click to reuse.
+- Manual-send history — every sent line is kept; click an entry to reuse it.
 
 ### Device command library
-- Per-model command sets, grouped and searchable, for both plain-text AT
-  commands (`AT+INTERVAL=<sec>`) and JSON-payload devices (base64-encoded
-  command bodies).
-- A parameter panel pops up for any command that takes arguments; picking a
-  model that ships recommended serial settings offers to apply them.
-- Drag-to-reorder the command list; "My templates" for your own quick-send
-  snippets (add/edit/delete, unrelated to any specific device); "Batch
-  commands" for a saved, named sequence of steps sent one at a time on a
-  fixed interval (each step independently ASCII/HEX and CRC-toggle-able).
+- Per-model command sets, searchable, for both plain-text AT commands
+  (`AT+INTERVAL=<sec>`) and JSON-payload devices (base64-encoded command
+  bodies).
+- An inline parameter form appears for any command that takes arguments,
+  with a live preview of the payload before insertion; picking a model that
+  ships recommended serial settings applies them to the port controls.
+- Drag-to-reorder the command list; the "New template" button adds your own
+  quick-send snippets (edit/delete via the row's context menu, unrelated to
+  any specific device); "Batch commands" holds a saved, named sequence of
+  steps sent one at a time on a fixed interval (each step independently
+  ASCII/HEX and CRC-toggle-able).
 - Add a model or command by editing a JSON file — no recompile needed for
   content changes.
 
@@ -96,15 +119,17 @@ and a manual-send box with history.
   depends on hasn't been deployed yet.
 
 ### Data monitor
-- Color-coded TX/RX/SYS/ERR log, byte counters, pause/clear.
+- Color-coded TX/RX/SYS/ERR log, line and byte counters, pause scrolling, and
+  clear.
 - One-shot export to plain text / CSV / HEX dump.
 - Optional continuous, daily-rotating file logging.
 
-### Remote support (early preview)
-- Session-code/OTP generation and permission toggles are fully built, but
-  there's no signaling/relay server or peer-to-peer transport behind them
-  yet, and the panel isn't currently reachable from the main window at all
-  (see [BUILD.md](BUILD.md#design-notes)).
+### Driver assistance
+- Detects a missing CH340/CH341 USB-to-serial driver on Windows and macOS,
+  shows a dismissible hint bar with a "Download driver" action, and keeps a
+  `Help → Driver downloads` list with installation state and platform-
+  specific download links. Linux uses the in-tree `ch341` module, so no
+  separate install is needed there.
 
 ### Internationalization
 English, Simplified & Traditional Chinese, Japanese, Korean, Russian,
@@ -122,9 +147,9 @@ and Linux, all produced automatically on every tagged release — see
 
 ## Advantages
 
-- **Native and lightweight** — Qt Widgets with a Windows 11 (Fluent) look, not a bundled browser runtime;
-  a real desktop app with a small footprint and fast startup, not an
-  Electron wrapper.
+- **Native and lightweight** — Qt Widgets with a Fluent-style QLight UI, not
+  a bundled browser runtime; a real desktop app with a small footprint and
+  fast startup, not an Electron wrapper.
 - **Data-driven device support** — adding a new UbiBot model or command is
   a JSON edit, not a code change or a recompile, and (via the remote-update
   mechanism) doesn't even require shipping a new app build to reach users

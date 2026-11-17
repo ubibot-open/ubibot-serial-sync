@@ -39,7 +39,7 @@ permissions:
   contents: write  # softprops/action-gh-release needs this to create the Release
 
 env:
-  # Not 6.11.x (what README.md's manual release process was actually
+  # Not 6.11.x (what BUILD.md's manual release process was actually
   # verified against) on purpose: jurplel/install-qt-action installs Qt via
   # aqtinstall, and aqtinstall 3.3.0 (the latest release as of this writing)
   # can't resolve ANY 6.11.x version on any platform -- Qt restructured
@@ -50,10 +50,10 @@ env:
   # Confirmed directly: `aqt list-qt windows desktop --arch 6.11.1` fails
   # with "Failed to download checksum for the file 'Updates.xml'" while the
   # same command against 6.10.3 succeeds (same story on mac/linux). 6.10.3
-  # is the newest version this project's actual floor (6.7+, see README.md's
+  # is the newest version this project's actual floor (6.7+, see BUILD.md's
   # Requirements section) allows and aqtinstall can still fetch -- once
   # aqtinstall adds 6.11.x support (https://github.com/miurahr/aqtinstall),
-  # this can move back up to match README.md's 6.11.1.
+  # this can move back up to match BUILD.md's 6.11.1.
   QT_VERSION: '6.10.3'
   APP_NAME: 'UbiBotSerialAssistant'
 
