@@ -439,7 +439,12 @@ private:
     // step's own per-step CRC option (independent of the global toggle) can
     // reuse these same three helpers -- see sendNextBatchStep().
     QByteArray composeAsciiPayload(const QString &text, bool crc) const;
-    QByteArray composeHexPayload(const QString &text, bool crc) const;
+    // Strict: returns false (and leaves *out untouched) when `text` is not
+    // valid HEX -- see parseHexText() in the .cpp for what is accepted.
+    // Never silently drops characters: QByteArray::fromHex() alone skips
+    // anything that isn't a hex digit, which turned e.g.
+    // {"command":"ReadProduct"} into the bytes CA DE AD DC.
+    bool composeHexPayload(const QString &text, bool crc, QByteArray *out) const;
     // " [CRC XX XX]" (the exact bytes composeAsciiPayload()/composeHexPayload()
     // append for this same data) when `crc` is on, else empty -- appended to
     // the TX echo log line so an ASCII-mode send's log entry still shows

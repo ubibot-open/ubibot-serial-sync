@@ -48,6 +48,14 @@
         <translation>版本 %1 可用，但需要先從 %2 或更高版本升級，請重新安裝應用程式後再試。</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>傳送框內容不是有效的 HEX，已保持原樣。</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>HEX 資料中含有無法顯示為文字的位元組，已保持原樣。</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 已開啟 · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>序列埠已關閉</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>未傳送：HEX 格式無效。請使用成對的 0-9 / A-F 字元，例如 &quot;7B 22 0D 0A&quot;。</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>批次指令「%1」已開始 — 共 %2 步驟。</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>批次步驟 %1 已略過：HEX 無效 &quot;%2&quot;。</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>刪除步驟</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>不是有效的 HEX，已保持原樣。</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>含有無法顯示為文字的位元組，已保持原樣。</translation>
     </message>
 </context>
 <context>

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.21)
 
 
 project(UbiBotSerialAssistant
-    VERSION 0.7.9.1
+    VERSION 0.8.1.1
     DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )
@@ -46,6 +46,8 @@ qt_add_executable(UbiBotSerialAssistant
     src/core/env_config.cpp
     src/core/ansi_text.h
     src/core/ansi_text.cpp
+    src/core/hex_text.h
+    src/core/hex_text.cpp
     src/core/crc16.h
     src/core/crc16.cpp
     src/core/batch_command.h

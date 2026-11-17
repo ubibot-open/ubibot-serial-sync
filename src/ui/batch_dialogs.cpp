@@ -4,9 +4,11 @@
 #include "ui/batch_dialogs.h"
 
 #include "app/app_controller.h"
+#include "core/hex_text.h"
 #include "ui/ui_common.h"
 
 #include <QContextMenuEvent>
+#include <QToolTip>
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QScrollArea>
@@ -285,6 +287,29 @@ void BatchEditDialog::addStep(const QString &text, bool isHex, bool crc) {
     h->addWidget(del);
     connect(del, &QToolButton::clicked, this, [this, row] { removeStep(row); });
     connect(field, &QLineEdit::textChanged, this, &BatchEditDialog::updateSaveEnabled);
+    // Same conversion as the main send box (see core/hex_text.h). clicked(), not
+    // toggled(): only a user click converts, not the setChecked() above.
+    connect(hex, &QCheckBox::clicked, this, [this, field](bool toHex) {
+        if (field->text().trimmed().isEmpty()) return;
+        if (toHex) {
+            field->setText(HexText::fromAsciiDraft(field->text()));
+            return;
+        }
+        QString text;
+        switch (HexText::toAsciiDraft(field->text(), &text)) {
+        case HexText::ToAsciiResult::Ok:
+            field->setText(text);
+            break;
+        case HexText::ToAsciiResult::InvalidHex:
+            QToolTip::showText(field->mapToGlobal(QPoint(0, field->height())),
+                               tr("Not valid HEX, so it was left unchanged."), field);
+            break;
+        case HexText::ToAsciiResult::NotText:
+            QToolTip::showText(field->mapToGlobal(QPoint(0, field->height())),
+                               tr("Contains bytes that can't be shown as text, so it was left unchanged."), field);
+            break;
+        }
+    });
     stepsLayout_->insertWidget(stepsLayout_->count() - 1, row);
 }
 

@@ -6,6 +6,7 @@
 #include "core/crc16.h"
 #include "core/driver_check.h"
 #include "core/env_config.h"
+#include "core/hex_text.h"
 #include "core/language_manager.h"
 #include "core/self_update_installer.h"
 #include "models/batch_command_model.h"
@@ -30,6 +31,7 @@ QHash<QString, QString> toHash(const QVariantMap &values) {
     for (auto it = values.constBegin(); it != values.constEnd(); ++it) h.insert(it.key(), it.value().toString());
     return h;
 }
+
 }  // namespace
 
 AppController::AppController(QObject *parent) : QObject(parent) {
@@ -428,6 +430,29 @@ void AppController::setEchoTx(bool on) {
 void AppController::setSendAsHex(bool on) {
     if (sendAsHex_ == on) return;
     sendAsHex_ = on;
+
+    // Convert what's in the send box so it means the same bytes on the wire
+    // in the new mode: text -> "7B 22 ... 0D 0A" (including the "\r\n" an
+    // ASCII send appends) and back -- see core/hex_text.h.
+    if (!draftText_.trimmed().isEmpty()) {
+        if (on) {
+            setDraftText(HexText::fromAsciiDraft(draftText_));
+        } else {
+            QString text;
+            switch (HexText::toAsciiDraft(draftText_, &text)) {
+            case HexText::ToAsciiResult::Ok:
+                setDraftText(text);
+                break;
+            case HexText::ToAsciiResult::InvalidHex:
+                emit statusMessage(tr("The send box isn't valid HEX, so it was left unchanged."));
+                break;
+            case HexText::ToAsciiResult::NotText:
+                emit statusMessage(
+                    tr("The HEX data contains bytes that can't be shown as text, so it was left unchanged."));
+                break;
+            }
+        }
+    }
     emit sendAsHexChanged();
 }
 
@@ -466,15 +491,12 @@ QByteArray AppController::composeAsciiPayload(const QString &text, bool crc) con
     return bytes;
 }
 
-QByteArray AppController::composeHexPayload(const QString &text, bool crc) const {
-    QString cleaned = text;
-    cleaned.remove(QLatin1Char(' '));
-    cleaned.remove(QLatin1Char('\n'));
-    cleaned.remove(QLatin1Char('\r'));
-    cleaned.remove(QLatin1Char('\t'));
-    QByteArray bytes = QByteArray::fromHex(cleaned.toUtf8());
+bool AppController::composeHexPayload(const QString &text, bool crc, QByteArray *out) const {
+    QByteArray bytes;
+    if (!HexText::parse(text, &bytes) || bytes.isEmpty()) return false;
     if (crc) bytes += Crc16::modbusBytes(bytes);
-    return bytes;
+    *out = bytes;
+    return true;
 }
 
 QString AppController::crcEchoSuffix(const QByteArray &data, bool crc) const {
@@ -580,7 +602,15 @@ void AppController::sendManualText() {
     }
 
     if (sendAsHex_) {
-        const QByteArray payload = composeHexPayload(text, crcEnabled_);
+        QByteArray payload;
+        if (!composeHexPayload(text, crcEnabled_, &payload)) {
+            logManager_.append(LogKind::Err, tr("Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. "
+                                                "\"7B 22 0D 0A\".")
+                                                 .toUtf8());
+            // a repeat-send would just log this error on every tick
+            if (repeatEnabled_) setRepeatSendEnabled(false);
+            return;
+        }
         serial_.write(payload);
         if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
     } else {
@@ -701,9 +731,16 @@ void AppController::sendNextBatchStep() {
 
     const BatchCommandStep &step = batchQueue_.steps.at(batchStepIndex_);
     if (step.isHex) {
-        const QByteArray payload = composeHexPayload(step.text, step.crcEnabled);
-        serial_.write(payload);
-        if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
+        QByteArray payload;
+        if (composeHexPayload(step.text, step.crcEnabled, &payload)) {
+            serial_.write(payload);
+            if (echoTx_) logManager_.append(LogKind::Tx, payload.toHex(' ').toUpper());
+        } else {
+            logManager_.append(LogKind::Err, tr("Batch step %1 skipped: invalid HEX \"%2\".")
+                                                 .arg(batchStepIndex_ + 1)
+                                                 .arg(step.text)
+                                                 .toUtf8());
+        }
     } else {
         serial_.write(composeAsciiPayload(step.text, step.crcEnabled));
         if (echoTx_)

@@ -48,6 +48,14 @@
         <translation>バージョン %1 が利用可能ですが、先にバージョン %2 以降からの更新が必要です。アプリを再インストールしてからもう一度お試しください。</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>送信欄の内容が有効な HEX ではないため、変更していません。</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>HEX データにテキストとして表示できないバイトが含まれているため、変更していません。</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 を開きました · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>ポートを閉じました</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>送信しませんでした：HEX が無効です。0-9 / A-F の 2 桁ずつで入力してください（例：&quot;7B 22 0D 0A&quot;）。</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>バッチ「%1」を開始しました — %2 ステップ。</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>バッチのステップ %1 をスキップしました：無効な HEX &quot;%2&quot;。</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>ステップを削除</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>有効な HEX ではないため、変更していません。</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>テキストとして表示できないバイトを含むため、変更していません。</translation>
     </message>
 </context>
 <context>

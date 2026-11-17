@@ -48,6 +48,14 @@
         <translation>La version %1 est disponible, mais nécessite d&apos;abord une mise à jour depuis la version %2 ou ultérieure : réinstallez l&apos;application puis réessayez.</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>Le contenu de la zone d&apos;envoi n&apos;est pas un HEX valide ; il a été laissé tel quel.</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>Les données HEX contiennent des octets impossibles à afficher en texte ; elles ont été laissées telles quelles.</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 ouvert · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>Port fermé</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>Non envoyé : HEX invalide. Utilisez des paires de chiffres 0-9 / A-F, par ex. « 7B 22 0D 0A ».</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>Lot « %1 » démarré — %2 étape(s).</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>Étape %1 du lot ignorée : HEX invalide « %2 ».</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>Supprimer l&apos;étape</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>HEX invalide ; laissé tel quel.</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>Contient des octets impossibles à afficher en texte ; laissé tel quel.</translation>
     </message>
 </context>
 <context>

@@ -48,6 +48,14 @@
         <translation>Доступна версия %1, но сначала требуется обновление с версии %2 или новее — переустановите приложение и повторите попытку.</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>Содержимое поля отправки не является корректным HEX, оно оставлено без изменений.</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>Данные HEX содержат байты, которые нельзя показать как текст, поэтому они оставлены без изменений.</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 открыт · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>Порт закрыт</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>Не отправлено: неверный HEX. Используйте пары цифр 0-9 / A-F, например &quot;7B 22 0D 0A&quot;.</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>Пакет «%1» запущен — %2 шаг(ов).</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>Шаг пакета %1 пропущен: неверный HEX &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>Удалить шаг</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>Некорректный HEX, оставлено без изменений.</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>Содержит байты, которые нельзя показать как текст, оставлено без изменений.</translation>
     </message>
 </context>
 <context>

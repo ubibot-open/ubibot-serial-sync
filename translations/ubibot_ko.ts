@@ -48,6 +48,14 @@
         <translation>버전 %1을(를) 사용할 수 있지만 먼저 버전 %2 이상에서 업데이트해야 합니다. 앱을 다시 설치한 후 다시 시도하세요.</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>보내기 상자의 내용이 올바른 HEX가 아니어서 그대로 두었습니다.</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>HEX 데이터에 텍스트로 표시할 수 없는 바이트가 있어 그대로 두었습니다.</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 열림 · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>포트 닫힘</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>전송하지 않음: HEX 형식이 잘못되었습니다. 0-9 / A-F 두 자리씩 입력하세요(예: &quot;7B 22 0D 0A&quot;).</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>배치 &quot;%1&quot; 시작됨 — %2단계.</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>배치 단계 %1 건너뜀: 잘못된 HEX &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>단계 삭제</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>올바른 HEX가 아니어서 그대로 두었습니다.</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>텍스트로 표시할 수 없는 바이트가 있어 그대로 두었습니다.</translation>
     </message>
 </context>
 <context>

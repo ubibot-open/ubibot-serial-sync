@@ -48,6 +48,14 @@
         <translation>La versione %1 è disponibile, ma richiede prima l&apos;aggiornamento dalla versione %2 o successiva: reinstalla l&apos;app e riprova.</translation>
     </message>
     <message>
+        <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
+        <translation>Il contenuto della casella di invio non è HEX valido ed è stato lasciato invariato.</translation>
+    </message>
+    <message>
+        <source>The HEX data contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>I dati HEX contengono byte non visualizzabili come testo e sono stati lasciati invariati.</translation>
+    </message>
+    <message>
         <source>%1 opened · %2</source>
         <translation>%1 aperta · %2</translation>
     </message>
@@ -56,8 +64,16 @@
         <translation>Porta chiusa</translation>
     </message>
     <message>
+        <source>Not sent: invalid HEX. Use pairs of 0-9 / A-F digits, e.g. &quot;7B 22 0D 0A&quot;.</source>
+        <translation>Non inviato: HEX non valido. Usa coppie di cifre 0-9 / A-F, ad es. &quot;7B 22 0D 0A&quot;.</translation>
+    </message>
+    <message>
         <source>Batch &quot;%1&quot; started — %2 step(s).</source>
         <translation>Batch &quot;%1&quot; avviato — %2 passaggi.</translation>
+    </message>
+    <message>
+        <source>Batch step %1 skipped: invalid HEX &quot;%2&quot;.</source>
+        <translation>Passaggio %1 del batch saltato: HEX non valido &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Batch &quot;%1&quot; finished.</source>
@@ -359,6 +375,14 @@
     <message>
         <source>Remove step</source>
         <translation>Rimuovi passaggio</translation>
+    </message>
+    <message>
+        <source>Not valid HEX, so it was left unchanged.</source>
+        <translation>HEX non valido, lasciato invariato.</translation>
+    </message>
+    <message>
+        <source>Contains bytes that can&apos;t be shown as text, so it was left unchanged.</source>
+        <translation>Contiene byte non visualizzabili come testo, lasciato invariato.</translation>
     </message>
 </context>
 <context>
