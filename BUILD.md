@@ -15,7 +15,7 @@ technical details behind how it's put together.
   component in the Qt online installer's "Additional Libraries" section —
   check it's installed if CMake can't find `Qt6SerialPort`.
 - CMake ≥ 3.21.
-- **Windows only:** network access the first time you configure — CMake
+- Network access the first time you configure — CMake
   fetches [QWindowKit](https://github.com/stdware/qwindowkit) 1.5.0
   (Apache-2.0, with its submodules) for the custom title bar. To build
   offline, pass `-DFETCHCONTENT_SOURCE_DIR_QWINDOWKIT=<path>` pointing at an
@@ -203,7 +203,7 @@ translations/
   ubibot_it.ts           # Italian
 third_party/
   qlight/                # vendored subset of QLight Widgets (MIT): Fluent-style Qt Widgets and
-                         # FramelessWindow (+ QWindowKit, fetched at configure time, Windows only)
+                         # FramelessWindow (+ QWindowKit, fetched at configure time)
 src/
   main.cpp
   core/                  # no Qt GUI dependency at all -- I/O, data, settings, i18n, updates
@@ -317,12 +317,17 @@ applies to the device-library remote-update payload — see
 
 A few implementation choices worth knowing about before you dig in:
 
-- **Window chrome.** On Windows the main window is a `QLight::FramelessWindow`:
-  a Fluent title bar drawn by the app on top of QWindowKit, which keeps the
-  native behaviour (Aero Snap, resize borders, system menu, Windows 11 snap
-  layouts, the system shadow) and follows the light/dark theme. On macOS and
-  Linux the window keeps the native frame — QWindowKit is untested there,
-  and the native frame is the expected look on those platforms anyway.
+- **Window chrome.** On all three platforms the main window is a
+  `QLight::FramelessWindow`: a title bar drawn by the app (icon, title,
+  light/dark theme) on top of [QWindowKit](https://github.com/stdware/qwindowkit),
+  which does the native window work. On Windows that means Aero Snap,
+  resize borders, the system menu, Windows 11 snap layouts and the system
+  shadow, with the app drawing the minimize/maximize/close buttons. On macOS
+  the native close/minimize/zoom buttons stay (QWindowKit's
+  `no-system-buttons` is left off) at the left edge of the title bar, which
+  leaves room for them. On Linux QWindowKit uses its Qt-based window
+  context (system move/resize via Qt), with the same drawn buttons as
+  Windows; snapping behaviour depends on the window manager.
 - **Dialogs** are QLight content dialogs: a rounded card centred over the
   main window, which is dimmed behind it, with the command buttons in a
   shaded strip at the bottom.
@@ -406,12 +411,12 @@ instead.
 
 Two third-party libraries are compiled *into* the app (statically): QLight
 Widgets (MIT, see `third_party/qlight/LICENSE`, including a subset of
-Microsoft's Fluent UI System Icons, MIT) and, on Windows, QWindowKit
-(Apache-2.0). Both licenses are compatible with LGPLv3; their notices are
-in `third_party/qlight/THIRD_PARTY_NOTICES.md` and should ship with binary
-releases. QWindowKit uses Qt's private headers, so a Windows build is tied
-to the Qt 6 minor version it was compiled against — replacement Qt DLLs
-must be the same minor version.
+Microsoft's Fluent UI System Icons, MIT) and QWindowKit (Apache-2.0). Both
+licenses are compatible with LGPLv3; their notices are in
+`third_party/qlight/THIRD_PARTY_NOTICES.md` and should ship with binary
+releases. QWindowKit uses Qt's private headers, so a build is tied to the
+Qt 6 minor version it was compiled against — replacement Qt libraries must
+be the same minor version.
 
 This is an engineering-level license/compatibility check, not legal advice
 — for a business-critical determination, run it past a licensed attorney.

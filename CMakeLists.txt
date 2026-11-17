@@ -21,7 +21,7 @@ qt_standard_project_setup(REQUIRES 6.7)
 
 # Fluent-style widget library (vendored, MIT) -- see third_party/qlight/CMakeLists.txt.
 add_subdirectory(third_party/qlight)
-# QWindowKit (pulled in by QLight on Windows) links Qt's private modules; since
+# QWindowKit (pulled in by QLight for the title bar) links Qt's private modules; since
 # Qt 6.9 those are separate packages that must also be visible at this level.
 # QUIET: older Qt versions don't have them as separate packages at all.
 set(QT_NO_PRIVATE_MODULE_WARNING ON)

@@ -25,6 +25,7 @@ namespace {
 constexpr int kBarHeight = 32;
 constexpr int kButtonWidth = 46;
 constexpr int kIconSize = 16;
+[[maybe_unused]] constexpr int kMacButtonArea = 75; // close / minimize / zoom
 
 const QColor kCloseHover(0xC4, 0x2B, 0x1C);
 const QColor kClosePressed(0xC4, 0x2B, 0x1C, 0xCC);
@@ -163,7 +164,12 @@ public:
 #endif
 
         auto *lay = new QHBoxLayout(this);
+#ifdef Q_OS_MAC
+        // UbiBot patch: the native traffic lights sit at the left edge (see kMacButtonArea).
+        lay->setContentsMargins(kMacButtonArea + 4, 0, 12, 0);
+#else
         lay->setContentsMargins(12, 0, 0, 0);
+#endif
         lay->setSpacing(8);
         lay->addWidget(m_icon);
         lay->addWidget(m_title, 1);
@@ -276,9 +282,11 @@ FramelessWindow::FramelessWindow(QWidget *parent) : QWidget(parent)
     });
     connect(m_titleBar->closeButton(), &QAbstractButton::clicked, this, &QWidget::close);
 #else
-    // macOS keeps the native traffic lights; reserve their area (untested).
+    // macOS keeps the native traffic lights (QWindowKit's "no-system-buttons" stays false).
+    // UbiBot patch: upstream reserved this area at the right edge, as QWindowKit's demo
+    // does; macOS convention is the left edge, which is where the title bar leaves room.
     m_agent->setSystemButtonAreaCallback([](const QSize &size) {
-        return QRect(QPoint(size.width() - 75, 0), QSize(75, size.height()));
+        return QRect(QPoint(0, 0), QSize(kMacButtonArea, size.height()));
     });
 #endif
 

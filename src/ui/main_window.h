@@ -15,10 +15,10 @@ namespace ui {
 
 class MainView;
 
-// Top-level window. On Windows it is a QLight::FramelessWindow (Fluent title
-// bar on top of QWindowKit, which keeps Aero Snap, native resize borders and
-// the system menu); on macOS and Linux it is a plain window with the native
-// frame, where QWindowKit is untested.
+// Top-level window: a QLight::FramelessWindow (Fluent title bar on top of
+// QWindowKit, which keeps native moving/resizing, Aero Snap and the system
+// menu on Windows, and the native traffic lights on macOS). The plain-QWidget
+// fallback is only used when QLight is built without QWindowKit.
 #ifdef QLIGHT_HAS_FRAMELESS
 using MainWindowBase = QLight::FramelessWindow;
 #else

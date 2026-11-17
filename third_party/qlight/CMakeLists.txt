@@ -6,13 +6,14 @@
 # Slider, Switch, GroupBox) and the examples/tests were left out.
 #
 # FramelessWindow (the custom title bar) needs QWindowKit, which is fetched
-# from GitHub at configure time. It is only enabled on Windows, the platform
-# it is tested on; macOS and Linux keep the native window frame.
+# from GitHub at configure time. Used on all three platforms: Windows gets the
+# drawn caption buttons, macOS keeps the native traffic lights (reserved at
+# the left edge), Linux uses QWindowKit's Qt-based window context.
 
 cmake_minimum_required(VERSION 3.21)
 project(QLightWidgets VERSION 0.1.0 LANGUAGES CXX)
 
-option(QLIGHT_WITH_WINDOWKIT "Frameless window support (downloads QWindowKit at configure time)" ${WIN32})
+option(QLIGHT_WITH_WINDOWKIT "Frameless window support (downloads QWindowKit at configure time)" ON)
 
 find_package(Qt6 6.7 REQUIRED COMPONENTS Widgets Svg)
 
