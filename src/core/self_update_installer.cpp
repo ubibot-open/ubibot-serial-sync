@@ -108,12 +108,15 @@ QString writeUpdateScript(const QString &stagingDir, const QString &installDir, 
     out << ")\r\n";
     // /MIR mirrors (deletes anything under installDir that isn't in staging
     // too, so a release that removed/renamed a DLL doesn't leave the old one
-    // behind) except ".env" -- see this header's own doc comment. /R:20
+    // behind) except the exclusions this header documents: the user's ".env",
+    // and Inno Setup's uninstaller files when this copy came from the Windows
+    // installer (removing those would leave a broken Add/Remove entry). /R:20
     // /W:1 retries a locked file for up to ~20s instead of giving up
     // immediately, in case something (antivirus, a lingering handle) hasn't
     // let go of a file the instant the process list says the app exited.
     out << "robocopy \"" << nativeStaging << "\" \"" << nativeInstall
-        << "\" /MIR /XF \".env\" /R:20 /W:1 /NFL /NDL /NJH /NJS >nul\r\n";
+        << "\" /MIR /XF \".env\" \"unins*.exe\" \"unins*.dat\" \"unins*.msg\""
+           " /R:20 /W:1 /NFL /NDL /NJH /NJS >nul\r\n";
     out << "start \"\" \"" << nativeInstall << "\\" << exeName << "\"\r\n";
     out << "rmdir /s /q \"" << nativeStaging << "\" >nul 2>nul\r\n";
     out << "del \"" << nativeZip << "\" >nul 2>nul\r\n";

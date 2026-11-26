@@ -80,15 +80,22 @@ The repository can be overridden with `.env`'s `APP_UPDATE_GITHUB_REPO=owner/nam
 4. Write `apply-update.bat` and launch it detached (`cmd.exe /C`). It:
    - waits until this process's PID is gone,
    - `robocopy /MIR`s the extracted files over the installation directory,
-     excluding a user-owned `.env`, retrying locked files for ~20s,
+     excluding the user-owned `.env` and Inno Setup's `unins*` files (the
+     uninstaller belongs to the installation, not to the release, and
+     mirroring over it would leave a dead "Apps & features" entry), retrying
+     locked files for ~20s,
    - relaunches the app from the installation directory,
    - deletes the staging directory, the zip, and itself.
 5. The app calls `QCoreApplication::quit()` so the script can proceed.
 
-Installation directory must be writable by the user. A build unpacked into
-`Program Files` needs elevation that this flow does not request, so the
-`robocopy` step fails and the dialog reports the error; the installation is
-left untouched.
+This works the same for the portable `.zip` copy and for a copy installed with
+the Windows installer (`packaging/windows/installer.iss`), because both are just
+"the app plus its Qt DLLs in some folder". The installer puts that folder
+under `%LOCALAPPDATA%\Programs` (per user, no elevation), which keeps it
+writable for exactly this step. Installation directory must be writable by the
+user: a copy unpacked into `Program Files` needs elevation that this flow does
+not request, so the `robocopy` step fails and the dialog reports the error,
+leaving the installation untouched.
 
 ## macOS and Linux
 

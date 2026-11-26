@@ -20,11 +20,20 @@ These links always resolve to the newest build:
 
 | Platform | Download |
 |---|---|
-| Windows | [UbiBotSerialAssistant-windows-x64.zip](https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-windows-x64.zip) |
+| Windows | [UbiBotSerialAssistant-windows-x64-setup.exe](https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-windows-x64-setup.exe) — installer, no admin rights needed |
+| Windows (portable) | [UbiBotSerialAssistant-windows-x64.zip](https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-windows-x64.zip) — unzip anywhere and run the `.exe` inside |
 | macOS | [UbiBotSerialAssistant-macos.dmg](https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-macos.dmg) |
 | Linux | [UbiBotSerialAssistant-linux-x86_64.AppImage](https://github.com/ubibot-open/ubibot-serial-sync/releases/latest/download/UbiBotSerialAssistant-linux-x86_64.AppImage) (`chmod +x`, then run — no install needed) |
 
-Neither the Windows .exe nor the macOS .app/.dmg is code-signed, so first
+The Windows installer puts the app in `%LOCALAPPDATA%\Programs\UbiBot Serial
+Assistant` (per user, so no UAC prompt), adds a Start Menu shortcut, and
+registers an uninstaller in "Apps & features". Installing per user is
+deliberate: the installation directory stays writable by you, which is what
+the in-app updater (`Help → Check for software update`) needs to replace files
+without elevation. The portable `.zip` is the same build with no shortcuts and
+works from any folder.
+
+Neither the Windows `.exe` nor the macOS `.app`/`.dmg` is code-signed, so first
 run triggers a stock "unknown publisher" warning from SmartScreen/Gatekeeper
 — click through it (or right-click → Open on macOS) same as any other
 unsigned open-source binary.

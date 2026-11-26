@@ -136,6 +136,39 @@ jobs:
           # without needing to know QT_ROOT_DIR's exact layout.
           windeployqt.exe deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe --release
 
+      # The installer is what end users are pointed at; the .zip below stays
+      # for portable use AND is what the in-app self-updater downloads (see
+      # docs/app-self-update.md) -- both are built from the same deploy
+      # folder, so they can't drift.
+      #
+      # Inno Setup 6 is preinstalled on the windows-latest image; the choco
+      # fallback just keeps this from breaking if a future image drops it.
+      # See packaging/windows/installer.iss for the setup itself.
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          }
+          if (-not (Test-Path $iscc)) { throw "Inno Setup compiler not found" }
+
+          $version = "${{ needs.prepare.outputs.version }}"
+          $setupName = "${{ env.APP_NAME }}-$version-windows-x64-setup"
+          & $iscc `
+            "/DAppVersion=$version" `
+            "/DSourceDir=$PWD\deploy\${{ env.APP_NAME }}" `
+            "/DOutputDir=$PWD" `
+            "/DOutputBaseFilename=$setupName" `
+            "packaging\windows\installer.iss"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+          if (-not (Test-Path "$setupName.exe")) { throw "Expected $setupName.exe was not created" }
+
+          # Same versioned + fixed-name pair as the zips below, so GitHub's
+          # /releases/latest/download/<name> link works for the installer too.
+          Copy-Item "$setupName.exe" "${{ env.APP_NAME }}-windows-x64-setup.exe"
+
       # Two zips of the identical contents, not one -- see "Stable download
       # link" in README.md. $zipName carries the version in its name (kept
       # forever, one per release, for anyone who wants a specific past
@@ -162,6 +195,8 @@ jobs:
           path: |
             ${{ steps.zip.outputs.zipName }}
             ${{ steps.zip.outputs.latestZipName }}
+            ${{ env.APP_NAME }}-${{ needs.prepare.outputs.version }}-windows-x64-setup.exe
+            ${{ env.APP_NAME }}-windows-x64-setup.exe
 
   build-macos:
     needs: prepare

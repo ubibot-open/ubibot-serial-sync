@@ -44,11 +44,14 @@ Result extractAndValidate(const QString &zipPath, const QString &exeName, QStrin
 // Writes a batch script (returned path; empty + outError set on failure)
 // that, when run after this process has exited:
 //   1. waits for `waitForPid` to no longer be a running process,
-//   2. robocopy /MIR-mirrors `stagingDir` over `installDir` -- EXCEPT any
-//      file literally named ".env" (see docs/app-self-update.md#5 for why:
-//      that's the user's own local device-library-update-server config, not
-//      part of a release, and /MIR would otherwise delete it since a
-//      downloaded release naturally doesn't include one),
+//   2. robocopy /MIR-mirrors `stagingDir` over `installDir` -- EXCEPT:
+//      - ".env", the user's own local device-library-update-server config,
+//        which a release naturally doesn't contain and /MIR would delete;
+//      - Inno Setup's uninstaller files ("unins*.exe"/"unins*.dat"/
+//        "unins*.msg"), when this copy was installed with the Windows
+//        installer (packaging/windows/installer.iss). They belong to the
+//        installation, not the downloaded release, and deleting them would
+//        leave a dead Add/Remove Programs entry behind,
 //   3. relaunches `installDir/exeName`,
 //   4. best-effort deletes stagingDir, the original zip at `zipPath`, and
 //      finally itself.

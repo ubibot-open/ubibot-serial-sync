@@ -90,6 +90,49 @@ copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
 C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe deploy/UbiBotSerialAssistant/UbiBotSerialAssistant.exe --release
 ```
 
+### Windows installer (Inno Setup)
+
+The Release also ships a `-setup.exe` built from the same
+`deploy\UbiBotSerialAssistant` folder as the `.zip` — the script is
+[packaging/windows/installer.iss](packaging/windows/installer.iss). It installs per
+user into `%LOCALAPPDATA%\Programs\UbiBot Serial Assistant` (no UAC prompt),
+adds a Start Menu shortcut and an uninstaller entry. Per-user is deliberate:
+the install directory has to stay writable for the in-app updater's file swap
+to work without elevation.
+
+Install [Inno Setup 6](https://jrsoftware.org/isinfo.php), then from the repo
+root, after the deploy folder above is ready:
+
+```powershell
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+  "/DAppVersion=0.8.2.1" `
+  "/DSourceDir=$PWD\deploy\UbiBotSerialAssistant" `
+  "/DOutputDir=$PWD" `
+  "/DOutputBaseFilename=UbiBotSerialAssistant-0.8.2.1-windows-x64-setup" `
+  "packaging\windows\installer.iss"
+```
+
+All four defines are optional for a local sanity check: with none passed, the
+script uses `0.0.0.0`, the repo's `deploy\UbiBotSerialAssistant`, the current
+directory, and the version-free output name. CI passes all four (see the
+workflow's "Build installer (Inno Setup)" step) and uploads both the versioned
+and the fixed `UbiBotSerialAssistant-windows-x64-setup.exe` name, matching the
+zip's stable-link convention.
+
+Things worth knowing about the script:
+
+- `AppId` is a fixed GUID — never change it, or upgrades become a second
+  install and uninstall entries multiply.
+- The app holds a named mutex (`src/main.cpp`) that the script's `AppMutex`
+  points at, so Setup asks the user to close a running instance instead of
+  failing on locked files.
+- After an in-app self-update, `DisplayVersion` in "Apps & features" still
+  shows the version from the last installer run; the uninstaller itself keeps
+  working because the updater preserves Inno's `unins*` files (see
+  `SelfUpdateInstaller`).
+- The wizard is English-only (Inno doesn't ship a Chinese translation; adding
+  one would mean vendoring a `ChineseSimplified.isl`).
+
 ### macOS / Linux
 
 ```bash
@@ -140,7 +183,7 @@ of them onto one Release once every build has finished:
 
 | Platform | Runner | Qt install | Packaging tool | Output |
 |---|---|---|---|---|
-| Windows | `windows-latest` (MSVC 2022) | Qt 6.10.3 | `windeployqt` | `.zip` (a folder of the .exe + its Qt DLLs, per [Releasing a Windows build](#releasing-a-windows-build-mingw) above) |
+| Windows | `windows-latest` (MSVC 2022) | Qt 6.10.3 | `windeployqt` + [Inno Setup](#windows-installer-inno-setup) | `.zip` (a folder of the .exe + its Qt DLLs, per [Releasing a Windows build](#releasing-a-windows-build-mingw) above) **and** a `-setup.exe` installer |
 | macOS | `macos-latest` | Qt 6.10.3 | `macdeployqt -dmg` | `.dmg` |
 | Linux | `ubuntu-22.04` | Qt 6.10.3 | [linuxdeployqt](https://github.com/probonopd/linuxdeployqt) | `.AppImage` (self-contained, no install needed — `chmod +x`, run) |
 

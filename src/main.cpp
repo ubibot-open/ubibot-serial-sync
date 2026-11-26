@@ -11,8 +11,23 @@
 
 #include <QLight/ToolTip.h>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+
+#ifdef Q_OS_WIN
+    // Held for the whole process lifetime so the Windows installer
+    // (packaging/windows/installer.iss, which sets AppMutex to this exact name)
+    // can tell the app is still running and ask the user to close it, rather
+    // than failing on locked files halfway through an upgrade. Not
+    // single-instance enforcement -- nothing checks it inside the app.
+    static HANDLE installerMutex =
+        CreateMutexW(nullptr, FALSE, L"UbiBotSerialAssistant.InstallerMutex");
+    Q_UNUSED(installerMutex)
+#endif
 
     QApplication::setOrganizationName(QStringLiteral("UbiBot"));
     QApplication::setOrganizationDomain(QStringLiteral("ubibot.com"));
