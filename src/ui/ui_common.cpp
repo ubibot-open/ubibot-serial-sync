@@ -6,10 +6,12 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QEvent>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QStyleHints>
 #include <QUrl>
 
 #include <cmath>
@@ -105,6 +107,19 @@ void applyTheme(const QString &mode) {
         });
     }
     const QLight::ThemeMode target = mode == QLatin1String("dark") ? QLight::ThemeMode::Dark : QLight::ThemeMode::Light;
+    // Tell Qt which colour scheme the app is in, so its native window frames
+    // follow ours. Since Qt 6.8 the Windows platform plugin owns
+    // DWMWA_USE_IMMERSIVE_DARK_MODE and re-applies its own QStyleHints scheme
+    // (which tracks the OS, i.e. light) to every window, silently overriding
+    // QLight's setting: the window stayed dark but kept Windows 10's 1px light
+    // frame, which reads as a white border around the window. Keeping the two
+    // in sync also fixes the frame after switching themes while a dialog is
+    // the active window. Older Qt versions don't touch the frame, so the
+    // QLight call alone is enough there.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    QGuiApplication::styleHints()->setColorScheme(
+        target == QLight::ThemeMode::Dark ? Qt::ColorScheme::Dark : Qt::ColorScheme::Light);
+#endif
     if (theme.mode() != target) {
         theme.setMode(target);  // emits themeChanged -> rebuildColors / applyAppPalette
     }

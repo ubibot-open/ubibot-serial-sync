@@ -359,10 +359,16 @@ void FramelessWindow::applyThemeToNativeFrame()
     // keeps the native caption/border/backdrop (Windows) in step with our theme
     m_agent->setWindowAttribute(QStringLiteral("dark-mode"), ThemeManager::instance().isDark());
 #ifdef Q_OS_WIN
-    // UbiBot patch: Windows 10 applies the new DWM dark-mode attribute to the 1px window
-    // border only the next time the non-client area is redrawn (e.g. after the window is
-    // deactivated and reactivated), so a light -> dark switch at runtime left a white
-    // border. Force that redraw now.
+    // UbiBot patch: force the non-client area to repaint after the dark-mode
+    // attribute changes; Windows 10 otherwise keeps the stale 1px frame border
+    // until the next activation.
+    //
+    // NOTE: this is not sufficient on its own. Since Qt 6.8 the Windows platform
+    // plugin also writes DWMWA_USE_IMMERSIVE_DARK_MODE on every window from its
+    // QStyleHints colour scheme, which tracks the OS rather than the app theme and
+    // silently overrides this call (the window stayed dark but kept the light 1px
+    // border). The application must keep QStyleHints::setColorScheme() in sync
+    // with its theme -- see ui::applyTheme().
     if (testAttribute(Qt::WA_WState_Created)) {
         const HWND hwnd = reinterpret_cast<HWND>(winId());
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
