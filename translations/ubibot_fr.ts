@@ -44,10 +44,6 @@
         <translation>Vous utilisez la dernière version (%1).</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>La version %1 est disponible, mais nécessite d&apos;abord une mise à jour depuis la version %2 ou ultérieure : réinstallez l&apos;application puis réessayez.</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>Le contenu de la zone d&apos;envoi n&apos;est pas un HEX valide ; il a été laissé tel quel.</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>Téléchargement…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>Aucun serveur de mise à jour configuré (.env).</translation>
+        <source>No update source configured.</source>
+        <translation>Aucune source de mise à jour configurée.</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>L&apos;installation automatique n&apos;est pas disponible sur cette plateforme. Ouverture de la page de téléchargement…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>Page de publication indisponible.</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>Serveur de mise à jour non configuré (.env).</translation>
+        <source>No update source configured.</source>
+        <translation>Aucune source de mise à jour configurée.</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>Réponse mal formée : %1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub a refusé la requête : %1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>Le serveur a signalé une erreur.</translation>
+        <source>No published release was found.</source>
+        <translation>Aucune publication trouvée.</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>Cette application n&apos;est pas enregistrée sur le serveur de mise à jour (slug « %1 » introuvable).</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>Réponse GitHub mal formée : %1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>L&apos;étiquette de publication « %1 » n&apos;est pas un numéro de version.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>La publication %1 ne contient pas de paquet pour cette plateforme.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>La publication %1 ne contient pas de paquet %2.</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>&amp;Aide</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>Rechercher une mise à jour</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>Téléchargement des pilotes</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>Mise à jour du logiciel</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>Cette mise à jour est requise pour continuer à utiliser l&apos;application.</translation>
     </message>
     <message>
         <source>Later</source>

@@ -44,10 +44,6 @@
         <translation>最新バージョンです（%1）。</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>バージョン %1 が利用可能ですが、先にバージョン %2 以降からの更新が必要です。アプリを再インストールしてからもう一度お試しください。</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>送信欄の内容が有効な HEX ではないため、変更していません。</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>ダウンロードしています…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>更新サーバーが設定されていません（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>更新元が設定されていません。</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>このプラットフォームでは自動インストールを利用できません。ダウンロードページを開きます…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>リリースページを取得できません。</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>更新サーバーが設定されていません（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>更新元が設定されていません。</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>不正な応答：%1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub がリクエストを拒否しました: %1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>サーバーがエラーを返しました。</translation>
+        <source>No published release was found.</source>
+        <translation>公開されているリリースが見つかりません。</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>このアプリは更新サーバーに登録されていません（slug &quot;%1&quot; が見つかりません）。</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>GitHub の応答形式が不正です: %1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>リリースタグ「%1」はバージョン番号ではありません。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>リリース %1 にはこのプラットフォーム向けのパッケージがありません。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>リリース %1 には %2 パッケージがありません。</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>ソフトウェアの更新を確認</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>ドライバーのダウンロード</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>ソフトウェア更新</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>アプリを引き続き使用するには、この更新が必要です。</translation>
     </message>
     <message>
         <source>Later</source>

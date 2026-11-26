@@ -17,12 +17,14 @@
 
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QApplication>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QUrl>
 #include <QVersionNumber>
 
 namespace {
@@ -172,22 +174,21 @@ AppController::AppController(QObject *parent) : QObject(parent) {
                 emit libraryUpdateStateChanged();
             });
 
-    // Deliberately its own EnvConfig keys (not shared with
-    // DEVICE_LIBRARY_API_BASE_URL/_API_KEY above) -- see
-    // docs/app-self-update.md#1. Points at the API root (e.g.
-    // ".../api"), not a product-specific path, since
-    // SoftwareUpdateClient::checkForUpdate() appends "/software/list"
-    // itself.
-    softwareUpdateClient_ =
-        new SoftwareUpdateClient(EnvConfig::instance().value(QStringLiteral("APP_UPDATE_API_BASE_URL")),
-                                  EnvConfig::instance().value(QStringLiteral("APP_UPDATE_API_KEY")), this);
+    // Reads the app's own GitHub Releases (see core/software_update_client.h)
+    // -- the repository can be overridden in ".env" for forks/testing.
+    softwareUpdateClient_ = new SoftwareUpdateClient(this);
 
     connect(softwareUpdateClient_, &SoftwareUpdateClient::checkFinished, this,
-            [this](bool ok, bool updateAvailable, bool appTooOld, const QString &version, const QString &downloadUrl,
-                   qint64 /*fileSize*/, const QString &changelog, bool forceUpdate, const QString &minRequiredVersion,
-                   const QString &sha256, const QString &error) {
+            [this](bool ok, bool updateAvailable, const QString &version, const QString &changelog,
+                   const QString &downloadUrl, qint64 /*fileSize*/, const QString &sha256,
+                   const QString &releasePageUrl, const QString &error) {
+                // Recorded for both outcomes: maybeCheckForAppUpdate() only
+                // cares about "when did we last try", so a network failure
+                // doesn't make every subsequent launch retry.
+                settings_.setLastAppUpdateCheckAt(QDateTime::currentDateTimeUtc());
+
                 remoteAppVersion_ = version;
-                appUpdateForced_ = forceUpdate;
+                remoteAppPageUrl_ = releasePageUrl;
                 pendingUpdateDownloadUrl_ = downloadUrl;
                 pendingUpdateSha256_ = sha256;
                 pendingUpdateVersion_ = version;
@@ -199,13 +200,6 @@ AppController::AppController(QObject *parent) : QObject(parent) {
                 } else if (!updateAvailable) {
                     appUpdateState_ = QStringLiteral("upToDate");
                     appUpdateMessage_ = tr("You're on the latest version (%1).").arg(appVersion());
-                    appUpdateAvailable_ = false;
-                } else if (appTooOld) {
-                    appUpdateState_ = QStringLiteral("error");
-                    appUpdateMessage_ =
-                        tr("Version %1 is available, but requires updating from version %2 or later first -- "
-                           "please reinstall the app before trying again.")
-                            .arg(version, minRequiredVersion);
                     appUpdateAvailable_ = false;
                 } else {
                     appUpdateState_ = QStringLiteral("updateAvailable");
@@ -860,10 +854,27 @@ void AppController::downloadLibraryUpdate() {
     libraryUpdateClient_->fetchLatest();
 }
 
+void AppController::maybeCheckForAppUpdate() {
+    // Once a day is plenty for a release-driven app, and it keeps the
+    // anonymous GitHub API budget (60 requests/hour per IP) untouched no
+    // matter how often the app is restarted. A failed check still counts as
+    // a check -- see where lastAppUpdateCheckAt is written.
+    const QDateTime lastCheck = settings_.lastAppUpdateCheckAt();
+    if (lastCheck.isValid() && lastCheck.secsTo(QDateTime::currentDateTimeUtc()) < 24 * 60 * 60) return;
+
+    // Don't restart a check (or interrupt an install) the user already has
+    // in progress from the Help menu.
+    if (appUpdateState_ == QLatin1String("checking") || appUpdateState_ == QLatin1String("downloading") ||
+        appUpdateState_ == QLatin1String("installing"))
+        return;
+
+    checkForAppUpdate();
+}
+
 void AppController::checkForAppUpdate() {
     if (!softwareUpdateClient_->isConfigured()) {
         appUpdateState_ = QStringLiteral("error");
-        appUpdateMessage_ = tr("No update server configured (.env).");
+        appUpdateMessage_ = tr("No update source configured.");
         appUpdateAvailable_ = false;
         emit appUpdateStateChanged();
         return;
@@ -878,6 +889,21 @@ void AppController::checkForAppUpdate() {
 void AppController::installAppUpdate() {
     if (!appUpdateAvailable_) return;  // nothing to apply -- see appUpdateAvailable's own doc comment
 
+#ifndef Q_OS_WIN
+    // SelfUpdateInstaller only knows how to swap a Windows installation (see
+    // core/self_update_installer.h), so hand the user the release page and
+    // leave the state as-is -- no download, no restart.
+    appUpdateMessage_ = tr("Automatic installation isn't available on this platform. Opening the download page…");
+    emit appUpdateStateChanged();
+    if (remoteAppPageUrl_.isEmpty()) {
+        appUpdateState_ = QStringLiteral("error");
+        appUpdateMessage_ = tr("No release page available.");
+        emit appUpdateStateChanged();
+        return;
+    }
+    QDesktopServices::openUrl(QUrl(remoteAppPageUrl_));
+    return;
+#else
     const QString tempDir =
         QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QStringLiteral("/UbiBotSerialAssistant-update");
     QDir().mkpath(tempDir);
@@ -889,6 +915,7 @@ void AppController::installAppUpdate() {
     emit appUpdateStateChanged();
     emit appUpdateProgressChanged();
     softwareUpdateClient_->download(pendingUpdateDownloadUrl_, zipPath);
+#endif
 }
 
 void AppController::cancelAppUpdateDownload() {

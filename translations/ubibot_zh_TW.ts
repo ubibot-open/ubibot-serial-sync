@@ -44,10 +44,6 @@
         <translation>已是最新版本（%1）。</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>版本 %1 可用，但需要先從 %2 或更高版本升級，請重新安裝應用程式後再試。</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>傳送框內容不是有效的 HEX，已保持原樣。</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>正在下載…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>未設定更新伺服器（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>未設定更新來源。</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>此平台不支援自動安裝。正在開啟下載頁面…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>無法取得發行頁面。</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>未設定更新伺服器（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>未設定更新來源。</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>回應格式錯誤：%1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub 拒絕了請求：%1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>伺服器回報錯誤。</translation>
+        <source>No published release was found.</source>
+        <translation>找不到已發行的版本。</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>此應用程式未在更新伺服器上註冊（找不到 slug &quot;%1&quot;）。</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>GitHub 回應格式錯誤：%1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>發行標籤「%1」不是版本號。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>版本 %1 沒有適用於目前平台的安裝包。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>版本 %1 沒有 %2 安裝包。</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>說明(&amp;H)</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>檢查軟體更新</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>驅動程式下載</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>軟體更新</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>必須安裝此更新才能繼續使用本應用程式。</translation>
     </message>
     <message>
         <source>Later</source>

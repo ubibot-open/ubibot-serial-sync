@@ -83,6 +83,7 @@ private:
     QAction *clearAction_;
     QAction *pauseAction_;
     QAction *settingsAction_;
+    QAction *updateAction_;
     QAction *driversAction_;
     QAction *aboutAction_;
 

@@ -44,10 +44,6 @@
         <translation>У вас последняя версия (%1).</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>Доступна версия %1, но сначала требуется обновление с версии %2 или новее — переустановите приложение и повторите попытку.</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>Содержимое поля отправки не является корректным HEX, оно оставлено без изменений.</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>Загрузка…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>Сервер обновлений не настроен (.env).</translation>
+        <source>No update source configured.</source>
+        <translation>Источник обновлений не настроен.</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>На этой платформе автоматическая установка недоступна. Открывается страница загрузки…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>Страница выпуска недоступна.</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>Сервер обновлений не настроен (.env).</translation>
+        <source>No update source configured.</source>
+        <translation>Источник обновлений не настроен.</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>Некорректный ответ: %1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub отклонил запрос: %1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>Сервер сообщил об ошибке.</translation>
+        <source>No published release was found.</source>
+        <translation>Опубликованных выпусков не найдено.</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>Приложение не зарегистрировано на сервере обновлений (slug &quot;%1&quot; не найден).</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>Некорректный ответ GitHub: %1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>Тег выпуска «%1» не является номером версии.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>В выпуске %1 нет пакета для этой платформы.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>В выпуске %1 нет пакета %2.</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>&amp;Справка</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>Проверить обновления</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>Загрузка драйверов</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>Обновление программы</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>Для продолжения работы с приложением требуется это обновление.</translation>
     </message>
     <message>
         <source>Later</source>

@@ -160,6 +160,14 @@ public:
     QDateTime lastLibraryCheckAt() const;
     void setLastLibraryCheckAt(const QDateTime &when);
 
+    // Same idea for the app's own update check against GitHub Releases
+    // (core/software_update_client.h), stored UTC. Only read by
+    // AppController::maybeCheckForAppUpdate() to keep the automatic startup
+    // check to at most once a day; a manual check from the Help menu ignores
+    // it. Invalid/null when never checked.
+    QDateTime lastAppUpdateCheckAt() const;
+    void setLastAppUpdateCheckAt(const QDateTime &when);
+
     // Whether the user has dismissed Main.qml's driver-hint banner (see
     // core/driver_check.h and docs/ch340-driver-hint.md) -- persisted so a
     // dismissal survives a restart instead of the banner just coming right

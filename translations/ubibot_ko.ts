@@ -44,10 +44,6 @@
         <translation>최신 버전입니다(%1).</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>버전 %1을(를) 사용할 수 있지만 먼저 버전 %2 이상에서 업데이트해야 합니다. 앱을 다시 설치한 후 다시 시도하세요.</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>보내기 상자의 내용이 올바른 HEX가 아니어서 그대로 두었습니다.</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>다운로드 중…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>업데이트 서버가 구성되지 않았습니다(.env).</translation>
+        <source>No update source configured.</source>
+        <translation>업데이트 소스가 구성되지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>이 플랫폼에서는 자동 설치를 사용할 수 없습니다. 다운로드 페이지를 엽니다…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>릴리스 페이지를 사용할 수 없습니다.</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>업데이트 서버가 구성되지 않았습니다(.env).</translation>
+        <source>No update source configured.</source>
+        <translation>업데이트 소스가 구성되지 않았습니다.</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>잘못된 응답: %1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub이 요청을 거부했습니다: %1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>서버에서 오류를 보고했습니다.</translation>
+        <source>No published release was found.</source>
+        <translation>게시된 릴리스를 찾을 수 없습니다.</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>이 앱은 업데이트 서버에 등록되어 있지 않습니다(slug &quot;%1&quot;을(를) 찾을 수 없음).</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>GitHub 응답 형식이 올바르지 않습니다: %1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>릴리스 태그 &quot;%1&quot;은(는) 버전 번호가 아닙니다.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>릴리스 %1에는 이 플랫폼용 패키지가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>릴리스 %1에는 %2 패키지가 없습니다.</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>도움말(&amp;H)</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>소프트웨어 업데이트 확인</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>드라이버 다운로드</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>소프트웨어 업데이트</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>앱을 계속 사용하려면 이 업데이트가 필요합니다.</translation>
     </message>
     <message>
         <source>Later</source>

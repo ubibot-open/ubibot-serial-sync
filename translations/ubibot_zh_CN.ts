@@ -44,10 +44,6 @@
         <translation>已是最新版本（%1）。</translation>
     </message>
     <message>
-        <source>Version %1 is available, but requires updating from version %2 or later first -- please reinstall the app before trying again.</source>
-        <translation>版本 %1 可用，但需要先从 %2 或更高版本升级，请重新安装应用后再试。</translation>
-    </message>
-    <message>
         <source>The send box isn&apos;t valid HEX, so it was left unchanged.</source>
         <translation>发送框内容不是有效的 HEX，已保持原样。</translation>
     </message>
@@ -104,8 +100,16 @@
         <translation>正在下载…</translation>
     </message>
     <message>
-        <source>No update server configured (.env).</source>
-        <translation>未配置更新服务器（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>未配置更新源。</translation>
+    </message>
+    <message>
+        <source>Automatic installation isn&apos;t available on this platform. Opening the download page…</source>
+        <translation>此平台不支持自动安装。正在打开下载页面…</translation>
+    </message>
+    <message>
+        <source>No release page available.</source>
+        <translation>无法获取发布页面。</translation>
     </message>
     <message>
         <source>Downloading update…</source>
@@ -255,20 +259,32 @@
 <context>
     <name>SoftwareUpdateClient</name>
     <message>
-        <source>Update server not configured (.env).</source>
-        <translation>未配置更新服务器（.env）。</translation>
+        <source>No update source configured.</source>
+        <translation>未配置更新源。</translation>
     </message>
     <message>
-        <source>Malformed response: %1</source>
-        <translation>响应格式错误：%1</translation>
+        <source>GitHub refused the request: %1</source>
+        <translation>GitHub 拒绝了请求：%1</translation>
     </message>
     <message>
-        <source>Server reported an error.</source>
-        <translation>服务器返回错误。</translation>
+        <source>No published release was found.</source>
+        <translation>没有找到已发布的版本。</translation>
     </message>
     <message>
-        <source>This app isn&apos;t registered on the update server (slug &quot;%1&quot; not found).</source>
-        <translation>此应用未在更新服务器上注册（未找到 slug &quot;%1&quot;）。</translation>
+        <source>Malformed GitHub response: %1</source>
+        <translation>GitHub 响应格式错误：%1</translation>
+    </message>
+    <message>
+        <source>Release tag &quot;%1&quot; is not a version number.</source>
+        <translation>发布标签「%1」不是版本号。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no package for this platform.</source>
+        <translation>版本 %1 没有适用于当前平台的安装包。</translation>
+    </message>
+    <message>
+        <source>Release %1 has no %2 package.</source>
+        <translation>版本 %1 没有 %2 安装包。</translation>
     </message>
     <message>
         <source>Cannot write to %1: %2</source>
@@ -629,6 +645,10 @@
         <translation>帮助(&amp;H)</translation>
     </message>
     <message>
+        <source>Check for software update</source>
+        <translation>检查软件更新</translation>
+    </message>
+    <message>
         <source>Driver downloads</source>
         <translation>驱动下载</translation>
     </message>
@@ -910,10 +930,6 @@
     <message>
         <source>Software Update</source>
         <translation>软件更新</translation>
-    </message>
-    <message>
-        <source>This update is required to keep using the app.</source>
-        <translation>必须安装此更新才能继续使用本应用。</translation>
     </message>
     <message>
         <source>Later</source>

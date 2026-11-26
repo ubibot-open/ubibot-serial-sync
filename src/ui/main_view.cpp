@@ -86,6 +86,20 @@ MainView::MainView(AppController *controller, QWidget *parent) : QWidget(parent)
     connect(driverBar_, &QLight::InfoBar::closed, this, [this] { controller_->setCh340DriverHintDismissed(true); });
     connect(driverBar_, &QLight::InfoBar::actionTriggered, this, &MainView::openDriverHint);
 
+    // An update found by the automatic startup check (or by any other check
+    // that didn't already open the dialog) surfaces itself here -- the check
+    // itself never shows UI, so this is the one place that decides to.
+    connect(controller_, &AppController::appUpdateStateChanged, this, [this] {
+        const QString state = controller_->appUpdateState();
+        if (state != QLatin1String("updateAvailable")) return;
+        if (!softwareUpdateDialog_) softwareUpdateDialog_ = new SoftwareUpdateDialog(controller_, window());
+        softwareUpdateDialog_->open();
+    });
+
+    // Silent, at most once a day -- see AppController::maybeCheckForAppUpdate().
+    // Delayed so it never competes with the first paint / port enumeration.
+    QTimer::singleShot(5000, this, [this] { controller_->maybeCheckForAppUpdate(); });
+
     retranslateUi();
     updateConnectionState();
     updateDriverBar();
@@ -108,13 +122,12 @@ void MainView::buildMenus() {
     settingsAction_ = toolsMenu_->addAction(QLight::FluentIcon(QLight::Icon::Settings).icon(), QString());
 
     helpMenu_ = menuBar_->createMenu(QString());
-    // The software self-update entry stays disabled until ubibot-appcenter's
-    // Software/Version backend has this app registered (see
-    // docs/app-self-update.md). AppController/SoftwareUpdateClient and
-    // SoftwareUpdateDialog are fully wired; re-enable by un-commenting:
-    //   QAction *update = helpMenu_->addAction(tr("Check for software update"));
-    //   connect(update, &QAction::triggered, this, &MainView::openSoftwareUpdate);
-    //   helpMenu_->addSeparator();
+    // Checks the app itself against its GitHub Releases (see
+    // core/software_update_client.h) -- a separate thing from the command
+    // library update in Settings & About.
+    updateAction_ =
+        helpMenu_->addAction(QLight::FluentIcon(QLight::Icon::ArrowSync).icon(), QString());
+    helpMenu_->addSeparator();
     driversAction_ = helpMenu_->addAction(QString());
     helpMenu_->addSeparator();
     aboutAction_ = helpMenu_->addAction(QLight::FluentIcon(QLight::Icon::Info).icon(), QString());
@@ -124,6 +137,7 @@ void MainView::buildMenus() {
     connect(clearAction_, &QAction::triggered, this, [this] { controller_->logModel()->clear(); });
     connect(pauseAction_, &QAction::toggled, this, [this](bool on) { monitor_->setPaused(on); });
     connect(settingsAction_, &QAction::triggered, this, &MainView::openSettings);
+    connect(updateAction_, &QAction::triggered, this, &MainView::openSoftwareUpdate);
     connect(driversAction_, &QAction::triggered, this, &MainView::openDriverList);
     connect(aboutAction_, &QAction::triggered, this, &MainView::openAbout);
 }
@@ -287,6 +301,7 @@ void MainView::retranslateUi() {
     toolsMenu_->setTitle(tr("&Tools"));
     settingsAction_->setText(tr("Settings"));
     helpMenu_->setTitle(tr("&Help"));
+    updateAction_->setText(tr("Check for software update"));
     driversAction_->setText(tr("Driver downloads"));
     aboutAction_->setText(tr("About"));
 

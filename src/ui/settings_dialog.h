@@ -88,7 +88,9 @@ private:
     QLight::PushButton *okButton_;
 };
 
-// Help -> Check for software update (entry point currently disabled, see MainWindow).
+// Help -> Check for software update: the app's own update flow against its
+// GitHub Releases (core/software_update_client.h). Progress, errors and the
+// "update available" offer all come from AppController's appUpdate* state.
 class SoftwareUpdateDialog : public AppDialog {
     Q_OBJECT
 public:
@@ -96,14 +98,12 @@ public:
 
 protected:
     void retranslateUi() override;
-    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     void updateState();
 
     AppController *controller_;
     ThemedLabel *headline_;
-    ThemedLabel *forcedNote_;
     ThemedLabel *message_;
     QLight::ProgressBar *progress_;
     ThemedLabel *percent_;

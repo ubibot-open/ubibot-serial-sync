@@ -279,8 +279,6 @@ SoftwareUpdateDialog::SoftwareUpdateDialog(AppController *controller, QWidget *p
     headline_ = new ThemedLabel(ThemedLabel::Primary, content);
     headline_->setEmphasis(true);
     headline_->setWordWrap(true);
-    forcedNote_ = new ThemedLabel(ThemedLabel::Danger, content);
-    forcedNote_->setWordWrap(true);
     message_ = new ThemedLabel(ThemedLabel::Secondary, content);
     message_->setWordWrap(true);
     progress_ = new QLight::ProgressBar(content);
@@ -288,7 +286,6 @@ SoftwareUpdateDialog::SoftwareUpdateDialog(AppController *controller, QWidget *p
     progress_->setTextVisible(false);
     percent_ = new ThemedLabel(ThemedLabel::Secondary, content);
     col->addWidget(headline_);
-    col->addWidget(forcedNote_);
     col->addWidget(message_);
     col->addWidget(progress_);
     col->addWidget(percent_);
@@ -315,7 +312,6 @@ SoftwareUpdateDialog::SoftwareUpdateDialog(AppController *controller, QWidget *p
 
 void SoftwareUpdateDialog::retranslateUi() {
     setTitle(tr("Software Update"));
-    forcedNote_->setText(tr("This update is required to keep using the app."));
     laterButton_->setText(tr("Later"));
     cancelButton_->setText(tr("Cancel"));
     retryButton_->setText(tr("Retry"));
@@ -324,26 +320,15 @@ void SoftwareUpdateDialog::retranslateUi() {
     updateState();
 }
 
-void SoftwareUpdateDialog::keyPressEvent(QKeyEvent *e) {
-    // a forced update cannot be dismissed with Esc
-    if (e->key() == Qt::Key_Escape && controller_->appUpdateForced() &&
-        controller_->appUpdateState() == QLatin1String("updateAvailable")) {
-        return;
-    }
-    AppDialog::keyPressEvent(e);
-}
-
 void SoftwareUpdateDialog::updateState() {
     const QString state = controller_->appUpdateState();
     const bool available = state == QLatin1String("updateAvailable");
-    const bool forced = controller_->appUpdateForced() && available;
     const bool downloading = state == QLatin1String("downloading");
     const bool finished = state == QLatin1String("upToDate") || state == QLatin1String("error");
 
     headline_->setVisible(available);
     headline_->setText(
         tr("Version %1 is available (you have %2)").arg(controller_->remoteAppVersion(), controller_->appVersion()));
-    forcedNote_->setVisible(forced);
     message_->setText(controller_->appUpdateMessage());
     message_->setRole(state == QLatin1String("error") ? ThemedLabel::Danger
                       : available                     ? ThemedLabel::Secondary
@@ -353,7 +338,7 @@ void SoftwareUpdateDialog::updateState() {
     else progress_->setRange(0, 1000);
     percent_->setVisible(downloading);
 
-    laterButton_->setVisible(available && !forced);
+    laterButton_->setVisible(available);
     cancelButton_->setVisible(downloading);
     updateButton_->setVisible(available);
     retryButton_->setVisible(state == QLatin1String("error"));

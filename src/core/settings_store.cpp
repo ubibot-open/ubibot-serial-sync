@@ -34,6 +34,7 @@ constexpr auto kCustomTemplates = "send/customTemplates";
 constexpr auto kBatchCommands = "send/batchCommands";
 constexpr auto kCachedLibraryJson = "library/cachedJson";
 constexpr auto kLastLibraryCheckAt = "library/lastCheckAt";
+constexpr auto kLastAppUpdateCheckAt = "app/lastUpdateCheckAt";
 constexpr auto kCh340DriverHintDismissed = "device/ch340DriverHintDismissed";
 }  // namespace
 
@@ -321,6 +322,14 @@ QDateTime SettingsStore::lastLibraryCheckAt() const { return QSettings().value(k
 
 void SettingsStore::setLastLibraryCheckAt(const QDateTime &when) {
     QSettings().setValue(kLastLibraryCheckAt, when);
+}
+
+QDateTime SettingsStore::lastAppUpdateCheckAt() const {
+    return QSettings().value(kLastAppUpdateCheckAt).toDateTime();
+}
+
+void SettingsStore::setLastAppUpdateCheckAt(const QDateTime &when) {
+    QSettings().setValue(kLastAppUpdateCheckAt, when);
 }
 
 bool SettingsStore::ch340DriverHintDismissed() const {

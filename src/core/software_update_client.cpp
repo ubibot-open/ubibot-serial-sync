@@ -3,6 +3,9 @@
 
 #include "core/software_update_client.h"
 
+#include "core/env_config.h"
+
+#include <QCoreApplication>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -12,130 +15,158 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
-#include <QUrlQuery>
 #include <QVersionNumber>
 
 namespace {
-constexpr int kCheckTimeoutMs = 8000;
-// No per-chunk timeout on the download itself -- a ~100MB release over a
-// slow connection can legitimately take minutes; QNetworkReply::downloadProgress
-// is what the UI uses to show it's still alive, not a timeout.
-}  // namespace
 
-SoftwareUpdateClient::SoftwareUpdateClient(QString baseUrl, QString apiKey, QObject *parent)
-    : QObject(parent), manager_(new QNetworkAccessManager(this)), baseUrl_(std::move(baseUrl)),
-      apiKey_(std::move(apiKey)) {
-    while (baseUrl_.endsWith(QLatin1Char('/'))) baseUrl_.chop(1);
+// Generous: api.github.com is not always quick to reach, and this runs in the
+// background (the dialog shows an indeterminate progress bar meanwhile).
+constexpr int kCheckTimeoutMs = 15000;
+// Not a total download budget -- QNetworkRequest's transfer timeout is an
+// idle timeout, so a slow-but-moving ~40MB download is never cut off.
+constexpr int kDownloadStallTimeoutMs = 30000;
+// Release bodies are free-form; keep a pathological one from turning the
+// update dialog into a wall of text.
+constexpr int kMaxChangelogChars = 2000;
+
+// The asset-name suffix .github/workflows/release.yml gives the package for
+// the platform we're running on. Empty on a platform it doesn't build for.
+QString platformAssetSuffix() {
+#if defined(Q_OS_WIN)
+    return QStringLiteral("-windows-x64.zip");
+#elif defined(Q_OS_MACOS)
+    return QStringLiteral("-macos.dmg");
+#elif defined(Q_OS_LINUX)
+    return QStringLiteral("-linux-x86_64.AppImage");
+#else
+    return QString();
+#endif
 }
 
-void SoftwareUpdateClient::get(const QString &path, const QString &query,
-                                const std::function<void(QNetworkReply *)> &onFinished) {
-    QUrl url(baseUrl_ + path);
-    if (!query.isEmpty()) url.setQuery(query);
+QByteArray userAgent() {
+    return QStringLiteral("UbiBotSerialAssistant/")
+        .append(QCoreApplication::applicationVersion())
+        .toUtf8();
+}
 
-    QNetworkRequest request(url);
-    request.setTransferTimeout(kCheckTimeoutMs);
-    request.setRawHeader("Accept", "application/json");
-    if (!apiKey_.isEmpty()) request.setRawHeader("X-Api-Key", apiKey_.toUtf8());
+QString trimmedChangelog(const QString &body) {
+    const QString text = body.trimmed();
+    if (text.size() <= kMaxChangelogChars) return text;
+    return text.left(kMaxChangelogChars).trimmed() + QStringLiteral("…");
+}
 
-    QNetworkReply *reply = manager_->get(request);
-    connect(reply, &QNetworkReply::finished, this, [reply, onFinished] {
-        reply->deleteLater();
-        onFinished(reply);
-    });
+}  // namespace
+
+SoftwareUpdateClient::SoftwareUpdateClient(QObject *parent)
+    : QObject(parent), manager_(new QNetworkAccessManager(this)) {
+    // EnvConfig::value() only falls back when the key is absent, so an
+    // empty-but-present override (the shape .env.example ships) must be
+    // treated as "not overridden" too.
+    repo_ = EnvConfig::instance().value(QStringLiteral("APP_UPDATE_GITHUB_REPO")).trimmed();
+    if (repo_.isEmpty()) repo_ = QLatin1String(kDefaultRepo);
+    while (repo_.endsWith(QLatin1Char('/'))) repo_.chop(1);
+    if (repo_.startsWith(QLatin1Char('/'))) repo_.remove(0, 1);
 }
 
 void SoftwareUpdateClient::checkForUpdate(const QString &currentVersion) {
     if (!isConfigured()) {
-        emit checkFinished(false, false, false, QString(), QString(), 0, QString(), false, QString(), QString(),
-                            tr("Update server not configured (.env)."));
+        emit checkFinished(false, false, QString(), QString(), QString(), 0, QString(), QString(),
+                           tr("No update source configured."));
         return;
     }
 
-    QUrlQuery query;
-    query.addQueryItem(QStringLiteral("product"), QLatin1String(kProductSlug));
-    query.addQueryItem(QStringLiteral("os"), QStringLiteral("windows"));
-    // Required by the endpoint's validation but not actually used for any
-    // filtering/gating server-side today (see docs/app-self-update.md#2) --
-    // any non-empty string satisfies it.
-    query.addQueryItem(QStringLiteral("serial"), QStringLiteral("-"));
+    // Unauthenticated API: GitHub requires a User-Agent, and answers with 404
+    // when the repository has no published release at all.
+    QNetworkRequest request(
+        QUrl(QStringLiteral("https://api.github.com/repos/%1/releases/latest").arg(repo_)));
+    request.setTransferTimeout(kCheckTimeoutMs);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setRawHeader("Accept", "application/vnd.github+json");
+    request.setRawHeader("X-GitHub-Api-Version", "2022-11-28");
+    request.setRawHeader("User-Agent", userAgent());
 
-    get(QStringLiteral("/software/list"), query.toString(QUrl::FullyEncoded),
-        [this, currentVersion](QNetworkReply *reply) {
-            if (reply->error() != QNetworkReply::NoError) {
-                emit checkFinished(false, false, false, QString(), QString(), 0, QString(), false, QString(),
-                                    QString(), reply->errorString());
-                return;
+    QNetworkReply *reply = manager_->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, currentVersion] {
+        reply->deleteLater();
+
+        const QByteArray payload = reply->readAll();
+        QJsonParseError parseError;
+        const QJsonDocument doc = QJsonDocument::fromJson(payload, &parseError);
+        const QJsonObject release = doc.object();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            QString error = reply->errorString();
+            // 403/429 from the API is almost always the anonymous rate limit,
+            // and its own "message" explains that better than Qt's generic
+            // "Host requires authentication" / "Unknown error".
+            const QString serverMessage = release.value(QStringLiteral("message")).toString();
+            if ((status == 403 || status == 429) && !serverMessage.isEmpty())
+                error = tr("GitHub refused the request: %1").arg(serverMessage);
+            else if (status == 404 && reply->error() == QNetworkReply::ContentNotFoundError)
+                error = tr("No published release was found.");
+            emit checkFinished(false, false, QString(), QString(), QString(), 0, QString(), QString(), error);
+            return;
+        }
+        if (parseError.error != QJsonParseError::NoError || !release.contains(QStringLiteral("tag_name"))) {
+            emit checkFinished(false, false, QString(), QString(), QString(), 0, QString(), QString(),
+                               tr("Malformed GitHub response: %1").arg(parseError.errorString()));
+            return;
+        }
+
+        QString remoteVersion = release.value(QStringLiteral("tag_name")).toString().trimmed();
+        if (remoteVersion.startsWith(QLatin1Char('v'), Qt::CaseInsensitive)) remoteVersion.remove(0, 1);
+        const QVersionNumber remote = QVersionNumber::fromString(remoteVersion);
+        if (remote.isNull()) {
+            emit checkFinished(false, false, QString(), QString(), QString(), 0, QString(), QString(),
+                               tr("Release tag \"%1\" is not a version number.").arg(remoteVersion));
+            return;
+        }
+
+        const QString releasePageUrl = release.value(QStringLiteral("html_url")).toString();
+        const QString changelog = trimmedChangelog(release.value(QStringLiteral("body")).toString());
+        const bool updateAvailable = remote > QVersionNumber::fromString(currentVersion);
+
+        if (!updateAvailable) {
+            emit checkFinished(true, false, remoteVersion, QString(), QString(), 0, QString(), releasePageUrl,
+                                QString());
+            return;
+        }
+
+        // Prefer the versioned copy of the package; fall back to the fixed
+        // name (both are the same bytes in a release built by release.yml).
+        const QString suffix = platformAssetSuffix();
+        QJsonObject asset;
+        for (const QJsonValue &value : release.value(QStringLiteral("assets")).toArray()) {
+            const QJsonObject candidate = value.toObject();
+            const QString name = candidate.value(QStringLiteral("name")).toString();
+            if (suffix.isEmpty() || !name.endsWith(suffix, Qt::CaseInsensitive)) continue;
+            if (name.contains(remoteVersion)) {
+                asset = candidate;
+                break;
             }
+            if (asset.isEmpty()) asset = candidate;
+        }
 
-            QJsonParseError parseError;
-            const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &parseError);
-            if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
-                emit checkFinished(false, false, false, QString(), QString(), 0, QString(), false, QString(),
-                                    QString(), tr("Malformed response: %1").arg(parseError.errorString()));
-                return;
-            }
+        const QString downloadUrl = asset.value(QStringLiteral("browser_download_url")).toString();
+        if (downloadUrl.isEmpty()) {
+            emit checkFinished(false, false, QString(), QString(), QString(), 0, QString(), releasePageUrl,
+                               suffix.isEmpty()
+                                   ? tr("Release %1 has no package for this platform.").arg(remoteVersion)
+                                   : tr("Release %1 has no %2 package.").arg(remoteVersion, suffix.mid(1)));
+            return;
+        }
 
-            // Not a bare array -- larke-admin's ResponseJson trait (which
-            // SoftwareController uses) wraps every response as
-            // {"success": bool, "code": int, "message": string, "data": ...}
-            // regardless of endpoint; the product list itself is "data".
-            const QJsonObject envelope = doc.object();
-            if (!envelope.value(QStringLiteral("success")).toBool()) {
-                emit checkFinished(false, false, false, QString(), QString(), 0, QString(), false, QString(),
-                                    QString(),
-                                    envelope.value(QStringLiteral("message")).toString(tr("Server reported an error.")));
-                return;
-            }
+        // GitHub computes this when an asset is uploaded; assets from older
+        // releases may not carry one, in which case the download goes
+        // unverified (same as the previous server-based flow).
+        QString sha256 = asset.value(QStringLiteral("digest")).toString();
+        if (sha256.startsWith(QLatin1String("sha256:"), Qt::CaseInsensitive)) sha256.remove(0, 7);
 
-            // Server returns every registered product, not just ours (see
-            // this class's header comment) -- find the one matching our
-            // slug ourselves.
-            QJsonObject match;
-            bool found = false;
-            for (const QJsonValue &v : envelope.value(QStringLiteral("data")).toArray()) {
-                const QJsonObject obj = v.toObject();
-                if (obj.value(QStringLiteral("slug")).toString() == QLatin1String(kProductSlug)) {
-                    match = obj;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                emit checkFinished(false, false, false, QString(), QString(), 0, QString(), false, QString(),
-                                    QString(),
-                                    tr("This app isn't registered on the update server (slug \"%1\" not found).")
-                                        .arg(QLatin1String(kProductSlug)));
-                return;
-            }
-
-            const QJsonValue versionVal = match.value(QStringLiteral("version"));
-            if (!versionVal.isObject()) {
-                // Registered, but no Version row uploaded for "windows" yet
-                // (or none with is_available=true) -- not an error, just
-                // nothing to offer.
-                emit checkFinished(true, false, false, QString(), QString(), 0, QString(), false, QString(),
-                                    QString(), QString());
-                return;
-            }
-
-            const QJsonObject verObj = versionVal.toObject();
-            const QString remoteVersion = verObj.value(QStringLiteral("version")).toString();
-            const QString downloadUrl = verObj.value(QStringLiteral("file")).toString();
-            const qint64 fileSize = verObj.value(QStringLiteral("file_size")).toVariant().toLongLong();
-            const QString changelog = verObj.value(QStringLiteral("description")).toString();
-            const bool forceUpdate = verObj.value(QStringLiteral("is_force_update")).toBool(false);
-            const QString minRequiredVersion = verObj.value(QStringLiteral("min_required_version")).toString();
-            const QString sha256 = verObj.value(QStringLiteral("sha256")).toString();
-
-            const bool updateAvailable = !remoteVersion.isEmpty() &&
-                QVersionNumber::fromString(remoteVersion) > QVersionNumber::fromString(currentVersion);
-            const bool appTooOld = updateAvailable && !minRequiredVersion.isEmpty() &&
-                QVersionNumber::fromString(currentVersion) < QVersionNumber::fromString(minRequiredVersion);
-
-            emit checkFinished(true, updateAvailable, appTooOld, remoteVersion, downloadUrl, fileSize, changelog,
-                                forceUpdate, minRequiredVersion, sha256, QString());
-        });
+        emit checkFinished(true, true, remoteVersion, changelog, downloadUrl,
+                           asset.value(QStringLiteral("size")).toVariant().toLongLong(), sha256, releasePageUrl,
+                           QString());
+    });
 }
 
 void SoftwareUpdateClient::download(const QString &url, const QString &destPath) {
@@ -150,7 +181,12 @@ void SoftwareUpdateClient::download(const QString &url, const QString &destPath)
     downloadFile_ = file;
 
     QNetworkRequest request{QUrl(url)};
-    request.setRawHeader("Accept", "*/*");
+    request.setTransferTimeout(kDownloadStallTimeoutMs);
+    // The asset URL redirects to objects.githubusercontent.com, so following
+    // redirects is mandatory rather than merely convenient.
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setRawHeader("Accept", "application/octet-stream");
+    request.setRawHeader("User-Agent", userAgent());
     QNetworkReply *reply = manager_->get(request);
     activeDownload_ = reply;
 
