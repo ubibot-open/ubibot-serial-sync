@@ -1,4 +1,4 @@
-; Inno Setup 6 script for the Windows installer.
+﻿; Inno Setup 6 script for the Windows installer.
 ;
 ; Built by .github/workflows/release.yml right after windeployqt assembles
 ; deploy\UbiBotSerialAssistant, and published next to the portable .zip. The
@@ -104,3 +104,27 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 ; No [UninstallDelete] for {app} on purpose: the user's own ".env" and any
 ; other files they dropped next to the exe aren't ours to delete. Inno still
 ; removes every file it installed.
+
+[Code]
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  // Qt's official Windows build imports icuuc.dll, which is a pure forwarder
+  // to the OS's own icu.dll (shipped with Windows 10 1703 and later). On older
+  // or heavily stripped Windows images the app can't even load and the user
+  // only sees a bare "icu.dll was not found" from the loader -- fail here,
+  // where a readable explanation fits. The MSVC runtime is app-local (see the
+  // workflow), so it isn't checked here.
+  if not FileExists(ExpandConstant('{sys}\icu.dll')) then
+  begin
+    // Silent installs have nobody to read a message box; just abort there.
+    if not WizardSilent then
+      MsgBox('UbiBot Serial Assistant needs Windows 10 version 1703 or later.'
+             + #13#10 + #13#10
+             + 'This PC is missing the Windows ICU library (icu.dll), which the app requires.'
+             + #13#10 + #13#10
+             + 'UbiBot 串口助手需要 Windows 10 1703 或更高版本：本机缺少系统组件 icu.dll。',
+             mbCriticalError, MB_OK);
+    Result := False;
+  end;
+end;

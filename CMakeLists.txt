@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.21)
 
 
 project(UbiBotSerialAssistant
-    VERSION 0.9.1.1
+    VERSION 0.9.1.2
     DESCRIPTION "UbiBot Serial Assistant"
     LANGUAGES CXX
 )
@@ -148,6 +148,18 @@ if(WIN32)
     target_sources(UbiBotSerialAssistant PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/app_version.rc
     )
+
+    # Declare Windows 10 as the minimum in the PE header (the default is 6.0,
+    # i.e. Vista). Qt 6 needs Windows 10 anyway, and an honest minimum makes
+    # the loader show "This application requires a newer version of Windows"
+    # on Windows 7/8.1 instead of the misleading "icu.dll was not found" that
+    # falls out of Qt's own ICU import (icuuc.dll forwards to the OS's
+    # icu.dll, which only exists since Windows 10 1703).
+    if(MSVC)
+        target_link_options(UbiBotSerialAssistant PRIVATE /SUBSYSTEM:WINDOWS,10.0)
+    else()
+        target_link_options(UbiBotSerialAssistant PRIVATE -Wl,--subsystem,windows:10.0)
+    endif()
 endif()
 
 qt_add_translations(UbiBotSerialAssistant

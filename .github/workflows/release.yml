@@ -136,6 +136,54 @@ jobs:
           # without needing to know QT_ROOT_DIR's exact layout.
           windeployqt.exe deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe --release
 
+      # windeployqt only deploys the MSVC runtime when it can find it through a
+      # Visual Studio developer environment (VCINSTALLDIR), which this job
+      # deliberately doesn't set up (no msvc-dev-cmd, see the Configure step).
+      # The packages shipped without msvcp140*/vcruntime140* as a result, and
+      # any machine without the VC++ 2015-2022 redistributable installed died
+      # at startup with "msvcp140_2.dll was not found". Copying those same
+      # DLLs next to the .exe ("app-local deployment") is explicitly supported
+      # by Microsoft and removes the dependency on the user's machine having
+      # the redistributable at all.
+      - name: Add MSVC runtime (app-local)
+        shell: pwsh
+        run: |
+          $candidates = Get-ChildItem -Path "$env:ProgramFiles\Microsoft Visual Studio\*\*\VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT" -Directory -ErrorAction SilentlyContinue
+          if (-not $candidates) { throw "No MSVC redist folder found under $env:ProgramFiles\Microsoft Visual Studio" }
+          # Newest redist version wins (14.44.x over 14.29.x); the two-digit
+          # minor is what makes the plain string sort correct here.
+          $crt = $candidates | Sort-Object { $_.Parent.Name } -Descending | Select-Object -First 1
+          Write-Output "Copying app-local CRT from $($crt.FullName)"
+          Copy-Item "$($crt.FullName)\*.dll" "deploy\${{ env.APP_NAME }}\" -Force
+
+      # Guards the exact failure above: builds must never ship a package whose
+      # CRT imports aren't satisfied by the files next to the .exe.
+      - name: Verify MSVC runtime is in the package
+        shell: pwsh
+        run: |
+          $required = 'msvcp140.dll', 'msvcp140_1.dll', 'msvcp140_2.dll', 'vcruntime140.dll', 'vcruntime140_1.dll'
+          $missing = $required | Where-Object { -not (Test-Path "deploy\${{ env.APP_NAME }}\$_") }
+          if ($missing) { throw "MSVC runtime missing from deploy folder: $($missing -join ', ')" }
+
+      # The PE header's minimum-OS fields come from CMakeLists.txt's
+      # /SUBSYSTEM:WINDOWS,10.0. Verify the linker actually took it, since a
+      # silent fallback to 6.0 (the MSVC default) is exactly what makes old
+      # systems report a bogus "icu.dll not found" instead of "this app needs
+      # a newer Windows".
+      - name: Verify minimum Windows version in the exe
+        shell: pwsh
+        run: |
+          $exe = "deploy\${{ env.APP_NAME }}\${{ env.APP_NAME }}.exe"
+          $bytes = [IO.File]::ReadAllBytes($exe)
+          # IMAGE_OPTIONAL_HEADER.MajorSubsystemVersion: e_lfanew + 24 + 0x30
+          # (same offset for PE32 and PE32+, whose differing ImageBase width is
+          # offset by PE32's extra BaseOfData field).
+          $pe = [BitConverter]::ToInt32($bytes, 0x3C)
+          $major = [BitConverter]::ToUInt16($bytes, $pe + 24 + 0x30)
+          $minor = [BitConverter]::ToUInt16($bytes, $pe + 24 + 0x32)
+          Write-Output "Minimum (subsystem) Windows version: $major.$minor"
+          if ($major -lt 10) { throw "Exe declares minimum Windows $major.$minor, expected 10.0" }
+
       # The installer is what end users are pointed at; the .zip below stays
       # for portable use AND is what the in-app self-updater downloads (see
       # docs/app-self-update.md) -- both are built from the same deploy

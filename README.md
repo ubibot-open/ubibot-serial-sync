@@ -33,6 +33,14 @@ the in-app updater (`Help → Check for software update`) needs to replace files
 without elevation. The portable `.zip` is the same build with no shortcuts and
 works from any folder.
 
+Windows requirements: **Windows 10 (version 1703 or later)** — Qt 6 itself
+wants 1809+, and the app needs the system ICU library `icu.dll` that ships
+with 1703+. Older systems now get a plain "requires a newer version of
+Windows" from the loader rather than a baffling missing-DLL error, and the
+installer checks the same thing up front. The packages carry the MSVC
+runtime (`msvcp140*.dll`, `vcruntime140*.dll`) next to the `.exe`, so
+installing the Visual C++ redistributable separately is not required.
+
 Neither the Windows `.exe` nor the macOS `.app`/`.dmg` is code-signed, so first
 run triggers a stock "unknown publisher" warning from SmartScreen/Gatekeeper
 — click through it (or right-click → Open on macOS) same as any other

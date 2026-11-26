@@ -90,6 +90,22 @@ copy build\Release\UbiBotSerialAssistant.exe deploy\UbiBotSerialAssistant\
 C:/Qt/6.11.0/msvc2022_64/bin/windeployqt.exe deploy/UbiBotSerialAssistant/UbiBotSerialAssistant.exe --release
 ```
 
+`windeployqt` only deploys the MSVC runtime when it can find it through a
+Visual Studio developer environment (`VCINSTALLDIR`). This shell is one, so it
+usually does — but don't rely on it: a package without `msvcp140*.dll` /
+`vcruntime140*.dll` fails on any machine that doesn't already have the VC++
+redistributable installed. Copy them app-locally (Microsoft supports this)
+either way:
+
+```powershell
+$crt = Get-ChildItem "$env:ProgramFiles\Microsoft Visual Studio\*\*\VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT" -Directory |
+       Sort-Object { $_.Parent.Name } -Descending | Select-Object -First 1
+Copy-Item "$($crt.FullName)\*.dll" deploy\UbiBotSerialAssistant\ -Force
+```
+
+The CI build does exactly this (see the workflow's "Add MSVC runtime
+(app-local)" step) and fails if the DLLs are missing from the folder.
+
 ### Windows installer (Inno Setup)
 
 The Release also ships a `-setup.exe` built from the same
@@ -105,10 +121,10 @@ root, after the deploy folder above is ready:
 
 ```powershell
 & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
-  "/DAppVersion=0.8.2.1" `
+  "/DAppVersion=0.9.1.2" `
   "/DSourceDir=$PWD\deploy\UbiBotSerialAssistant" `
   "/DOutputDir=$PWD" `
-  "/DOutputBaseFilename=UbiBotSerialAssistant-0.8.2.1-windows-x64-setup" `
+  "/DOutputBaseFilename=UbiBotSerialAssistant-0.9.1.2-windows-x64-setup" `
   "packaging\windows\installer.iss"
 ```
 
@@ -130,6 +146,11 @@ Things worth knowing about the script:
   shows the version from the last installer run; the uninstaller itself keeps
   working because the updater preserves Inno's `unins*` files (see
   `SelfUpdateInstaller`).
+- `InitializeSetup()` refuses to install when `%SystemRoot%\System32\icu.dll`
+  is missing (Windows older than 10 1703, or a stripped image): Qt's
+  `icuuc.dll` is a pure forwarder to that system DLL, so the app couldn't load
+  at all and the user would only see a bare "icu.dll was not found". The
+  message is bilingual because the wizard itself is English-only.
 - The wizard is English-only (Inno doesn't ship a Chinese translation; adding
   one would mean vendoring a `ChineseSimplified.isl`).
 
